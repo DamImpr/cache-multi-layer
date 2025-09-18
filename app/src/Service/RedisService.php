@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Cache;
+namespace App\Service;
 
 use Redis;
 
@@ -20,8 +20,8 @@ class RedisService extends Redis {
     /**
      * costruttore privato per consentire di instanziare la classe solo all'interno dei propri metodi
      */
-    private function __construct() {
-        $this->pconnect("redis-server", $_SERVER['REDIS_PORT']);
+    private function __construct(string $host, int $port) {
+        $this->pconnect($host, $port);
     }
 
     /**
@@ -41,5 +41,4 @@ class RedisService extends Redis {
     public function __destruct() {
         $this->close();
     }
-
 }

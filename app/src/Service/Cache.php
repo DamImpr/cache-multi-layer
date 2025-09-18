@@ -1,7 +1,11 @@
 <?php
 
-namespace App\Service\Cache;
+namespace App\Service;
 
+use App\Enum\CacheEnum;
+use App\Exception\CacheMissingConfigurationException;
+use App\Exception\ClearCacheDeniedException;
+use App\Interface\Cacheable;
 use InvalidArgumentException;
 
 /**
@@ -20,8 +24,9 @@ abstract class Cache {
      * La costruzione di ogni cache prevede obbligatoriamente la specifica del "TimeToLive"
      * @param ?int $ttl time to live specificato in secondi
      * @throws InvalidArgumentException se il valore di ttl non è un numero positivo
+     * @throws CacheMissingConfigurationException
      */
-    public function __construct(int $ttl) {
+    public function __construct(int $ttl,array $configuration = []) {
         if ($ttl <= 0) {
             throw new InvalidArgumentException("ttl must be positive, not like your life");
         }

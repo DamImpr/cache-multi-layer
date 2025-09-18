@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Cache;
+namespace App\Service;
 
 use Memcache;
 

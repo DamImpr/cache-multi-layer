@@ -1,26 +1,28 @@
 <?php
 
-namespace App\Service\Cache;
+namespace App\Service;
 
+use App\Exception\CacheMissingConfigurationException;
+use App\Exception\ClearCacheDeniedException;
+use App\Interface\Cacheable;
 use Override;
 
 /**
- * Implementazione della cache APCU 
- * per la documentazione dei metodi, si rimanda alla classe astratta Cache
  * 
+ * Implementazione della cache Redis 
+ * per la documentazione dei metodi, si rimanda all'interfaccia Cache
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
- * @see Cache
  */
-class ApcuCache extends Cache {
+class RedisCache extends Cache {
 
     /**
      * 
      * {@inheritDoc}
      */
-    #[\Override]
+    #[Override]
     public function fetchObject(Cacheable $object, string $key): bool {
         $this->assertObject($object);
-        $data = \apcu_fetch($key);
+        $data = $this->redis->get($key);
         if ($data !== false) {
             $object->unserialize($data);
             return true;
@@ -32,10 +34,10 @@ class ApcuCache extends Cache {
      * 
      * {@inheritDoc}
      */
-    #[\Override]
+    #[Override]
     public function getCollectionObject(string $class, string $key): ?array {
         $this->assertClass($class);
-        $data = \apcu_fetch($key);
+        $data = $this->redis->get($key);
         $res = [];
         if ($data === false) {
             return null;
@@ -53,27 +55,27 @@ class ApcuCache extends Cache {
      * 
      * {@inheritDoc}
      */
-    #[\Override]
+    #[Override]
     public function setCollectionObject(array $collection, string $key, ?int $ttl = null): void {
         $actualTTL = $this->checkTTL($ttl);
+        array_walk($collection, [$this, 'assertObject']);
         $array = [];
-        array_walk($collection, [$this,'assertObject']);
         foreach ($collection as $c) {
             $array[] = $c->serialize();
         }
         $data = json_encode($array);
-        \apcu_store($key, $data, $actualTTL);
+        $this->redis->set($key, $data, $actualTTL);
     }
 
     /**
      * 
      * {@inheritDoc}
      */
-    #[\Override]
+    #[Override]
     public function setObject(Cacheable $object, string $key, ?int $ttl = null): void {
         $actualTTL = $this->checkTTL($ttl);
         $data = $object->serialize();
-        \apcu_store($key, $data, $actualTTL);
+        $this->redis->set($key, $data, $actualTTL);
     }
 
     /**
@@ -81,7 +83,7 @@ class ApcuCache extends Cache {
      * {@inheritDoc}
      */
     public function clear(string $key): bool {
-        return \apcu_delete($key);
+        return (bool) $this->redis->del($key);
     }
 
     /**
@@ -89,16 +91,16 @@ class ApcuCache extends Cache {
      * {@inheritDoc}
      */
     public function clearAllCache(): bool {
-        return \apcu_clear_cache();
+        throw new ClearCacheDeniedException("CLEAR ALL CACHE ON REDIS IS FORBIDDEN");
     }
 
     /**
      * 
      * {@inheritDoc}
      */
-    #[\Override]
+    #[Override]
     public function getCollectionPrimitive(string $key): ?array {
-        $data = \apcu_fetch($key);
+        $data = $this->redis->get($key);
         if ($data === false) {
             return null;
         }
@@ -109,82 +111,85 @@ class ApcuCache extends Cache {
      * 
      * {@inheritDoc}
      */
-    #[\Override]
+    #[Override]
     public function setCollectionPrimitive(array $collection, string $key, ?int $ttl = null): void {
         $actualTTL = $this->checkTTL($ttl);
         foreach ($collection as $v) {
             $this->assertPrimitive($v);
         }
-        \apcu_store($key, json_encode($collection), $actualTTL);
+        $this->redis->set($key, json_encode($collection), $actualTTL);
     }
 
     /**
      * 
      * {@inheritDoc}
      */
-    #[\Override]
+    #[Override]
     public function getFloat(string $key): ?float {
-        $var = \apcu_fetch($key);
-        if ($var === false) {
+        $data = $this->redis->get($key);
+        if ($data === false) {
             return null;
         }
-        return (float)json_decode((string) $var);
+        return (float) json_decode((string) $data);
     }
 
     /**
      * 
      * {@inheritDoc}
      */
-    #[\Override]
+    #[Override]
     public function getInteger(string $key): ?int {
-        $var = \apcu_fetch($key);
-        if ($var === false) {
+        $data = $this->redis->get($key);
+        if ($data === false) {
             return null;
         }
-        return (int)json_decode((string) $var);
+        return (int) json_decode((string) $data);
     }
 
     /**
      * 
      * {@inheritDoc}
      */
-    #[\Override]
+    #[Override]
     public function getString(string $key): ?string {
-        $var = \apcu_fetch($key);
-        if ($var === false) {
+        $data = $this->redis->get($key);
+        if ($data === false) {
             return null;
         }
-        return json_decode((string) $var);
+        return json_decode((string) $data);
     }
 
     /**
      * 
      * {@inheritDoc}
      */
-    #[\Override]
+    #[Override]
     public function setFloat(float $var, string $key, ?int $ttl = null): void {
         $actualTTL = $this->checkTTL($ttl);
-        \apcu_store($key, json_encode($var), $actualTTL);
+        $data = json_encode($var);
+        $this->redis->set($key, $data, $actualTTL);
     }
 
     /**
      * 
      * {@inheritDoc}
      */
-    #[\Override]
+    #[Override]
     public function setInteger(int $var, string $key, ?int $ttl = null): void {
         $actualTTL = $this->checkTTL($ttl);
-        \apcu_store($key, json_encode($var), $actualTTL);
+        $data = json_encode($var);
+        $this->redis->set($key, $data, $actualTTL);
     }
 
     /**
      * 
      * {@inheritDoc}
      */
-    #[\Override]
+    #[Override]
     public function setString(string $var, string $key, ?int $ttl = null): void {
         $actualTTL = $this->checkTTL($ttl);
-        \apcu_store($key, json_encode($var), $actualTTL);
+        $data = json_encode($var);
+        $this->redis->set($key, $data, $actualTTL);
     }
 
     /**
@@ -194,18 +199,47 @@ class ApcuCache extends Cache {
     #[Override]
     public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): int {
         $actualTTL = $this->checkTTL($ttl);
-        $success = true;
-        return apcu_inc($key, 1, $success, $actualTTL);
+        $value = $this->redis->incr($key);
+        if ($value <= $checkIncrementToExpire) {
+            $this->redis->expire($key, $actualTTL);
+        }
+        return $value;
     }
 
     /**
      * 
      * {@InheritDoc}
      */
-    #[Override]
     public function getRemainingTTL(string $key): ?int {
-        $keyInfo = apcu_key_info($key);
-        return $keyInfo !== null ? $keyInfo['ttl'] : null;
+        $ttl = $this->redis->ttl($key);
+        return $ttl !== false ? $ttl : null;
     }
 
+    /**
+     * 
+     * {@InheritDoc}
+     */
+    public function __construct(int $ttl, array $configuration = []) {
+        parent::__construct($ttl, $configuration);
+        $this->init($configuration);
+        $this->redis = new Redis();
+    }
+
+    private function init(array $configuration): void {
+        $mandatoryKeys = [
+            'redis_server'
+            , 'redis_port'
+        ];
+        if (!empty(array_diff_key($mandatoryKeys, array_keys($configuration)))) {
+            throw new CacheMissingConfigurationException(implode(',', $mandatoryKeys) . " are mandatory configurations");
+        }
+        $this->redis = new \Redis();
+        if (array_key_exists('persistent', $configuration) && $configuration['persistent']) {
+            $this->redis->pconnect($configuration['redis_server'], $configuration['redis_port']);
+        } else {
+            $this->redis->connect($configuration['redis_server'], $configuration['redis_port']);
+        }
+    }
+
+    private readonly Redis $redis;
 }

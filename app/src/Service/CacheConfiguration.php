@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Cache;
+namespace App\Service;
 
 use InvalidArgumentException;
 
@@ -42,7 +42,7 @@ class CacheConfiguration {
      * @see CacheEnum
      * @throws InvalidArgumentException nel caso sia già stato settato il sistema di cache passato
      */
-    public function appendCacheLevel(int $enum, int $ttl): void {
+    public function appendCacheLevel(\App\Enum\CacheEnum $enum, int $ttl,array $configuration = []): void {
         $this->check($enum);
         $this->configuration[$this->currentLevel] = $this->factoryCache($enum, $ttl);
         $this->priority[$this->currentLevel] = $enum;

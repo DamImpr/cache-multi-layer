@@ -1,15 +1,17 @@
 <?php
 
-namespace App\Service\Cache;
+namespace App\Service;
 
+use Override;
 
 /**
+ * Implementazione della cache APCU 
+ * per la documentazione dei metodi, si rimanda alla classe astratta Cache
  * 
- * Implementazione della cache Redis 
- * per la documentazione dei metodi, si rimanda all'interfaccia Cache
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
+ * @see Cache
  */
-class RedisCache extends Cache {
+class ApcuCache extends Cache {
 
     /**
      * 
@@ -18,8 +20,7 @@ class RedisCache extends Cache {
     #[\Override]
     public function fetchObject(Cacheable $object, string $key): bool {
         $this->assertObject($object);
-        $redis = RedisService::getInstance();
-        $data = $redis->get($key);
+        $data = \apcu_fetch($key);
         if ($data !== false) {
             $object->unserialize($data);
             return true;
@@ -34,8 +35,7 @@ class RedisCache extends Cache {
     #[\Override]
     public function getCollectionObject(string $class, string $key): ?array {
         $this->assertClass($class);
-        $redis = RedisService::getInstance();
-        $data = $redis->get($key);
+        $data = \apcu_fetch($key);
         $res = [];
         if ($data === false) {
             return null;
@@ -56,14 +56,13 @@ class RedisCache extends Cache {
     #[\Override]
     public function setCollectionObject(array $collection, string $key, ?int $ttl = null): void {
         $actualTTL = $this->checkTTL($ttl);
-        $redis = RedisService::getInstance();
-        array_walk($collection, [$this,'assertObject']);
         $array = [];
+        array_walk($collection, [$this,'assertObject']);
         foreach ($collection as $c) {
             $array[] = $c->serialize();
         }
         $data = json_encode($array);
-        $redis->set($key, $data, $actualTTL);
+        \apcu_store($key, $data, $actualTTL);
     }
 
     /**
@@ -73,9 +72,8 @@ class RedisCache extends Cache {
     #[\Override]
     public function setObject(Cacheable $object, string $key, ?int $ttl = null): void {
         $actualTTL = $this->checkTTL($ttl);
-        $redis = RedisService::getInstance();
         $data = $object->serialize();
-        $redis->set($key, $data, $actualTTL);
+        \apcu_store($key, $data, $actualTTL);
     }
 
     /**
@@ -83,8 +81,7 @@ class RedisCache extends Cache {
      * {@inheritDoc}
      */
     public function clear(string $key): bool {
-        $redis = RedisService::getInstance();
-        return (bool)$redis->del($key);
+        return \apcu_delete($key);
     }
 
     /**
@@ -92,7 +89,7 @@ class RedisCache extends Cache {
      * {@inheritDoc}
      */
     public function clearAllCache(): bool {
-        throw new ClearCacheDeniedException("CLEAR ALL CACHE ON REDIS IS FORBIDDEN");
+        return \apcu_clear_cache();
     }
 
     /**
@@ -101,8 +98,7 @@ class RedisCache extends Cache {
      */
     #[\Override]
     public function getCollectionPrimitive(string $key): ?array {
-        $redis = RedisService::getInstance();
-        $data = $redis->get($key);
+        $data = \apcu_fetch($key);
         if ($data === false) {
             return null;
         }
@@ -115,12 +111,11 @@ class RedisCache extends Cache {
      */
     #[\Override]
     public function setCollectionPrimitive(array $collection, string $key, ?int $ttl = null): void {
-        $redis = RedisService::getInstance();
         $actualTTL = $this->checkTTL($ttl);
         foreach ($collection as $v) {
             $this->assertPrimitive($v);
         }
-        $redis->set($key, json_encode($collection), $actualTTL);
+        \apcu_store($key, json_encode($collection), $actualTTL);
     }
 
     /**
@@ -129,12 +124,11 @@ class RedisCache extends Cache {
      */
     #[\Override]
     public function getFloat(string $key): ?float {
-        $redis = RedisService::getInstance();
-        $data = $redis->get($key);
-        if ($data === false) {
+        $var = \apcu_fetch($key);
+        if ($var === false) {
             return null;
         }
-        return (float)json_decode((string) $data);
+        return (float)json_decode((string) $var);
     }
 
     /**
@@ -143,12 +137,11 @@ class RedisCache extends Cache {
      */
     #[\Override]
     public function getInteger(string $key): ?int {
-        $redis = RedisService::getInstance();
-        $data = $redis->get($key);
-        if ($data === false) {
+        $var = \apcu_fetch($key);
+        if ($var === false) {
             return null;
         }
-        return (int)json_decode((string) $data);
+        return (int)json_decode((string) $var);
     }
 
     /**
@@ -157,12 +150,11 @@ class RedisCache extends Cache {
      */
     #[\Override]
     public function getString(string $key): ?string {
-        $redis = RedisService::getInstance();
-        $data = $redis->get($key);
-        if ($data === false) {
+        $var = \apcu_fetch($key);
+        if ($var === false) {
             return null;
         }
-        return json_decode((string) $data);
+        return json_decode((string) $var);
     }
 
     /**
@@ -172,9 +164,7 @@ class RedisCache extends Cache {
     #[\Override]
     public function setFloat(float $var, string $key, ?int $ttl = null): void {
         $actualTTL = $this->checkTTL($ttl);
-        $redis = RedisService::getInstance();
-        $data = json_encode($var);
-        $redis->set($key, $data, $actualTTL);
+        \apcu_store($key, json_encode($var), $actualTTL);
     }
 
     /**
@@ -184,9 +174,7 @@ class RedisCache extends Cache {
     #[\Override]
     public function setInteger(int $var, string $key, ?int $ttl = null): void {
         $actualTTL = $this->checkTTL($ttl);
-        $redis = RedisService::getInstance();
-        $data = json_encode($var);
-        $redis->set($key, $data, $actualTTL);
+        \apcu_store($key, json_encode($var), $actualTTL);
     }
 
     /**
@@ -196,34 +184,34 @@ class RedisCache extends Cache {
     #[\Override]
     public function setString(string $var, string $key, ?int $ttl = null): void {
         $actualTTL = $this->checkTTL($ttl);
-        $redis = RedisService::getInstance();
-        $data = json_encode($var);
-        $redis->set($key, $data, $actualTTL);
+        \apcu_store($key, json_encode($var), $actualTTL);
     }
 
     /**
      * 
      * {@InheritDoc}
      */
-    #[\Override]
-    public function increment(string $key, ?int $ttl = null,int $checkIncrementToExpire = 1): int {
+    #[Override]
+    public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): int {
         $actualTTL = $this->checkTTL($ttl);
-        $redis = RedisService::getInstance();
-        $value = $redis->incr($key);
-        if ($value <= $checkIncrementToExpire) {
-            $redis->expire($key, $actualTTL);
-        }
-        return $value;
+        $success = true;
+        return apcu_inc($key, 1, $success, $actualTTL);
     }
-    
+
     /**
      * 
      * {@InheritDoc}
      */
+    #[Override]
     public function getRemainingTTL(string $key): ?int {
-        $redis = RedisService::getInstance();
-        $ttl = $redis->ttl($key);
-        return $ttl !== false ? $ttl : null;
+        $keyInfo = apcu_key_info($key);
+        return $keyInfo !== null ? $keyInfo['ttl'] : null;
     }
+    
+    
+    public function __construct(int $ttl, array $configuration = []) {
+        parent::__construct($ttl, $configuration);
+    }
+
 
 }
