@@ -1,7 +1,5 @@
 FROM php:8.3-cli-alpine
 
-ARG APP_PATH
-
 RUN apk add --no-cache \
     libzip-dev \
     zlib-dev \
