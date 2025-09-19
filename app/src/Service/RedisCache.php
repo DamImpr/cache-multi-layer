@@ -15,67 +15,72 @@ use Override;
  */
 class RedisCache extends Cache {
 
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    #[Override]
-    public function fetchObject(Cacheable $object, string $key): bool {
-        $this->assertObject($object);
-        $data = $this->redis->get($key);
-        if ($data !== false) {
-            $object->unserialize($data);
-            return true;
+    #[\Override]
+    public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): int {
+        $value = $this->redis->decr($key);
+        if ($value <= $checkDecrementToExpire) {
+            $this->redis->expire($key, $this->getTtlToUse($ttl));
         }
-        return false;
+        return $value;
     }
 
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    #[Override]
-    public function getCollectionObject(string $class, string $key): ?array {
-        $this->assertClass($class);
-        $data = $this->redis->get($key);
-        $res = [];
-        if ($data === false) {
-            return null;
+    #[\Override]
+    public function get(string $key, ?string $class = null): int|float|string|Cacheable|array|null {
+        if ($class !== null && !in_array(Cacheable::class, class_implements($class))) {
+            //throw error, ma vedi di generalizzare questo livello
         }
-        $array = json_decode((string) $data);
-        foreach ($array as $row) {
-            $obj = new $class();
-            $obj->unserialize($row);
-            $res[] = $obj;
+        $val = json_decode($this->redis->get($key));
+        return is_array($val) ? $this->unserializeValArray($val) : $this->unserializeVal($key, $class);
+    }
+
+    #[\Override]
+    public function set(int|float|string|Cacheable|array $val, string $key, ?int $ttl = null): void {
+        $data = is_array($val) ? $this->serializeValArray($val) : $this->serializeVal($val);
+        $this->redis->set($key, json_encode($data), $this->getTtlToUse($ttl));
+    }
+
+    private function serializeVal(int|float|string|Cacheable $val): int|float|string {
+        if ($val instanceof Cacheable) {
+            return $val->serialize();
+        }
+        return $val;
+    }
+
+    private function unserializeVal(int|float|string $val, ?string $class): int|float|string|Cacheable {
+        if ($class !== null) {
+            $res = new $class();
+            $res->unserialize($val);
+        }
+        return $val;
+    }
+
+    private function unserializeValArray(array $val): array {
+        $res = [];
+        foreach ($val as $key => $value) {
+            $res[$key] = $this->unserializeVal($value);
+        }
+        return $res;
+    }
+
+    private function serializeValArray(array $val): array {
+        $res = [];
+        foreach ($val as $key => $value) {
+            $res[$key] = $this->serializeVal($value);
         }
         return $res;
     }
 
     /**
      * 
-     * {@inheritDoc}
+     * {@InheritDoc}
      */
     #[Override]
-    public function setCollectionObject(array $collection, string $key, ?int $ttl = null): void {
-        $actualTTL = $this->checkTTL($ttl);
-        array_walk($collection, [$this, 'assertObject']);
-        $array = [];
-        foreach ($collection as $c) {
-            $array[] = $c->serialize();
+    public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): int {
+        $value = $this->redis->incr($key);
+        if ($value <= $checkIncrementToExpire) {
+            $this->redis->expire($key, $this->getTtlToUse($ttl));
         }
-        $data = json_encode($array);
-        $this->redis->set($key, $data, $actualTTL);
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    #[Override]
-    public function setObject(Cacheable $object, string $key, ?int $ttl = null): void {
-        $actualTTL = $this->checkTTL($ttl);
-        $data = $object->serialize();
-        $this->redis->set($key, $data, $actualTTL);
+        return $value;
     }
 
     /**
@@ -92,118 +97,6 @@ class RedisCache extends Cache {
      */
     public function clearAllCache(): bool {
         throw new ClearCacheDeniedException("CLEAR ALL CACHE ON REDIS IS FORBIDDEN");
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    #[Override]
-    public function getCollectionPrimitive(string $key): ?array {
-        $data = $this->redis->get($key);
-        if ($data === false) {
-            return null;
-        }
-        return json_decode((string) $data, true);
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    #[Override]
-    public function setCollectionPrimitive(array $collection, string $key, ?int $ttl = null): void {
-        $actualTTL = $this->checkTTL($ttl);
-        foreach ($collection as $v) {
-            $this->assertPrimitive($v);
-        }
-        $this->redis->set($key, json_encode($collection), $actualTTL);
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    #[Override]
-    public function getFloat(string $key): ?float {
-        $data = $this->redis->get($key);
-        if ($data === false) {
-            return null;
-        }
-        return (float) json_decode((string) $data);
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    #[Override]
-    public function getInteger(string $key): ?int {
-        $data = $this->redis->get($key);
-        if ($data === false) {
-            return null;
-        }
-        return (int) json_decode((string) $data);
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    #[Override]
-    public function getString(string $key): ?string {
-        $data = $this->redis->get($key);
-        if ($data === false) {
-            return null;
-        }
-        return json_decode((string) $data);
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    #[Override]
-    public function setFloat(float $var, string $key, ?int $ttl = null): void {
-        $actualTTL = $this->checkTTL($ttl);
-        $data = json_encode($var);
-        $this->redis->set($key, $data, $actualTTL);
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    #[Override]
-    public function setInteger(int $var, string $key, ?int $ttl = null): void {
-        $actualTTL = $this->checkTTL($ttl);
-        $data = json_encode($var);
-        $this->redis->set($key, $data, $actualTTL);
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    #[Override]
-    public function setString(string $var, string $key, ?int $ttl = null): void {
-        $actualTTL = $this->checkTTL($ttl);
-        $data = json_encode($var);
-        $this->redis->set($key, $data, $actualTTL);
-    }
-
-    /**
-     * 
-     * {@InheritDoc}
-     */
-    #[Override]
-    public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): int {
-        $actualTTL = $this->checkTTL($ttl);
-        $value = $this->redis->incr($key);
-        if ($value <= $checkIncrementToExpire) {
-            $this->redis->expire($key, $actualTTL);
-        }
-        return $value;
     }
 
     /**
