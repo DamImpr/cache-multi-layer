@@ -1,21 +1,17 @@
 <?php
 
-
-
-namespace App\Test\Service;
+namespace App\Test;
 
 use PHPUnit\Framework\TestCase;
-
 /**
- * Description of Foo
+ * Description of FooTest
  *
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
-class Foo extends TestCase {
+class BarTest  extends TestCase {
     
     public function testAdd()
     {
-        $this->assertEquals(5, 3+2);
+        $this->assertEquals(7, 3+2);
     }
-    
 }

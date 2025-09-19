@@ -107,7 +107,7 @@ abstract class Cache {
      * @return ?array array di oggetti in caso di successo, null altrimenti
      */
     public abstract function getCollectionPrimitive(string $key): ?array;
-
+    
     /**
      * Metodo che memorizza in cache una variabile di tipo intero.
      * @param int $var la variabile intera da memorizzare
@@ -116,48 +116,6 @@ abstract class Cache {
      * @return void
      */
     public abstract function setInteger(int $var, string $key, ?int $ttl = null): void;
-
-    /**
-     * Metodo che memorizza in cache una variabile di tipo float.
-     * @param float $var la variabile float da memorizzare
-     * @param string $key la chiave da associare
-     * @param ?int $ttl time to live specificato in secondi, nel caso non specificato, viene utilizzato quello passato nel costruttore.
-     * @return void
-     */
-    public abstract function setFloat(float $var, string $key, ?int $ttl = null): void;
-
-    /**
-     * Metodo che memorizza in cache una variabile di tipo stringa.
-     * @param string $var la stringa da memorizzare
-     * @param string $key la chiave da associare
-     * @param ?int $ttl time to live specificato in secondi, nel caso non specificato, viene utilizzato quello passato nel costruttore.
-     * @return void
-     */
-    public abstract function setString(string $var, string $key, ?int $ttl = null): void;
-
-    /**
-     * metodo che restituisce una variabile intera memorizzata in cache associata alla chiave passata in ingresso,
-     * oppure null se alla chiave non è associato nulla
-     * @param string $key la chiave utilizzata per la ricerca in cache
-     * @return ?int la variabile intera in caso di successo della ricerca, null altrimenti
-     */
-    public abstract function getInteger(string $key): ?int;
-
-    /**
-     * metodo che restituisce una variabile float memorizzata in cache associata alla chiave passata in ingresso,
-     * oppure null se alla chiave non è associato nulla
-     * @param string $key la chiave utilizzata per la ricerca in cache
-     * @return ?float la variabile float in caso di successo della ricerca, null altrimenti
-     */
-    public abstract function getFloat(string $key): ?float;
-
-    /**
-     * metodo che restituisce una stringa memorizzata in cache associata alla chiave passata in ingresso,
-     * oppure null se alla chiave non è associato nulla
-     * @param string $key la chiave utilizzata per la ricerca in cache
-     * @return ?string la stringa in caso di successo della ricerca, null altrimenti
-     */
-    public abstract function getString(string $key): ?string;
 
     /**
      * Metodo che cancella il valore di una chiave dalla cache.
