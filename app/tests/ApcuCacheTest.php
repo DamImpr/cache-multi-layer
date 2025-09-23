@@ -96,4 +96,39 @@ class ApcuCacheTest extends TestCase {
         $val = $this->apcuCache->get($key);
         $this->assertNull($val);
     }
+    
+    public function testIncrDecr():void{
+        $key = 'test_incr';
+        $this->assertEquals(1, $this->apcuCache->increment($key));
+        $this->assertEquals(2, $this->apcuCache->increment($key));
+        $this->assertEquals(3, $this->apcuCache->increment($key));
+        $this->assertEquals(2, $this->apcuCache->decrement($key));
+        $this->assertEquals(1, $this->apcuCache->decrement($key));
+    }
+    
+    public function testClear():void{
+        $key = 'test_clear';
+        $x = 1;
+        $res = $this->apcuCache->set($key, $x);
+        $this->assertTrue($res);
+        $resClear = $this->apcuCache->clear($key);
+        $this->assertTrue($resClear);
+        $val = $this->apcuCache->get($key);
+        $this->assertNull($val);
+    }
+    public function testClearAllCache():void{
+        $key = 'test_clear';
+        $key2 = 'test_clear2';
+        $x = 1;
+        $res = $this->apcuCache->set($key, $x);
+        $res2 = $this->apcuCache->set($key2, $x);
+        $this->assertTrue($res);
+        $this->assertTrue($res2);
+        $resClear = $this->apcuCache->clearAllCache();
+        $this->assertTrue($resClear);
+        $val = $this->apcuCache->get($key);
+        $this->assertNull($val);
+        $val2 = $this->apcuCache->get($key2);
+        $this->assertNull($val2);
+    }
 }
