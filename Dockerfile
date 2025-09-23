@@ -4,15 +4,24 @@ RUN apk add --no-cache \
     libzip-dev \
     zlib-dev \
     oniguruma-dev \
+    && apk add --no-cache --virtual .build-deps \
     gcc \
     make \
     autoconf \
     libc-dev \
     && pecl install apcu redis \
     && docker-php-ext-enable apcu redis \
-    && apk del gcc make autoconf libc-dev 
-COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer 
-COPY ./app /app
+    && apk del .build-deps
+
+COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
+RUN echo "apc.enable_cli=1" >> /usr/local/etc/php/php.ini
+RUN echo "apc.enable=1" >> /usr/local/etc/php/php.ini
 WORKDIR /app
-RUN composer install
-#CMD ['./vendor/bin/phpunit','./tests']
+
+COPY app/composer.json ./
+
+RUN composer install --no-interaction --no-scripts --no-autoloader --prefer-dist
+
+COPY ./app .
+
+RUN composer dump-autoload --optimize

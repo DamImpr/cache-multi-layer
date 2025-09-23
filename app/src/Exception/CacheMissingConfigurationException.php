@@ -5,7 +5,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/PHPClass.php to edit this template
  */
 
-namespace App\Exception;
+namespace CacheMultiLayer\Exception;
 
 /**
  * Description of CacheMissingConfigurationException

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exception;
+namespace CacheMultiLayer\Exception;
 
 use Exception;
 use Throwable;

@@ -2,4 +2,7 @@ services:
   test-sw:
     build: 
       context: .
+    volumes:
+      - ./app/src:/app/src
+      - ./app/tests:/app/tests
     command: ./vendor/bin/phpunit ./tests/

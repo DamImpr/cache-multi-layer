@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Service;
+namespace CacheMultiLayer\Service;
 
-use App\Enum\CacheEnum;
-use App\Exception\CacheMissingConfigurationException;
-use App\Exception\ClearCacheDeniedException;
-use App\Interface\Cacheable;
+use CacheMultiLayer\Enum\CacheEnum;
+use CacheMultiLayer\Exception\CacheMissingConfigurationException;
+use CacheMultiLayer\Exception\ClearCacheDeniedException;
+use CacheMultiLayer\Interface\Cacheable;
 use InvalidArgumentException;
 
 /**
@@ -39,16 +39,21 @@ abstract class Cache {
         return $this->ttl;
     }
 
-    public abstract function set(int|float|string|Cacheable|array $val, string $key, ?int $ttl = null): void;
+    /**
+     * 
+     */
+    public abstract function set( string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool;
 
-//    public abstract function setCollection(array $val, string $key, ?int $ttl = null): void;
-
+    /**
+     * 
+     */
     public abstract function get(string $key, ?string $class = null): int|float|string|Cacheable|array|null;
     
-    
+    /**
+     * 
+     */
     public abstract function getRemainingTTL(string $key): ?int;
-    
-    
+        
     /**
      * Metodo che cancella il valore di una chiave dalla cache.
      * @param string $key la chiave il cui il valore deve essere cancellato

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace CacheMultiLayer\Service;
 
 use Redis;
 
@@ -15,7 +15,7 @@ class RedisService extends Redis {
     /**
      * instanza unica di questa classe.
      */
-    private static ?\App\Service\Cache\RedisService $instance = null;
+    private static ?\CacheMultiLayer\Service\Cache\RedisService $instance = null;
 
     /**
      * costruttore privato per consentire di instanziare la classe solo all'interno dei propri metodi

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Service;
+namespace CacheMultiLayer\Service;
 
-use App\Exception\CacheMissingConfigurationException;
-use App\Exception\ClearCacheDeniedException;
-use App\Interface\Cacheable;
+use CacheMultiLayer\Exception\CacheMissingConfigurationException;
+use CacheMultiLayer\Exception\ClearCacheDeniedException;
+use CacheMultiLayer\Interface\Cacheable;
 use Override;
 
 /**
@@ -34,7 +34,7 @@ class RedisCache extends Cache {
     }
 
     #[\Override]
-    public function set(int|float|string|Cacheable|array $val, string $key, ?int $ttl = null): void {
+    public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): void {
         $data = is_array($val) ? $this->serializeValArray($val) : $this->serializeVal($val);
         $this->redis->set($key, json_encode($data), $this->getTtlToUse($ttl));
     }

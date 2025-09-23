@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Service;
+namespace CacheMultiLayer\Service;
 
-use App\Interface\Cacheable;
+use CacheMultiLayer\Interface\Cacheable;
 use Override;
 
 /**
@@ -20,8 +20,8 @@ class ApcuCache extends Cache {
     }
 
     #[\Override]
-    public function set(int|float|string|Cacheable|array $val, string $key, ?int $ttl = null): void {
-        apcu_store($val, $key, $this->getTtlToUse($ttl));
+    public function set(string $key,int|float|string|Cacheable|array $val,?int $ttl = null): bool {
+        return apcu_store($key,$val, $this->getTtlToUse($ttl));
     }
 
     #[\Override]
@@ -40,20 +40,13 @@ class ApcuCache extends Cache {
         return apcu_dec($key, 1, $success, $this->getTtlToUse($ttl));
     }
 
-    /**
-     * 
-     * {@InheritDoc}
-     */
     #[Override]
     public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): int {
         $success = true;
         return apcu_inc($key, 1, $success, $this->getTtlToUse($ttl));
     }
 
-    /**
-     * 
-     * {@InheritDoc}
-     */
+    
     #[Override]
     public function getRemainingTTL(string $key): ?int {
         $keyInfo = apcu_key_info($key);

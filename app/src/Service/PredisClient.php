@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace CacheMultiLayer\Service;
 
 use Predis\Client;
 
