@@ -3,6 +3,7 @@
 namespace CacheMultiLayer\Tests;
 
 use CacheMultiLayer\Service\ApcuCache;
+use CacheMultiLayer\Tests\Entity\Foo;
 use Override;
 use PHPUnit\Framework\TestCase;
 use TheSeer\Tokenizer\Exception;
@@ -15,13 +16,14 @@ use TheSeer\Tokenizer\Exception;
 class ApcuCacheTest extends TestCase {
 
     private ?ApcuCache $apcuCache = null;
-
+    private ?Foo $foo = null;
     #[Override]
     protected function setUp(): void {
         $this->apcuCache = new ApcuCache(60);
+        $this->foo = new Foo(1, "bar", [1,"foo",new Foo(2, "bar2", [2,null], null)], new Foo(3, "bar3", [3,null], null));
     }
 
-    #[\Override]
+    #[Override]
     public static function setUpBeforeClass(): void {
         set_error_handler(function ($errno, $errstr, $errfile, $errline): false {
             // error was suppressed with the @-operator
@@ -41,11 +43,47 @@ class ApcuCacheTest extends TestCase {
     }
 
     public function testInteger(): void {
-        $x = 5;
+        $x = 8;
         $key = 'test_integer';
         $res = $this->apcuCache->set($key, $x);
         $this->assertTrue($res);
         $val = $this->apcuCache->get($key);
         $this->assertEquals($val, $x);
+    }
+    
+    
+    public function testFloat(): void {
+        $x = 8.3;
+        $key = 'test_float';
+        $res = $this->apcuCache->set($key, $x);
+        $this->assertTrue($res);
+        $val = $this->apcuCache->get($key);
+        $this->assertEquals($val, $x);
+    }
+    
+    public function testString(): void {
+        $x = "foobar";
+        $key = 'test_string';
+        $res = $this->apcuCache->set($key, $x);
+        $this->assertTrue($res);
+        $val = $this->apcuCache->get($key);
+        $this->assertEquals($val, $x);
+    }
+    
+    public function testArray(): void {
+        $x = [1,2,3];
+        $key = 'test_array';
+        $res = $this->apcuCache->set($key, $x);
+        $this->assertTrue($res);
+        $val = $this->apcuCache->get($key);
+        $this->assertEquals($val, $x);
+    }
+    
+    public function testClass():void{
+        $key = 'test_class';
+        $res = $this->apcuCache->set($key, $this->foo);
+        $this->assertTrue($res);
+        $val = $this->apcuCache->get($key, Foo::class);
+        $this->assertEquals($val->serialize(), $this->foo->serialize());
     }
 }
