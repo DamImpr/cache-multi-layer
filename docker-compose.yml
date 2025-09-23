@@ -6,3 +6,9 @@ services:
       - ./app/src:/app/src
       - ./app/tests:/app/tests
     command: ./vendor/bin/phpunit ./tests/
+  get-local-vendor:
+    build:
+      context: .
+    volumes:
+      - ./app:/app
+    command: composer install --no-interaction --no-scripts --no-autoloader --prefer-dist  
