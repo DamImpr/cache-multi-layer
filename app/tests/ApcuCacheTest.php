@@ -86,4 +86,14 @@ class ApcuCacheTest extends TestCase {
         $val = $this->apcuCache->get($key, Foo::class);
         $this->assertEquals($val->serialize(), $this->foo->serialize());
     }
+    
+    public function testExpireTtl():void{
+        $x = 8;
+        $key = 'test_integer';
+        $res = $this->apcuCache->set($key, $x,2);
+        $this->assertTrue($res);
+        sleep(5);
+        $val = $this->apcuCache->get($key);
+        $this->assertNull($val);
+    }
 }

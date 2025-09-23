@@ -16,7 +16,9 @@ class ApcuCache extends Cache {
 
     #[\Override]
     public function get(string $key, ?string $class = null): int|float|string|Cacheable|array|null {
-        return apcu_fetch($key);
+        $success = true;
+        $res =  apcu_fetch($key,$success);
+        return $success ? $res : null;
     }
 
     #[\Override]
