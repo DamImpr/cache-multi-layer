@@ -2,12 +2,15 @@
 
 namespace CacheMultiLayer\Tests\Entity;
 
+use CacheMultiLayer\Interface\Cacheable;
+use Override;
+
 /**
  * 
  *
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
-class Foo implements \CacheMultiLayer\Interface\Cacheable{
+class Foo implements Cacheable{
 
     private int $x;
     private string $y;
@@ -53,7 +56,7 @@ class Foo implements \CacheMultiLayer\Interface\Cacheable{
         $this->foo = $foo;
     }
 
-    #[\Override]
+    #[Override]
     public function serialize(): string {
         return json_encode([
             'x' => $this->x 
@@ -63,7 +66,7 @@ class Foo implements \CacheMultiLayer\Interface\Cacheable{
         ]);
     }
 
-    #[\Override]
+    #[Override]
     public function unserialize(string $serialized): void {
         $data = json_decode($serialized,true);
         $this->x = $data['x'];

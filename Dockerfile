@@ -19,6 +19,7 @@ RUN echo "apc.enable=1" >> /usr/local/etc/php/php.ini
 WORKDIR /app
 
 COPY app/composer.json ./
+COPY app/composer.lock ./
 
 RUN composer install --no-interaction --no-scripts --no-autoloader --prefer-dist
 

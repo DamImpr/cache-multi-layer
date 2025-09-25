@@ -2,67 +2,68 @@
 
 namespace CacheMultiLayer\Tests;
 
-use CacheMultiLayer\Service\ApcuCache;
+use CacheMultiLayer\Service\RedisCache;
+use Override;
 
 /**
  * Description of ApcuCacheTest
  *
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
-class ApcuCacheTest extends AbstractCache {
+class RedisCacheTest extends AbstractCache {
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void {
         parent::setUp();
-        $this->setCache(new ApcuCache(60));
+        $this->setCache(new RedisCache(60, ['server_address' => '172.16.4.190', 'port' => 6379]));
     }
 
-    #[\Override]
+    #[Override]
     public static function setUpBeforeClass(): void {
         parent::setUpBeforeClass();
     }
 
-    #[\Override]
+    #[Override]
     public function testArray(): void {
         parent::testArray();
     }
 
-    #[\Override]
+    #[Override]
     public function testClass(): void {
         parent::testClass();
     }
 
-    #[\Override]
+    #[Override]
     public function testClear(): void {
         parent::testClear();
     }
 
-    #[\Override]
+    #[Override]
     public function testClearAllCache(): void {
         parent::testClearAllCache();
     }
 
-    #[\Override]
+    #[Override]
     public function testExpireTtl(): void {
         parent::testExpireTtl();
     }
 
-    #[\Override]
+    #[Override]
     public function testFloat(): void {
         parent::testFloat();
     }
 
-    #[\Override]
+    #[Override]
     public function testIncrDecr(): void {
         parent::testIncrDecr();
     }
 
-    #[\Override]
+    #[Override]
     public function testInteger(): void {
         parent::testInteger();
     }
 
-    #[\Override]
+    #[Override]
     public function testString(): void {
         parent::testString();
     }
