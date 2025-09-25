@@ -5,10 +5,15 @@ services:
     volumes:
       - ./app/src:/app/src
       - ./app/tests:/app/tests
-    command: ./vendor/bin/phpunit ./tests/
+    command: ./vendor/bin/phpunit ./tests/ --debug 
+    networks:
+      - redis-network
   update-vendor:
     build:
       context: .
     volumes:
       - ./app:/app
     command: composer update --no-interaction --no-scripts --no-autoloader --prefer-dist  
+    
+networks:
+  redis-network:

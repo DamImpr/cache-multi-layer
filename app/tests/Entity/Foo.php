@@ -12,16 +12,12 @@ use Override;
  */
 class Foo implements Cacheable{
 
-    private int $x;
-    private string $y;
-    private array $z;
-    private ?Foo $foo;
+    private ?int $x = null;
+    private ?string $y = null;
+    private array $z = [];
+    private ?Foo $foo = null;
 
-    public function __construct(int $x, string $y, array $z, ?Foo $foo) {
-        $this->x = $x;
-        $this->y = $y;
-        $this->z = $z;
-        $this->foo = $foo;
+    public function __construct() {
     }
 
     public function getX(): int {
@@ -40,22 +36,27 @@ class Foo implements Cacheable{
         return $this->foo;
     }
 
-    public function setX(int $x): void {
+    public function setX(?int $x):static {
         $this->x = $x;
+        return $this;
     }
 
-    public function setY(string $y): void {
+    public function setY(?string $y):static {
         $this->y = $y;
+        return $this;
     }
 
-    public function setZ(array $z): void {
+    public function setZ(array $z):static {
         $this->z = $z;
+        return $this;
     }
 
-    public function setFoo(?Foo $foo): void {
+    public function setFoo(?Foo $foo):static {
         $this->foo = $foo;
+        return $this;
     }
 
+    
     #[Override]
     public function serialize(): string {
         return json_encode([
@@ -68,7 +69,7 @@ class Foo implements Cacheable{
 
     #[Override]
     public function unserialize(string $serialized): void {
-        $data = json_decode($serialized,true);
+        $data = json_decode($serialized,true,512, JSON_THROW_ON_ERROR);
         $this->x = $data['x'];
         $this->y = $data['y'];
         $this->z = $data['z'];

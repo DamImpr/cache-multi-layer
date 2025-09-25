@@ -27,7 +27,18 @@ class AbstractCache extends TestCase {
     #[Override]
     protected function setUp(): void {
         $this->cache = new ApcuCache(60);
-        $this->foo = new Foo(1, "bar", [1,"foo",new Foo(2, "bar2", [2,null], null)], new Foo(3, "bar3", [3,null], null));
+        $this->foo = (new Foo())
+                ->setX(1)
+                ->setY("bar")
+                ->setZ([1,"foo",(new Foo())->setX(2)->setY("bar2")->setZ([2,null])->setFoo(null)])
+                ->setFoo((new Foo())
+                        ->setX(3)
+                        ->setY("bar3")
+                        ->setZ([3,null])
+                        ->setFoo(null)
+                        )
+                ;
+                
     }
 
     #[Override]

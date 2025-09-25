@@ -7,6 +7,7 @@
     "license": "GPL-3.0-or-later",
     "minimum-stability": "stable",
     "prefer-stable": true,
+    "version":"1.0.0",
     "authors": [
         {
             "name": "Damiano Improta",
@@ -25,7 +26,7 @@
         }
     },
     "require": {
-        "php": ">=8.2",
+        "php": ">=8.3",
         "ext-apcu": "*",
         "ext-redis": "*",
         "predis/predis": "^3.1"

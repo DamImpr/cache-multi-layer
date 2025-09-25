@@ -15,7 +15,7 @@ class RedisCacheTest extends AbstractCache {
     #[Override]
     protected function setUp(): void {
         parent::setUp();
-        $this->setCache(new RedisCache(60, ['server_address' => '172.16.4.190', 'port' => 6379]));
+        $this->setCache(new RedisCache(60, ['server_address' => 'redis-server', 'port' => 6379]));
     }
 
     #[Override]

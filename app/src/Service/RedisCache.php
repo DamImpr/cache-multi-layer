@@ -37,7 +37,10 @@ class RedisCache extends Cache {
         if ($class !== null && !in_array(Cacheable::class, class_implements($class))) {
             //throw error, ma vedi di generalizzare questo livello
         }
-        $val = json_decode($this->redis->get($key));
+        $val = $this->redis->get($key);
+        if($val === null){
+            return null;
+        }
         return is_array($val) ? $this->unserializeValArray($val) : $this->unserializeVal($key, $class);
     }
 
@@ -48,7 +51,7 @@ class RedisCache extends Cache {
     #[\Override]
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool {
         $data = is_array($val) ? $this->serializeValArray($val) : $this->serializeVal($val);
-        return $this->redis->set($key, json_encode($data), $this->getTtlToUse($ttl)) !== null;
+        return $this->redis->setex($key,$this->getTtlToUse($ttl), json_encode($data)) !== null;
     }
 
     /**
@@ -79,7 +82,7 @@ class RedisCache extends Cache {
      */
     #[Override]
     public function clearAllCache(): bool {
-        $this->clear('*');
+        return $this->redis->flushall() !== NULL;
     }
 
     /**
@@ -119,7 +122,7 @@ class RedisCache extends Cache {
     private function unserializeValArray(array $val): array {
         $res = [];
         foreach ($val as $key => $value) {
-            $res[$key] = $this->unserializeVal($value);
+            $res[$key] = $this->unserializeVal($value,null);
         }
         return $res;
     }
