@@ -10,7 +10,7 @@ use Override;
  *
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
-class Foo implements Cacheable{
+class Foo implements Cacheable {
 
     private ?int $x = null;
     private ?string $y = null;
@@ -18,6 +18,7 @@ class Foo implements Cacheable{
     private ?Foo $foo = null;
 
     public function __construct() {
+        
     }
 
     public function getX(): int {
@@ -36,45 +37,69 @@ class Foo implements Cacheable{
         return $this->foo;
     }
 
-    public function setX(?int $x):static {
+    public function setX(?int $x): static {
         $this->x = $x;
         return $this;
     }
 
-    public function setY(?string $y):static {
+    public function setY(?string $y): static {
         $this->y = $y;
         return $this;
     }
 
-    public function setZ(array $z):static {
+    public function setZ(array $z): static {
         $this->z = $z;
         return $this;
     }
 
-    public function setFoo(?Foo $foo):static {
+    public function setFoo(?Foo $foo): static {
         $this->foo = $foo;
         return $this;
     }
 
-    
+    public function equals(?Foo $other): bool {
+        if ($other === null) {
+            return false;
+        }
+        if ($this->x !== $other->x) {
+            return false;
+        }
+        if (!hash_equals($this->y, $this->y)) {
+            return false;
+        }
+        foreach ($this->z as $key => $val) {
+            if (!array_key_exists($key, $other->z)) {
+                return false;
+            }
+            if ($val != $other->z[$key]) {
+                return false;
+            }
+        }
+        if ($this->foo == null && $other->foo === null) {
+            return true;
+        }
+        return $this->foo !== null && $this->foo->equals($other->foo);
+    }
+
     #[Override]
     public function serialize(): string {
         return json_encode([
-            'x' => $this->x 
-            ,'y' => $this->y
-            ,'z' => $this->z
-            ,'foo' => $this->foo?->serialize()
+            'x' => $this->x
+            , 'y' => $this->y
+            , 'z' => $this->z
+            , 'foo' => $this->foo?->serialize()
         ]);
     }
 
     #[Override]
     public function unserialize(string $serialized): void {
-        $data = json_decode($serialized,true,512, JSON_THROW_ON_ERROR);
+        $data = json_decode($serialized, true, 512, JSON_THROW_ON_ERROR);
         $this->x = $data['x'];
         $this->y = $data['y'];
         $this->z = $data['z'];
-        $this->foo = $data['foo']?->unserialize();
+        if ($data['foo'] !== null) {
+            $this->foo = new Foo();
+            $this->foo->unserialize($data['foo']);
+        }
     }
-    
-      
 }

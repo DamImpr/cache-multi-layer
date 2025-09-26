@@ -47,7 +47,7 @@ abstract class Cache {
     /**
      * 
      */
-    public abstract function get(string $key, ?string $class = null): int|float|string|Cacheable|array|null;
+    public abstract function get(string $key): int|float|string|Cacheable|array|null;
     
     /**
      * 
@@ -83,9 +83,6 @@ abstract class Cache {
      */
     public abstract function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): int;
     
-
-//    public abstract function getCollection(string $key, ?string $class = null): array;
-
     /**
      * metodo che restituisce il ttl giusta da usare tra quello passato in ingresso e quello della classe
      * @param ?int $ttl ttl passato in ingresso
@@ -103,12 +100,13 @@ abstract class Cache {
      * @param ?int $ttl ttl della cache
      * @return Cache Sistema di cache associato all'enumerazione
      * @throws InvalidArgumentException Nel caso non ci sia nessun sistema di cache associato all'enumerazione passata in ingresso
+     * @throws CacheMissingConfigurationException
      * @see CacheEnum
      */
-    public static function factory(int $enum, int $ttl): Cache {
+    public static function factory(int $enum, int $ttl,array $configuration): Cache {
         return match ($enum) {
-            CacheEnum::APCU => new ApcuCache($ttl),
-            CacheEnum::REDIS => new RedisCache($ttl),
+            CacheEnum::APCU => new ApcuCache($ttl,$configuration),
+            CacheEnum::REDIS => new RedisCache($ttl,$configuration),
             default => throw new InvalidArgumentException("Cache not found"),
         };
     }

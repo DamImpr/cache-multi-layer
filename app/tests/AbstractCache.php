@@ -18,27 +18,25 @@ class AbstractCache extends TestCase {
 
     private ?Cache $cache = null;
     private ?Foo $foo = null;
-    
+
     public function setCache(?Cache $cache): void {
         $this->cache = $cache;
     }
 
-        
     #[Override]
     protected function setUp(): void {
         $this->cache = new ApcuCache(60);
         $this->foo = (new Foo())
                 ->setX(1)
                 ->setY("bar")
-                ->setZ([1,"foo",(new Foo())->setX(2)->setY("bar2")->setZ([2,null])->setFoo(null)])
+                ->setZ([1,2,3,"pino",])
                 ->setFoo((new Foo())
                         ->setX(3)
                         ->setY("bar3")
-                        ->setZ([3,null])
+                        ->setZ([3, null])
                         ->setFoo(null)
-                        )
-                ;
-                
+                )
+        ;
     }
 
     #[Override]
@@ -48,7 +46,7 @@ class AbstractCache extends TestCase {
             if (0 === error_reporting()) {
                 return false;
             }
-            throw new \Exception($errstr.' -> '.$errfile.':'.$errline, 0);
+            throw new \Exception($errstr . ' -> ' . $errfile . ':' . $errline, 0);
 //            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
         });
         try {
@@ -68,8 +66,7 @@ class AbstractCache extends TestCase {
         $val = $this->cache->get($key);
         $this->assertEquals($val, $x);
     }
-    
-    
+
     public function testFloat(): void {
         $x = 8.3;
         $key = 'test_float';
@@ -78,7 +75,7 @@ class AbstractCache extends TestCase {
         $val = $this->cache->get($key);
         $this->assertEquals($val, $x);
     }
-    
+
     public function testString(): void {
         $x = "foobar";
         $key = 'test_string';
@@ -87,35 +84,35 @@ class AbstractCache extends TestCase {
         $val = $this->cache->get($key);
         $this->assertEquals($val, $x);
     }
-    
+
     public function testArray(): void {
-        $x = [1,2,3];
+        $x = [1, 2, 3];
         $key = 'test_array';
         $res = $this->cache->set($key, $x);
         $this->assertTrue($res);
         $val = $this->cache->get($key);
         $this->assertEquals($val, $x);
     }
-    
-    public function testClass():void{
+
+    public function testClass(): void {
         $key = 'test_class';
         $res = $this->cache->set($key, $this->foo);
         $this->assertTrue($res);
         $val = $this->cache->get($key, Foo::class);
-        $this->assertEquals($val->serialize(), $this->foo->serialize());
+        $this->assertTrue($this->foo->equals($val));
     }
-    
-    public function testExpireTtl():void{
+
+    public function testExpireTtl(): void {
         $x = 8;
         $key = 'test_integer';
-        $res = $this->cache->set($key, $x,2);
+        $res = $this->cache->set($key, $x, 2);
         $this->assertTrue($res);
         sleep(5);
         $val = $this->cache->get($key);
         $this->assertNull($val);
     }
-    
-    public function testIncrDecr():void{
+
+    public function testIncrDecr(): void {
         $key = 'test_incr';
         $this->assertEquals(1, $this->cache->increment($key));
         $this->assertEquals(2, $this->cache->increment($key));
@@ -123,8 +120,8 @@ class AbstractCache extends TestCase {
         $this->assertEquals(2, $this->cache->decrement($key));
         $this->assertEquals(1, $this->cache->decrement($key));
     }
-    
-    public function testClear():void{
+
+    public function testClear(): void {
         $key = 'test_clear';
         $x = 1;
         $res = $this->cache->set($key, $x);
@@ -134,7 +131,8 @@ class AbstractCache extends TestCase {
         $val = $this->cache->get($key);
         $this->assertNull($val);
     }
-    public function testClearAllCache():void{
+
+    public function testClearAllCache(): void {
         $key = 'test_clear';
         $key2 = 'test_clear2';
         $x = 1;

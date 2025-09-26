@@ -45,26 +45,13 @@ class CacheConfiguration {
      * @throws InvalidArgumentException nel caso sia già stato settato il sistema di cache passato
      */
     public function appendCacheLevel(CacheEnum $enum, int $ttl, array $configuration = []): void {
-        $this->check($enum);
-        $this->configuration[$this->currentLevel] = $this->factoryCache($enum, $ttl);
+        $this->configuration[$this->currentLevel] = $this->factoryCache($enum, $ttl,$configuration);
         $this->priority[$this->currentLevel] = $enum;
         $this->currentLevel++;
         $this->setted[$enum] = true;
     }
 
-    /**
-     * Configurazione di default messa con 
-     * 1° livello : APCU ttl = 30 min
-     * 2° livello : Redis ttl = 2 h
-     * @return CacheConfiguration
-     */
-    public static function defaultConfiguration(): CacheConfiguration {
-        $cc = new CacheConfiguration();
-        $cc->appendCacheLevel(CacheEnum::APCU, $_SERVER['APCU_TTL']);
-        $cc->appendCacheLevel(CacheEnum::REDIS, $_SERVER['REDIS_TTL']);
-        return $cc;
-    }
-
+    
     /**
      * restituisce la configurazione della cache, dove partendo da zero si ha il primo livello e con lo spostarsi nelle celle dell'array a destra i livelli successivi.
      * @return array la configurazione 
@@ -83,19 +70,15 @@ class CacheConfiguration {
         return $this->priority;
     }
 
-    public function factoryCache(int $enum, int $ttl): Cache {
-        return Cache::factory($enum, $ttl);
-    }
-
     /**
-     * Funzione per il controllo della cache duplicata, nel caso di duplicazione lancia \InvalidArgumentException
-     * @param int $enum Enumerazione da controllare
-     * @return void
-     * @throws InvalidArgumentException nel caso di duplicazione
+     * 
+     * @param int $enum
+     * @param int $ttl
+     * @param array $configuration
+     * @return Cache
+     * @throws InvalidArgumentException 
      */
-    private function check(int $enum): void {
-        if (array_key_exists($enum, $this->setted)) {
-            throw new InvalidArgumentException("cache already exists");
-        }
+    private function factoryCache(int $enum, int $ttl,array $configuration ): Cache {
+        return Cache::factory($enum, $ttl,$configuration);
     }
 }

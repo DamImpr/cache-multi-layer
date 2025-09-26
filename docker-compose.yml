@@ -5,12 +5,24 @@ services:
     volumes:
       - ./app/src:/app/src
       - ./app/tests:/app/tests
-    command: ./vendor/bin/phpunit ./tests/ --debug 
+    command: ./vendor/bin/phpunit ./tests/ 
     networks:
       - redis-network
+    depends_on:
+      redis-server:
+        condition: service_started
   update-vendor:
     build:
       context: .
     volumes:
       - ./app:/app
     command: composer update --no-interaction --no-scripts --no-autoloader --prefer-dist  
+  redis-server:
+    image: redis
+    ports:
+      - 6379:6379
+    networks:
+      - redis-network
+networks:
+   redis-network:
+    
