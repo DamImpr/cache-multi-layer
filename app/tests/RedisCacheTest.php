@@ -2,6 +2,7 @@
 
 namespace CacheMultiLayer\Tests;
 
+use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Service\RedisCache;
 use Override;
 
@@ -66,5 +67,25 @@ class RedisCacheTest extends AbstractCache {
     #[Override]
     public function testString(): void {
         parent::testString();
+    }
+    
+    #[\Override]
+    public function testIsConnected(): void {
+        parent::testIsConnected();
+    }
+    
+    public function testMissingServer():void{
+        $this->expectException(CacheMissingConfigurationException::class);
+        (new RedisCache(1,['port' => 6397]));
+    }
+    
+    public function testMissingPort():void{
+        $this->expectException(CacheMissingConfigurationException::class);
+        (new RedisCache(1,['server_address' => 'localhost']));
+    }
+    
+    public function testConnectionNotFound():void{
+        $isConnected = (new RedisCache(1,['server_address' => 'ip-no-redis','port' => 6397]))->isConnected();
+        $this->assertFalse($isConnected);
     }
 }

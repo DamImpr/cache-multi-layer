@@ -39,7 +39,7 @@ class RedisCache extends Cache {
             return null;
         }
         $valDecoded = json_decode($val, true);
-        return is_array($valDecoded) ? $this->unserializeValArray($valDecoded) :$valDecoded ;
+        return is_array($valDecoded) ? $this->unserializeValArray($valDecoded) : $valDecoded;
     }
 
     /**
@@ -102,6 +102,11 @@ class RedisCache extends Cache {
         $this->init($configuration);
     }
 
+    #[\Override]
+    public function isConnected(): bool {
+        return $this->redis->isConnected();
+    }
+
     private function serializeVal(int|float|string|Cacheable $val): int|float|string|array {
         if ($val instanceof Cacheable) {
             return ['__cacheable' => 1, '__class' => get_class($val), '__data' => $val->serialize()];
@@ -111,7 +116,7 @@ class RedisCache extends Cache {
 
     private function unserializeValArray(array $val): array|Cacheable {
         $res = [];
-        if(array_key_exists('__cacheable', $val)){
+        if (array_key_exists('__cacheable', $val)) {
             $res = new $val['__class']();
             $res->unserialize($val['__data']);
         } else {

@@ -5,7 +5,6 @@ namespace CacheMultiLayer\Service;
 use CacheMultiLayer\Interface\Cacheable;
 use Override;
 
-
 /**
  * Implementazione della cache APCU 
  * per la documentazione dei metodi, si rimanda alla classe astratta Cache
@@ -18,13 +17,13 @@ class ApcuCache extends Cache {
     #[Override]
     public function get(string $key): int|float|string|Cacheable|array|null {
         $success = true;
-        $res =  apcu_fetch($key,$success);
+        $res = apcu_fetch($key, $success);
         return $success ? $res : null;
     }
 
     #[Override]
-    public function set(string $key,int|float|string|Cacheable|array $val,?int $ttl = null): bool {
-        return apcu_store($key,$val, $this->getTtlToUse($ttl));
+    public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool {
+        return apcu_store($key, $val, $this->getTtlToUse($ttl));
     }
 
     #[Override]
@@ -49,11 +48,15 @@ class ApcuCache extends Cache {
         return apcu_inc($key, 1, $success, $this->getTtlToUse($ttl));
     }
 
-    
     #[Override]
     public function getRemainingTTL(string $key): ?int {
         $keyInfo = apcu_key_info($key);
         return $keyInfo !== null ? $keyInfo['ttl'] : null;
+    }
+
+    #[\Override]
+    public function isConnected(): bool {
+        return extension_loaded('apcu');
     }
 
     public function __construct(int $ttl, array $configuration = []) {

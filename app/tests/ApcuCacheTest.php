@@ -66,4 +66,10 @@ class ApcuCacheTest extends AbstractCache {
     public function testString(): void {
         parent::testString();
     }
+    
+    #[\Override]
+    public function testIsConnected(): void {
+        parent::testIsConnected();
+    }
+
 }

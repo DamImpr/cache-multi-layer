@@ -7,6 +7,9 @@
 
 namespace CacheMultiLayer\Exception;
 
+use Exception;
+use Throwable;
+
 /**
  * Description of CacheMissingConfigurationException
  *

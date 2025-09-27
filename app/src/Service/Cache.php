@@ -83,6 +83,8 @@ abstract class Cache {
      */
     public abstract function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): int;
     
+    public abstract function isConnected():bool;
+    
     /**
      * metodo che restituisce il ttl giusta da usare tra quello passato in ingresso e quello della classe
      * @param ?int $ttl ttl passato in ingresso

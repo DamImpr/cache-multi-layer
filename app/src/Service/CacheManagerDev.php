@@ -2,6 +2,9 @@
 
 namespace CacheMultiLayer\Service;
 
+use CacheMultiLayer\Interface\Cacheable;
+use Override;
+
 /**
  * 
  * manager della cache in ambiente di dev, dove tutto il sistema di cache viene ignorato.
@@ -9,137 +12,44 @@ namespace CacheMultiLayer\Service;
  */
 class CacheManagerDev extends CacheManager {
 
-    private array $caches = [];
-
+   
+    #[Override]
     public function __construct(CacheConfiguration $configuration) {
-        $this->caches = $configuration->getConfiguration();
+        
     }
 
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function fetchObject(Cacheable $object, string $key): bool {
+    #[Override]
+    public function clear(string $key): bool {
         return false;
     }
 
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function getCollectionObject(string $class, string $key): ?array {
-        return null;
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function setCollectionObject(array $collection, string $key, ?int $ttl = null): void {
-        
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function setObject(Cacheable $object, string $key, ?int $ttl = null): void {
-        
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function clear(string $key): bool {
-        return true;
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
+    #[Override]
     public function clearAllCache(): bool {
-        return true;
+        return false;
     }
 
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function getCollectionPrimitive(string $key): ?array {
+    #[Override]
+    public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): array {
+        return [];  
+    }
+
+    #[Override]
+    public function get(string $key): int|float|string|Cacheable|array|null {
         return null;
     }
 
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function setCollectionPrimitive(array $collection, string $key, ?int $ttl = null): void {
-        
+    #[Override]
+    public function getRemainingTTL(string $key): array {
+        return [];
     }
 
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function getFloat(string $key): ?float {
-        return null;
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function getInteger(string $key): ?int {
-        return null;
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function getString(string $key): ?string {
-        return null;
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function setFloat(float $var, string $key, ?int $ttl = null): void {
-        
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function setInteger(int $var, string $key, ?int $ttl = null): void {
-        
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function setString(string $var, string $key, ?int $ttl = null): void {
-        
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
+    #[Override]
     public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): array {
         return [];
     }
 
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function getRemainingTTL(string $key): array {
-        return [];
+    #[Override]
+    public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool {
+        return false;
     }
 }

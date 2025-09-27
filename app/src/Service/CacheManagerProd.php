@@ -2,7 +2,9 @@
 
 namespace CacheMultiLayer\Service;
 
-
+use CacheMultiLayer\Exception\ClearCacheDeniedException;
+use CacheMultiLayer\Interface\Cacheable;
+use Override;
 
 /**
 
@@ -32,58 +34,33 @@ class CacheManagerProd extends CacheManager {
 
     /**
      * 
-     * {@inheritDoc}
      */
-    public function fetchObject(Cacheable $object, string $key): bool {
-        $i = 0;
-        $data = false;
-        for ($i = 0; $i < $this->size && $data === false; $i++) {
-            $data = $this->caches[$i]->fetchObject($object, $key);
-        }
-        if ($data === false) {
+    #[Override]
+    public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool {
+        if ($this->size === 0) {
             return false;
         }
-        for ($j = $i - 2; $j >= 0; $j--) {
-            $this->caches[$j]->setObject($object, $key);
+        for ($i = 0; $i < $this->size; $i++) {
+            $this->caches[$i]->set($key, $val, $ttl);
         }
         return true;
     }
 
     /**
      * 
-     * {@inheritDoc}
      */
-    public function setObject(Cacheable $object, string $key, ?int $ttl = null): void {
-        for ($i = 0; $i < $this->size; $i++) {
-            $this->caches[$i]->setObject($object, $key, $ttl);
-        }
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function setCollectionObject(array $collection, string $key, ?int $ttl = null): void {
-        for ($i = 0; $i < $this->size; $i++) {
-            $this->caches[$i]->setCollectionObject($collection, $key, $ttl);
-        }
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function getCollectionObject(string $class, string $key): ?array {
+    #[Override]
+    public function get(string $key): int|float|string|Cacheable|array|null {
         $i = 0;
         $data = null;
-        for ($i = 0; $i < $this->size && $data === null; $i++) {
-            $data = $this->caches[$i]->getCollectionObject($class, $key);
+        for ($i = 0; $i < $this->size && $data === false; $i++) {
+            $data = $this->caches[$i]->get($key);
         }
         if ($data === null) {
             return null;
         }
         for ($j = $i - 2; $j >= 0; $j--) {
-            $this->caches[$j]->setCollectionObject($data, $key);
+            $this->caches[$i]->set($key, $data);
         }
         return $data;
     }
@@ -92,6 +69,7 @@ class CacheManagerProd extends CacheManager {
      * 
      * {@inheritDoc}
      */
+    #[Override]
     public function clear(string $key): bool {
         $res = false;
         for ($i = 0; $i < $this->size; $i++) {
@@ -107,6 +85,7 @@ class CacheManagerProd extends CacheManager {
      * 
      * {@inheritDoc}
      */
+    #[Override]
     public function clearAllCache(): bool {
         for ($i = 0; $i < $this->size; $i++) {
             try {
@@ -122,122 +101,7 @@ class CacheManagerProd extends CacheManager {
      * 
      * {@inheritDoc}
      */
-    public function getCollectionPrimitive(string $key): ?array {
-        $i = 0;
-        $data = null;
-        for ($i = 0; $i < $this->size && $data === null; $i++) {
-            $data = $this->caches[$i]->getCollectionPrimitive($key);
-        }
-        if ($data === null) {
-            return null;
-        }
-        for ($j = $i - 2; $j >= 0; $j--) {
-            $this->caches[$j]->setCollectionPrimitive($data, $key);
-        }
-        return $data;
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function setCollectionPrimitive(array $collection, string $key, ?int $ttl = null): void {
-        for ($i = 0; $i < $this->size; $i++) {
-            $this->caches[$i]->setCollectionPrimitive($collection, $key, $ttl);
-        }
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function getFloat(string $key): ?float {
-        $i = 0;
-        $data = null;
-        for ($i = 0; $i < $this->size && $data === null; $i++) {
-            $data = $this->caches[$i]->getFloat($key);
-        }
-        if ($data === null) {
-            return null;
-        }
-        for ($j = $i - 2; $j >= 0; $j--) {
-            $this->caches[$j]->setFloat($data, $key);
-        }
-        return $data;
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function getInteger(string $key): ?int {
-        $i = 0;
-        $data = null;
-        for ($i = 0; $i < $this->size && $data === null; $i++) {
-            $data = $this->caches[$i]->getInteger($key);
-        }
-        if ($data === null) {
-            return null;
-        }
-        for ($j = $i - 2; $j >= 0; $j--) {
-            $this->caches[$j]->setInteger($data, $key);
-        }
-        return $data;
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function getString(string $key): ?string {
-        $i = 0;
-        $data = null;
-        for ($i = 0; $i < $this->size && $data === null; $i++) {
-            $data = $this->caches[$i]->getString($key);
-        }
-        if ($data === null) {
-            return null;
-        }
-        for ($j = $i - 2; $j >= 0; $j--) {
-            $this->caches[$j]->setString($data, $key);
-        }
-        return $data;
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function setFloat(float $var, string $key, ?int $ttl = null): void {
-        for ($i = 0; $i < $this->size; $i++) {
-            $this->caches[$i]->setFloat($var, $key, $ttl);
-        }
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function setInteger(int $var, string $key, ?int $ttl = null): void {
-        for ($i = 0; $i < $this->size; $i++) {
-            $this->caches[$i]->setInteger($var, $key, $ttl);
-        }
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
-    public function setString(string $var, string $key, ?int $ttl = null): void {
-        for ($i = 0; $i < $this->size; $i++) {
-            $this->caches[$i]->setString($var, $key, $ttl);
-        }
-    }
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
+    #[Override]
     public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): array {
         $res = [];
         for ($i = 0; $i < $this->size; $i++) {
@@ -250,6 +114,7 @@ class CacheManagerProd extends CacheManager {
      * 
      * {@inheritDoc}
      */
+    #[Override]
     public function getRemainingTTL(string $key): array {
         $res = [];
         for ($i = 0; $i < $this->size; $i++) {
@@ -258,4 +123,12 @@ class CacheManagerProd extends CacheManager {
         return $res;
     }
 
+    #[Override]
+    public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): array {
+        $res = [];
+        for ($i = 0; $i < $this->size; $i++) {
+            $res[$this->priority[$i]] = $this->caches[$i]->decrement($key, $ttl, $checkDecrementToExpire);
+        }
+        return $res;
+    }
 }

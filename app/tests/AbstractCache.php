@@ -19,7 +19,7 @@ class AbstractCache extends TestCase {
     private ?Cache $cache = null;
     private ?Foo $foo = null;
 
-    public function setCache(?Cache $cache): void {
+    public final function setCache(?Cache $cache): void {
         $this->cache = $cache;
     }
 
@@ -29,7 +29,7 @@ class AbstractCache extends TestCase {
         $this->foo = (new Foo())
                 ->setX(1)
                 ->setY("bar")
-                ->setZ([1,2,3,"pino",])
+                ->setZ([1, 2, 3, "pino",])
                 ->setFoo((new Foo())
                         ->setX(3)
                         ->setY("bar3")
@@ -146,5 +146,9 @@ class AbstractCache extends TestCase {
         $this->assertNull($val);
         $val2 = $this->cache->get($key2);
         $this->assertNull($val2);
+    }
+
+    public function testIsConnected(): void {
+        $this->assertTrue($this->cache->isConnected());
     }
 }
