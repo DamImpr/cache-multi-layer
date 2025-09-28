@@ -104,7 +104,7 @@ class RedisCache extends Cache {
 
     #[\Override]
     public function isConnected(): bool {
-        return $this->redis->isConnected();
+        return $this->redis->ping() !== null;
     }
 
     private function serializeVal(int|float|string|Cacheable $val): int|float|string|array {
