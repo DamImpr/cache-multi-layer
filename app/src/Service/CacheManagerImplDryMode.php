@@ -10,12 +10,16 @@ use Override;
  * manager della cache in ambiente di dev, dove tutto il sistema di cache viene ignorato.
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
-class CacheManagerDev extends CacheManager {
+class CacheManagerImplDryMode extends CacheManager {
 
-   
     #[Override]
-    public function __construct(CacheConfiguration $configuration) {
+    protected function __construct(?CacheConfiguration $configuration) {
         
+    }
+
+    #[\Override]
+    public function appendCache(Cache $cache): bool {
+        return true;
     }
 
     #[Override]
@@ -30,7 +34,7 @@ class CacheManagerDev extends CacheManager {
 
     #[Override]
     public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): array {
-        return [];  
+        return [];
     }
 
     #[Override]

@@ -14,6 +14,7 @@ use CacheMultiLayer\Interface\Cacheable;
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
 abstract class CacheManager {
+    
     // TODO riscirvere la phpdoc, è un refuso
 
     /**
@@ -21,8 +22,12 @@ abstract class CacheManager {
      * @param CacheConfiguration $configuration la configurazione dei sistemi di cache
      * @see CacheConfiguration
      */
-    public abstract function __construct(CacheConfiguration $configuration);
-
+    protected abstract function __construct(?CacheConfiguration $configuration);
+    
+    
+    
+    public abstract function appendCache(Cache $cache):bool;
+    
     /**
      * 
      */
@@ -56,7 +61,7 @@ abstract class CacheManager {
      * @param string $key chiave il cui valore intero deve essere incrementato.
      * @param ?int $ttl time to live specificato in secondi, nel caso non specificato, viene utilizzato quello passato nel costruttore.
      * @param int $checkIncrementToExpire limite valore massimo per aggiornare il ttl.
-     * @return int il nuovo valore associato alla chiave, nel caso di fallimento restituisce il valore 0 
+     * @return array il nuovo valore associato alla chiave, nel caso di fallimento restituisce il valore 0 
      */
     public abstract function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): array;
 
@@ -64,7 +69,7 @@ abstract class CacheManager {
      * @param string $key chiave il cui valore intero deve essere incrementato.
      * @param ?int $ttl time to live specificato in secondi, nel caso non specificato, viene utilizzato quello passato nel costruttore.
      * @param int $checkDecrementToExpire limite valore massimo per aggiornare il ttl.
-     * @return int il nuovo valore associato alla chiave, nel caso di fallimento restituisce il valore 0 
+     * @return array il nuovo valore associato alla chiave, nel caso di fallimento restituisce il valore 0 
      */
     public abstract function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): array;
 
@@ -73,10 +78,7 @@ abstract class CacheManager {
      * @param ?CacheConfiguration $cc Configurazione della cache da adottare.
      * @return CacheManager istanza della classe che gestisce la cache
      */
-    public static function factory(?CacheConfiguration $cc = null): CacheManager {
-        if ($cc === null) {
-            $cc = CacheConfiguration::defaultConfiguration();
-        }
-        return ((int) ($_SERVER['CACHE_ENABLE'])) === 1 ? new CacheManagerProd($cc) : new CacheManagerDev($cc);
-    }
+    public static function factory(?CacheConfiguration $cc = null,$dryMode = false): CacheManager {
+        return !$dryMode  ? new CacheManagerImpl($cc) : new CacheManagerImplDryMode($cc);
+}
 }

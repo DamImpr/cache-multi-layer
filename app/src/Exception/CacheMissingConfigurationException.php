@@ -7,7 +7,7 @@ use Exception;
 use Throwable;
 
 /**
- * Description of CacheMissingConfigurationException
+ * 
  *
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */

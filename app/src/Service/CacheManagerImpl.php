@@ -11,32 +11,43 @@ use Override;
  * Sistema di cache in produzione, segue fedelmente la gerarchia di livelli passata nella configurazione
  * per la documentazione dei metodi, si rimanda alla classe astratta CacheManager
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
- * @see CacheManager
+ * @see AbstractCacheManager
  */
-class CacheManagerProd extends CacheManager {
+class CacheManagerImpl extends CacheManager
+{
 
     /**
      * le caches lette dalla configurazione
      */
     private array $caches = [];
-    private array $priority = [];
 
     /**
      * dimensione dell'array $caches, mantenuta qui per poter avere l'informazione in tempo costante O(1)
      */
     private int $size = 0;
 
-    public function __construct(CacheConfiguration $configuration) {
-        $this->caches = $configuration->getConfiguration();
-        $this->priority = $configuration->getPriorityList();
+    protected function __construct(?CacheConfiguration $configuration)
+    {
+        $this->caches = $configuration?->getConfiguration() ?? [];
         $this->size = count($this->caches);
+    }
+
+    #[\Override]
+    public function appendCache(Cache $cache): bool
+    {
+        if (!empty(array_filter($this->caches, fn(Cache $current) => $cache->getEnum() === $current->getEnum()))) {
+            return false;
+        }
+        $this->caches[$this->size++] = $cache;
+        return true;
     }
 
     /**
      * 
      */
     #[Override]
-    public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool {
+    public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
+    {
         if ($this->size === 0) {
             return false;
         }
@@ -50,10 +61,11 @@ class CacheManagerProd extends CacheManager {
      * 
      */
     #[Override]
-    public function get(string $key): int|float|string|Cacheable|array|null {
+    public function get(string $key): int|float|string|Cacheable|array|null
+    {
         $i = 0;
         $data = null;
-        for ($i = 0; $i < $this->size && $data === false; $i++) {
+        for ($i = 0; $i < $this->size && $data === null; $i++) {
             $data = $this->caches[$i]->get($key);
         }
         if ($data === null) {
@@ -70,7 +82,8 @@ class CacheManagerProd extends CacheManager {
      * {@inheritDoc}
      */
     #[Override]
-    public function clear(string $key): bool {
+    public function clear(string $key): bool
+    {
         $res = false;
         for ($i = 0; $i < $this->size; $i++) {
             $tmp = $this->caches[$i]->clear($key);
@@ -86,7 +99,8 @@ class CacheManagerProd extends CacheManager {
      * {@inheritDoc}
      */
     #[Override]
-    public function clearAllCache(): bool {
+    public function clearAllCache(): bool
+    {
         for ($i = 0; $i < $this->size; $i++) {
             try {
                 $this->caches[$i]->clearAllCache();
@@ -102,10 +116,11 @@ class CacheManagerProd extends CacheManager {
      * {@inheritDoc}
      */
     #[Override]
-    public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): array {
+    public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): array
+    {
         $res = [];
         for ($i = 0; $i < $this->size; $i++) {
-            $res[$this->priority[$i]] = $this->caches[$i]->increment($key, $ttl, $checkIncrementToExpire);
+            $res[$this->caches[$i]->getEnum()->name()] = $this->caches[$i]->increment($key, $ttl, $checkIncrementToExpire);
         }
         return $res;
     }
@@ -115,19 +130,21 @@ class CacheManagerProd extends CacheManager {
      * {@inheritDoc}
      */
     #[Override]
-    public function getRemainingTTL(string $key): array {
+    public function getRemainingTTL(string $key): array
+    {
         $res = [];
         for ($i = 0; $i < $this->size; $i++) {
-            $res[$this->priority[$i]] = $this->caches[$i]->getRemainingTTL($key);
+            $res[$this->caches[$i]->getEnum()->name()] = $this->caches[$i]->getRemainingTTL($key);
         }
         return $res;
     }
 
     #[Override]
-    public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): array {
+    public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): array
+    {
         $res = [];
         for ($i = 0; $i < $this->size; $i++) {
-            $res[$this->priority[$i]] = $this->caches[$i]->decrement($key, $ttl, $checkDecrementToExpire);
+            $res[$this->caches[$i]->getEnum()->name()] = $this->caches[$i]->decrement($key, $ttl, $checkDecrementToExpire);
         }
         return $res;
     }

@@ -2,19 +2,18 @@
 
 namespace CacheMultiLayer\Tests;
 
-use CacheMultiLayer\Service\ApcuCache;
+use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Service\Cache;
 use CacheMultiLayer\Tests\Entity\Foo;
 use Override;
 use PHPUnit\Framework\TestCase;
-use TheSeer\Tokenizer\Exception;
 
 /**
  * Description of ApcuCacheTest
  *
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
-class AbstractCache extends TestCase {
+abstract class AbstractCache extends TestCase {
 
     private ?Cache $cache = null;
     private ?Foo $foo = null;
@@ -25,7 +24,6 @@ class AbstractCache extends TestCase {
 
     #[Override]
     protected function setUp(): void {
-        $this->cache = new ApcuCache(60);
         $this->foo = (new Foo())
                 ->setX(1)
                 ->setY("bar")
@@ -39,25 +37,7 @@ class AbstractCache extends TestCase {
         ;
     }
 
-    #[Override]
-    public static function setUpBeforeClass(): void {
-        set_error_handler(function ($errno, $errstr, $errfile, $errline): false {
-            // error was suppressed with the @-operator
-            if (0 === error_reporting()) {
-                return false;
-            }
-            throw new \Exception($errstr . ' -> ' . $errfile . ':' . $errline, 0);
-//            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
-        });
-        try {
-            apcu_cache_info();
-        } catch (Exception $ex) {
-            echo PHP_EOL . $ex->getMessage() . PHP_EOL;
-//            echo PHP_EOL . "[APCU]" . PHP_EOL . " apc.enable_cli=1" . PHP_EOL;
-            exit;
-        }
-    }
-
+  
     public function testInteger(): void {
         $x = 8;
         $key = 'test_integer';
@@ -98,7 +78,7 @@ class AbstractCache extends TestCase {
         $key = 'test_class';
         $res = $this->cache->set($key, $this->foo);
         $this->assertTrue($res);
-        $val = $this->cache->get($key, Foo::class);
+        $val = $this->cache->get($key);
         $this->assertTrue($this->foo->equals($val));
     }
 
@@ -150,5 +130,9 @@ class AbstractCache extends TestCase {
 
     public function testIsConnected(): void {
         $this->assertTrue($this->cache->isConnected());
+    }
+    
+    public final function doTestRealEnum(CacheEnum $cacheEnum):void{
+        $this->assertEquals($cacheEnum, $this->cache->getEnum());
     }
 }

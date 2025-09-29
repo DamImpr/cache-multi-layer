@@ -23,6 +23,12 @@ services:
     volumes:
       - ./app:/app
     command: php vendor/bin/rector process
+  phpstan:
+    build:
+      context: .
+    volumes:
+      - ./app:/app
+    command: php vendor/bin/phpstan analyse -c phpstan.neon
   redis-server:
     image: redis
     ports:

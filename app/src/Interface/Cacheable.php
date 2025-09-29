@@ -23,7 +23,7 @@ interface Cacheable {
 
     /**
      * 
-     * @param array $serialized
+     * @param string $serialized
      * @return void
      */
     public function unserialize(string $serialized): void;

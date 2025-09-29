@@ -19,13 +19,7 @@ class CacheConfiguration {
      */
     private array $configuration = [];
 
-    /**
-     * Array che tiene traccia della priorità impostata al singolo livello di cache.
-     * la chiave dell'array è la priorità, il valore dell'array è l'enumerazione
-     * @see CacheEnum
-     */
-    private array $priority = [];
-
+   
     /**
      * livello attuale della cache settata, utilizzata durante l'append delle cache.
      */
@@ -38,20 +32,22 @@ class CacheConfiguration {
 
     /**
      * metodo che setta il livello successivo di cache
-     * @param int $enum l'enumerazione usata per indicare il sistema di cache, tramite l'enumerazione conservata nella classe CacheEnum
+     * @param CacheEnum $enum l'enumerazione usata per indicare il sistema di cache, tramite l'enumerazione conservata nella classe CacheEnum
      * @param int $ttl Time to live espresso in secondi
-     * @return void
+     * @return bool
      * @see CacheEnum
      * @throws InvalidArgumentException nel caso sia già stato settato il sistema di cache passato
      */
-    public function appendCacheLevel(CacheEnum $enum, int $ttl, array $configuration = []): void {
-        $this->configuration[$this->currentLevel] = $this->factoryCache($enum, $ttl,$configuration);
-        $this->priority[$this->currentLevel] = $enum;
+    public function appendCacheLevel(CacheEnum $enum, int $ttl, array $configuration = []): bool {
+        if (array_key_exists($enum->value, $this->setted)) {
+            return false;
+        }
+        $this->configuration[$this->currentLevel] = $this->factoryCache($enum, $ttl, $configuration);
         $this->currentLevel++;
-        $this->setted[$enum] = true;
+        $this->setted[$enum->value] = true;
+        return true;
     }
 
-    
     /**
      * restituisce la configurazione della cache, dove partendo da zero si ha il primo livello e con lo spostarsi nelle celle dell'array a destra i livelli successivi.
      * @return array la configurazione 
@@ -61,24 +57,17 @@ class CacheConfiguration {
         return $this->configuration;
     }
 
-    /**
-     * restituisce la lista della cache ordinate per priorità, dove partendo da zero si ha il primo livello e con lo spostarsi nelle celle dell'array a destra i livelli successivi.
-     * @return array la configurazione 
-     * @see Cache
-     */
-    public function getPriorityList(): array {
-        return $this->priority;
-    }
+    
 
     /**
      * 
-     * @param int $enum
+     * @param CacheEnum $enum
      * @param int $ttl
      * @param array $configuration
      * @return Cache
      * @throws InvalidArgumentException 
      */
-    private function factoryCache(int $enum, int $ttl,array $configuration ): Cache {
-        return Cache::factory($enum, $ttl,$configuration);
+    private function factoryCache(CacheEnum $enum, int $ttl, array $configuration): Cache {
+        return Cache::factory($enum, $ttl, $configuration);
     }
 }
