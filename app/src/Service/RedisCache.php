@@ -109,7 +109,7 @@ class RedisCache extends Cache {
 
     private function serializeVal(int|float|string|Cacheable $val): int|float|string|array {
         if ($val instanceof Cacheable) {
-            return ['__cacheable' => 1, '__class' => get_class($val), '__data' => $val->serialize()];
+            return ['__cacheable' => 1, '__class' => $val::class, '__data' => $val->serialize()];
         }
         return $val;
     }

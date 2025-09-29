@@ -17,6 +17,12 @@ services:
     volumes:
       - ./app:/app
     command: composer update --no-interaction --no-scripts --no-autoloader --prefer-dist  
+  rector:
+    build:
+      context: .
+    volumes:
+      - ./app:/app
+    command: php vendor/bin/rector process
   redis-server:
     image: redis
     ports:

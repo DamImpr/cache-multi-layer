@@ -6,8 +6,7 @@ namespace CacheMultiLayer\Enum;
  *
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
-enum CacheEnum {
-    case APCU;
-    case REDIS;
-    case MEMCACHE;
+enum CacheEnum:int {
+    case APCU = 1;
+    case REDIS = 2;
 }
