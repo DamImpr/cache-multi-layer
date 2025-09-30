@@ -2,28 +2,33 @@
 
 namespace CacheMultiLayer\Tests;
 
-use CacheMultiLayer\Enum\CacheEnum;
-use CacheMultiLayer\Service\Cache;
+use CacheMultiLayer\Service\CacheManager;
 use CacheMultiLayer\Tests\Entity\Foo;
 use Override;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Description of ApcuCacheTest
+ * Description of AbstractCacheManager
  *
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
-abstract class AbstractCache extends TestCase
+class AbstractCacheManager extends TestCase
 {
 
-    private ?Cache $cache = null;
+    private ?CacheManager $cacheManager = null;
     private ?Foo $foo = null;
 
-    public final function setCache(?Cache $cache): void
+    public final function setCacheManager(?CacheManager $cacheManager): void
     {
-        $this->cache = $cache;
+        $this->cacheManager = $cacheManager;
+    }
+    
+    public final function getCacheManager(): ?CacheManager
+    {
+        return $this->cacheManager;
     }
 
+    
     #[Override]
     protected function setUp(): void
     {
@@ -44,9 +49,9 @@ abstract class AbstractCache extends TestCase
     {
         $x = 8;
         $key = 'test_integer';
-        $res = $this->cache->set($key, $x);
+        $res = $this->cacheManager->set($key, $x);
         $this->assertTrue($res);
-        $val = $this->cache->get($key);
+        $val = $this->cacheManager->get($key);
         $this->assertEquals($val, $x);
     }
 
@@ -54,9 +59,9 @@ abstract class AbstractCache extends TestCase
     {
         $x = 8.3;
         $key = 'test_float';
-        $res = $this->cache->set($key, $x);
+        $res = $this->cacheManager->set($key, $x);
         $this->assertTrue($res);
-        $val = $this->cache->get($key);
+        $val = $this->cacheManager->get($key);
         $this->assertEquals($val, $x);
     }
 
@@ -64,9 +69,9 @@ abstract class AbstractCache extends TestCase
     {
         $x = "foobar";
         $key = 'test_string';
-        $res = $this->cache->set($key, $x);
+        $res = $this->cacheManager->set($key, $x);
         $this->assertTrue($res);
-        $val = $this->cache->get($key);
+        $val = $this->cacheManager->get($key);
         $this->assertEquals($val, $x);
     }
 
@@ -74,18 +79,18 @@ abstract class AbstractCache extends TestCase
     {
         $x = [1, 2, 3];
         $key = 'test_array';
-        $res = $this->cache->set($key, $x);
+        $res = $this->cacheManager->set($key, $x);
         $this->assertTrue($res);
-        $val = $this->cache->get($key);
+        $val = $this->cacheManager->get($key);
         $this->assertEquals($val, $x);
     }
 
     public function testClass(): void
     {
         $key = 'test_class';
-        $res = $this->cache->set($key, $this->foo);
+        $res = $this->cacheManager->set($key, $this->foo);
         $this->assertTrue($res);
-        $val = $this->cache->get($key);
+        $val = $this->cacheManager->get($key);
         $this->assertTrue($this->foo->equals($val));
     }
 
@@ -93,32 +98,42 @@ abstract class AbstractCache extends TestCase
     {
         $x = 8;
         $key = 'test_integer';
-        $res = $this->cache->set($key, $x, 2);
+        $res = $this->cacheManager->set($key, $x, 2);
         $this->assertTrue($res);
         sleep(5);
-        $val = $this->cache->get($key);
+        $val = $this->cacheManager->get($key);
         $this->assertNull($val);
     }
 
     public function testIncrDecr(): void
     {
         $key = 'test_incr';
-        $this->assertEquals(1, $this->cache->increment($key));
-        $this->assertEquals(2, $this->cache->increment($key));
-        $this->assertEquals(3, $this->cache->increment($key));
-        $this->assertEquals(2, $this->cache->decrement($key));
-        $this->assertEquals(1, $this->cache->decrement($key));
+        foreach( $this->cacheManager->increment($key) as  $value){
+            $this->assertEquals(1, $value);
+        }
+        foreach( $this->cacheManager->increment($key) as  $value){
+            $this->assertEquals(2, $value);
+        }
+        foreach( $this->cacheManager->increment($key) as  $value){
+            $this->assertEquals(3, $value);
+        }
+        foreach( $this->cacheManager->decrement($key) as  $value){
+            $this->assertEquals(2, $value);
+        }
+        foreach( $this->cacheManager->decrement($key) as  $value){
+            $this->assertEquals(1, $value);
+        }
     }
 
     public function testClear(): void
     {
         $key = 'test_clear';
         $x = 1;
-        $res = $this->cache->set($key, $x);
+        $res = $this->cacheManager->set($key, $x);
         $this->assertTrue($res);
-        $resClear = $this->cache->clear($key);
+        $resClear = $this->cacheManager->clear($key);
         $this->assertTrue($resClear);
-        $val = $this->cache->get($key);
+        $val = $this->cacheManager->get($key);
         $this->assertNull($val);
     }
 
@@ -127,37 +142,17 @@ abstract class AbstractCache extends TestCase
         $key = 'test_clear';
         $key2 = 'test_clear2';
         $x = 1;
-        $res = $this->cache->set($key, $x);
-        $res2 = $this->cache->set($key2, $x);
+        $res = $this->cacheManager->set($key, $x);
+        $res2 = $this->cacheManager->set($key2, $x);
         $this->assertTrue($res);
         $this->assertTrue($res2);
-        $resClear = $this->cache->clearAllCache();
+        $resClear = $this->cacheManager->clearAllCache();
         $this->assertTrue($resClear);
-        $val = $this->cache->get($key);
+        $val = $this->cacheManager->get($key);
         $this->assertNull($val);
-        $val2 = $this->cache->get($key2);
+        $val2 = $this->cacheManager->get($key2);
         $this->assertNull($val2);
     }
-
-    public function testRemainingTTL(): void
-    {
-        $key = 'test_clear';
-        $x = 1;
-        $res = $this->cache->set($key, $x);
-        $this->assertTrue($res);
-        sleep(2);
-        $ttl = $this->cache->getRemainingTTL($key);
-        $this->assertNotNull($ttl);
-        $this->assertLessThanOrEqual(60, $ttl);
-    }
-
-    public function testIsConnected(): void
-    {
-        $this->assertTrue($this->cache->isConnected());
-    }
-
-    public final function doTestRealEnum(CacheEnum $cacheEnum): void
-    {
-        $this->assertEquals($cacheEnum, $this->cache->getEnum());
-    }
+    
+    
 }

@@ -25,7 +25,7 @@ abstract class Cache {
      * @throws InvalidArgumentException se il valore di ttl non è un numero positivo
      * @throws CacheMissingConfigurationException
      */
-    public function __construct(int $ttl, array $configuration = []) {
+    protected function __construct(int $ttl, array $configuration = []) {
         if ($ttl <= 0) {
             throw new InvalidArgumentException("ttl must be positive, not like your life");
         }
@@ -35,32 +35,15 @@ abstract class Cache {
 
     /**
      * getter della attributo $ttl
-     * @return int
      */
     public function getTtl(): int {
         return $this->ttl;
     }
 
-    /**
-     * 
-     * @param string $key
-     * @param int|float|string|Cacheable|array $val
-     * @param int|null $ttl
-     * @return bool
-     */
     public abstract function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool;
 
-    /**
-     * 
-     * @param string $key
-     * @return int|float|string|Cacheable|array|null
-     */
     public abstract function get(string $key): int|float|string|Cacheable|array|null;
 
-    /**
-     * @param string $key
-     * @return int|null
-     */
     public abstract function getRemainingTTL(string $key): ?int;
 
     /**
@@ -72,7 +55,6 @@ abstract class Cache {
 
     /**
      * Metodo che cancella tutte i valori contenuti nella cache, se il sistema di cache lo permette
-     * @return bool 
      * @throws ClearCacheDeniedException se la possibilità di cancellare tutta la cache è negata
      */
     public abstract function clearAllCache(): bool;
@@ -93,14 +75,8 @@ abstract class Cache {
      */
     public abstract function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): int;
 
-    /**
-     * @return bool
-     */
     public abstract function isConnected(): bool;
     
-    /**
-     * @return CacheEnum
-     */
     public abstract function getEnum():CacheEnum;
 
     /**
@@ -119,9 +95,6 @@ abstract class Cache {
         }
     }
     
-    /**
-     * @return array
-     */
     protected abstract function getMandatoryConfig():array;
 
     /**
@@ -135,7 +108,7 @@ abstract class Cache {
      * @throws CacheMissingConfigurationException
      * @see CacheEnum
      */
-    public static function factory(CacheEnum $enum, int $ttl, array $configuration): Cache {
+    public static function factory(CacheEnum $enum, int $ttl, array $configuration = []): Cache {
         return match ($enum) {
             CacheEnum::APCU => new ApcuCache($ttl, $configuration),
             CacheEnum::REDIS => new RedisCache($ttl, $configuration)

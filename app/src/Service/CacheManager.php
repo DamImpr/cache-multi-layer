@@ -78,7 +78,7 @@ abstract class CacheManager {
      * @param ?CacheConfiguration $cc Configurazione della cache da adottare.
      * @return CacheManager istanza della classe che gestisce la cache
      */
-    public static function factory(?CacheConfiguration $cc = null,$dryMode = false): CacheManager {
+    public static function factory(?CacheConfiguration $cc = null, bool $dryMode = false): CacheManager {
         return !$dryMode  ? new CacheManagerImpl($cc) : new CacheManagerImplDryMode($cc);
 }
 }

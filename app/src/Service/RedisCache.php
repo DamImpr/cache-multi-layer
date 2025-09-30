@@ -108,7 +108,7 @@ class RedisCache extends Cache
      * 
      * {@InheritDoc}
      */
-    public function __construct(int $ttl, array $configuration = [])
+    protected function __construct(int $ttl, array $configuration = [])
     {
         parent::__construct($ttl, $configuration);
         $this->redis = new PredisClient([

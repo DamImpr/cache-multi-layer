@@ -17,10 +17,6 @@ class Foo implements Cacheable {
     private array $z = [];
     private ?Foo $foo = null;
 
-    public function __construct() {
-        
-    }
-
     public function getX(): int {
         return $this->x;
     }

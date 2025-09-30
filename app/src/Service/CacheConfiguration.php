@@ -34,7 +34,6 @@ class CacheConfiguration {
      * metodo che setta il livello successivo di cache
      * @param CacheEnum $enum l'enumerazione usata per indicare il sistema di cache, tramite l'enumerazione conservata nella classe CacheEnum
      * @param int $ttl Time to live espresso in secondi
-     * @return bool
      * @see CacheEnum
      * @throws InvalidArgumentException nel caso sia già stato settato il sistema di cache passato
      */
@@ -60,12 +59,8 @@ class CacheConfiguration {
     
 
     /**
-     * 
-     * @param CacheEnum $enum
-     * @param int $ttl
-     * @param array $configuration
-     * @return Cache
-     * @throws InvalidArgumentException 
+     *
+     * @throws InvalidArgumentException
      */
     private function factoryCache(CacheEnum $enum, int $ttl, array $configuration): Cache {
         return Cache::factory($enum, $ttl, $configuration);

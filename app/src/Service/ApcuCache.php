@@ -81,7 +81,7 @@ class ApcuCache extends Cache
         return [];
     }
 
-    public function __construct(int $ttl, array $configuration = [])
+    protected function __construct(int $ttl, array $configuration = [])
     {
         parent::__construct($ttl, $configuration);
         $this->prefixKey = $configuration['prefix_key'] ?? '';

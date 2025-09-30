@@ -12,10 +12,12 @@ use Override;
  */
 class CacheManagerImplDryMode extends CacheManager {
 
-    #[Override]
-    protected function __construct(?CacheConfiguration $configuration) {
-        
+    
+    protected function __construct(?CacheConfiguration $configuration)
+    {
+        parent::__construct($configuration);
     }
+    
 
     #[\Override]
     public function appendCache(Cache $cache): bool {
@@ -24,12 +26,12 @@ class CacheManagerImplDryMode extends CacheManager {
 
     #[Override]
     public function clear(string $key): bool {
-        return false;
+        return true;
     }
 
     #[Override]
     public function clearAllCache(): bool {
-        return false;
+        return true;
     }
 
     #[Override]
@@ -54,6 +56,8 @@ class CacheManagerImplDryMode extends CacheManager {
 
     #[Override]
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool {
-        return false;
+        return true;
     }
+
+    
 }

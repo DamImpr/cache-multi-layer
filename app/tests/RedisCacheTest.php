@@ -4,6 +4,7 @@ namespace CacheMultiLayer\Tests;
 
 use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Exception\CacheMissingConfigurationException;
+use CacheMultiLayer\Service\Cache;
 use CacheMultiLayer\Service\RedisCache;
 use Exception;
 use Override;
@@ -20,7 +21,7 @@ class RedisCacheTest extends AbstractCache
     protected function setUp(): void
     {
         parent::setUp();
-        $this->setCache(new RedisCache(60, ['server_address' => 'redis-server', 'port' => 6379]));
+        $this->setCache(Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'redis-server', 'port' => 6379]));
     }
 
     #[Override]
@@ -89,26 +90,38 @@ class RedisCacheTest extends AbstractCache
         parent::testIsConnected();
     }
 
+    #[\Override]
+    public function testRemainingTTL(): void
+    {
+        parent::testRemainingTTL();
+    }
+
     public function testMissingServer(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
-        (new RedisCache(1, ['port' => 6397]));
+        Cache::factory(CacheEnum::REDIS, 60, ['port' => 6379]);
     }
 
     public function testMissingPort(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
-        (new RedisCache(1, ['server_address' => 'localhost']));
+        Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'localhost']);
     }
 
     public function testConnectionNotFound(): void
     {
         $this->expectException(Exception::class);
-        (new RedisCache(1, ['server_address' => 'ip-no-redis', 'port' => 6397]))->isConnected();
+        Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'ip-no-redis', 'port' => 6379])->isConnected();
     }
 
     public function testEnum(): void
     {
         $this->doTestRealEnum(CacheEnum::REDIS);
+    }
+
+    #[\Override]
+    public static function tearDownAfterClass(): void
+    {
+        Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'redis-server', 'port' => 6379])->clearAllCache();
     }
 }

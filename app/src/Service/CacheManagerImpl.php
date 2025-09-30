@@ -35,7 +35,7 @@ class CacheManagerImpl extends CacheManager
     #[\Override]
     public function appendCache(Cache $cache): bool
     {
-        if (!empty(array_filter($this->caches, fn(Cache $current) => $cache->getEnum() === $current->getEnum()))) {
+        if (!empty(array_filter($this->caches, fn(Cache $current): bool => $cache->getEnum() === $current->getEnum()))) {
             return false;
         }
         $this->caches[$this->size++] = $cache;
@@ -72,7 +72,7 @@ class CacheManagerImpl extends CacheManager
             return null;
         }
         for ($j = $i - 2; $j >= 0; $j--) {
-            $this->caches[$i]->set($key, $data);
+            $this->caches[$j]->set($key, $data);
         }
         return $data;
     }
@@ -120,7 +120,7 @@ class CacheManagerImpl extends CacheManager
     {
         $res = [];
         for ($i = 0; $i < $this->size; $i++) {
-            $res[$this->caches[$i]->getEnum()->name()] = $this->caches[$i]->increment($key, $ttl, $checkIncrementToExpire);
+            $res[$this->caches[$i]->getEnum()->name] = $this->caches[$i]->increment($key, $ttl, $checkIncrementToExpire);
         }
         return $res;
     }
@@ -134,7 +134,7 @@ class CacheManagerImpl extends CacheManager
     {
         $res = [];
         for ($i = 0; $i < $this->size; $i++) {
-            $res[$this->caches[$i]->getEnum()->name()] = $this->caches[$i]->getRemainingTTL($key);
+            $res[$this->caches[$i]->getEnum()->name] = $this->caches[$i]->getRemainingTTL($key);
         }
         return $res;
     }
@@ -144,7 +144,7 @@ class CacheManagerImpl extends CacheManager
     {
         $res = [];
         for ($i = 0; $i < $this->size; $i++) {
-            $res[$this->caches[$i]->getEnum()->name()] = $this->caches[$i]->decrement($key, $ttl, $checkDecrementToExpire);
+            $res[$this->caches[$i]->getEnum()->name] = $this->caches[$i]->decrement($key, $ttl, $checkDecrementToExpire);
         }
         return $res;
     }

@@ -4,6 +4,7 @@ namespace CacheMultiLayer\Tests;
 
 use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Service\ApcuCache;
+use CacheMultiLayer\Service\Cache;
 use Exception;
 use Override;
 
@@ -20,8 +21,7 @@ class ApcuCacheTest extends AbstractCache
     {
         set_error_handler(function ($errno, $errstr, $errfile, $errline): false {
             // error was suppressed with the @-operator
-            if (0 === error_reporting())
-            {
+            if (0 === error_reporting()) {
                 return false;
             }
             throw new Exception($errstr . ' -> ' . $errfile . ':' . $errline, 0);
@@ -39,9 +39,9 @@ class ApcuCacheTest extends AbstractCache
     protected function setUp(): void
     {
         parent::setUp();
-        $this->setCache(new ApcuCache(60));
+        $this->setCache(Cache::factory(CacheEnum::APCU, 60));
     }
-
+    
     #[Override]
     public function testArray(): void
     {
@@ -102,20 +102,31 @@ class ApcuCacheTest extends AbstractCache
         parent::testIsConnected();
     }
 
+    #[\Override]
+    public function testRemainingTTL(): void
+    {
+        parent::testRemainingTTL();
+    }
+
     public function testEnum(): void
     {
         $this->doTestRealEnum(CacheEnum::APCU);
     }
 
+    #[\Override]
+    public static function tearDownAfterClass(): void
+    {
+        restore_error_handler();
+        Cache::factory(CacheEnum::APCU, 60)->clearAllCache();
+    }
+
     /**
-     * 
-     * @return void
+     *
      * @throws Exception
      */
     private static function checkBeforeClass(): void
     {
-        if (apcu_cache_info() === false)
-        {
+        if (apcu_cache_info() === false) {
             throw new Exception("apcu cache info not loaded");
         }
     }

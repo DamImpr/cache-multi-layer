@@ -14,18 +14,8 @@ namespace CacheMultiLayer\Interface;
  */
 interface Cacheable {
 
-    /**
-     * 
-     * @return string
-     * 
-     */
     public function serialize(): string;
 
-    /**
-     * 
-     * @param string $serialized
-     * @return void
-     */
     public function unserialize(string $serialized): void;
     
     
