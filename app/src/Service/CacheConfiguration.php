@@ -41,8 +41,9 @@ class CacheConfiguration {
         if (array_key_exists($enum->value, $this->setted)) {
             return false;
         }
+
         $this->configuration[$this->currentLevel] = $this->factoryCache($enum, $ttl, $configuration);
-        $this->currentLevel++;
+        ++$this->currentLevel;
         $this->setted[$enum->value] = true;
         return true;
     }

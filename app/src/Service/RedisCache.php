@@ -28,6 +28,7 @@ class RedisCache extends Cache
         {
             $this->redis->expire($key, $this->getTtlToUse($ttl));
         }
+
         return $value;
     }
 
@@ -43,6 +44,7 @@ class RedisCache extends Cache
         {
             return null;
         }
+
         $valDecoded = json_decode($val, true);
         return is_array($valDecoded) ? $this->unserializeValArray($valDecoded) : $valDecoded;
     }
@@ -70,6 +72,7 @@ class RedisCache extends Cache
         {
             $this->redis->expire($key, $this->getTtlToUse($ttl));
         }
+
         return $value;
     }
 
@@ -144,6 +147,7 @@ class RedisCache extends Cache
         {
             return ['__cacheable' => 1, '__class' => $val::class, '__data' => $val->serialize()];
         }
+
         return $val;
     }
 
@@ -161,6 +165,7 @@ class RedisCache extends Cache
                 $res[$key] = is_array($value) ? $this->unserializeValArray($value) : $value;
             }
         }
+
         return $res;
     }
 
@@ -171,10 +176,12 @@ class RedisCache extends Cache
         {
             $res[$key] = is_array($value) ? $this->serializeValArray($value) : $this->serializeVal($value);
         }
+
         return $res;
     }
 
     private readonly PredisClient $redis;
+
     private array $mandatoryKeys = [
         'server_address'
         , 'port'

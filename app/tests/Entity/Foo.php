@@ -13,8 +13,11 @@ use Override;
 class Foo implements Cacheable {
 
     private ?int $x = null;
+
     private ?string $y = null;
+
     private array $z = [];
+
     private ?Foo $foo = null;
 
     public function getX(): int {
@@ -57,23 +60,29 @@ class Foo implements Cacheable {
         if ($other === null) {
             return false;
         }
+
         if ($this->x !== $other->x) {
             return false;
         }
+
         if (!hash_equals($this->y, $this->y)) {
             return false;
         }
+
         foreach ($this->z as $key => $val) {
             if (!array_key_exists($key, $other->z)) {
                 return false;
             }
+
             if ($val != $other->z[$key]) {
                 return false;
             }
         }
+
         if ($this->foo == null && $other->foo === null) {
             return true;
         }
+
         return $this->foo !== null && $this->foo->equals($other->foo);
     }
 

@@ -29,6 +29,7 @@ abstract class Cache {
         if ($ttl <= 0) {
             throw new InvalidArgumentException("ttl must be positive, not like your life");
         }
+
         $this->assertConfig($configuration);
         $this->ttl = $ttl;
     }

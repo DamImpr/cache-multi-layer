@@ -16,19 +16,20 @@ class AbstractCacheManager extends TestCase
 {
 
     private ?CacheManager $cacheManager = null;
+
     private ?Foo $foo = null;
 
     public final function setCacheManager(?CacheManager $cacheManager): void
     {
         $this->cacheManager = $cacheManager;
     }
-    
+
     public final function getCacheManager(): ?CacheManager
     {
         return $this->cacheManager;
     }
 
-    
+
     #[Override]
     protected function setUp(): void
     {
@@ -111,15 +112,19 @@ class AbstractCacheManager extends TestCase
         foreach( $this->cacheManager->increment($key) as  $value){
             $this->assertEquals(1, $value);
         }
+
         foreach( $this->cacheManager->increment($key) as  $value){
             $this->assertEquals(2, $value);
         }
+
         foreach( $this->cacheManager->increment($key) as  $value){
             $this->assertEquals(3, $value);
         }
+
         foreach( $this->cacheManager->decrement($key) as  $value){
             $this->assertEquals(2, $value);
         }
+
         foreach( $this->cacheManager->decrement($key) as  $value){
             $this->assertEquals(1, $value);
         }

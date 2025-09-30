@@ -17,6 +17,7 @@ abstract class AbstractCache extends TestCase
 {
 
     private ?Cache $cache = null;
+
     private ?Foo $foo = null;
 
     public final function setCache(?Cache $cache): void
