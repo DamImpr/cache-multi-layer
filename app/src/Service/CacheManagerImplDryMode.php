@@ -13,9 +13,9 @@ use Override;
 class CacheManagerImplDryMode extends CacheManager {
 
     
-    protected function __construct(?CacheConfiguration $configuration)
+    protected function __construct(?CacheConfiguration $cacheConfiguration)
     {
-        parent::__construct($configuration);
+        parent::__construct($cacheConfiguration);
     }
     
 

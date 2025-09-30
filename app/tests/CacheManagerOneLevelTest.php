@@ -78,8 +78,8 @@ class CacheManagerOneLevelTest extends AbstractCacheManager
     
     private static function getConfig(): CacheConfiguration
     {
-        $cc = new CacheConfiguration();
-        $cc->appendCacheLevel(CacheEnum::APCU, 60);
-        return $cc;
+        $cacheConfiguration = new CacheConfiguration();
+        $cacheConfiguration->appendCacheLevel(CacheEnum::APCU, 60);
+        return $cacheConfiguration;
     }
 }

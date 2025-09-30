@@ -21,8 +21,8 @@ return RectorConfig::configure()
                     NewMethodCallWithoutParenthesesRector::class,
                     UnusedForeachValueToArrayKeysRector::class,
                     //RemoveUnusedForeachKeyRector::class,
-                    RemoveUselessParamTagRector::class,
-                    RemoveUselessReturnTagRector::class,
+                    //RemoveUselessParamTagRector::class,
+//                    RemoveUselessReturnTagRector::class,
                     DeclareStrictTypesRector::class,
                     FinalizeTestCaseClassRector::class
                         //SimplifyUselessVariableRector::class
@@ -31,7 +31,7 @@ return RectorConfig::configure()
 //                deadCode: true,
 //                codeQuality: true,
                 codingStyle: true,
-                //naming: true,
+                naming: true,
                 //privatization: true,
                 //typeDeclarations: true,
                 rectorPreset: true

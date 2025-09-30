@@ -83,13 +83,13 @@ class CacheManagerMultiLevelTest extends AbstractCacheManager
         $val = 10;
         $apcuCache = Cache::factory(CacheEnum::APCU, 3);
         $redisCache = Cache::factory(CacheEnum::REDIS, 65, ['server_address' => 'redis-server', 'port' => 6379]);
-        $cc = CacheManager::factory();
-        $cc->appendCache($apcuCache);
-        $cc->appendCache($redisCache);
-        $cc->set($key, $val);
+        $cacheManager = CacheManager::factory();
+        $cacheManager->appendCache($apcuCache);
+        $cacheManager->appendCache($redisCache);
+        $cacheManager->set($key, $val);
         sleep(7);
         $this->assertNull($apcuCache->get($key));
-        $actual = $cc->get($key);
+        $actual = $cacheManager->get($key);
         $this->assertEquals($val, $actual);
         $this->assertEquals($val,$apcuCache->get($key));
     }
@@ -102,9 +102,9 @@ class CacheManagerMultiLevelTest extends AbstractCacheManager
 
     private static function getConfig(): CacheConfiguration
     {
-        $cc = new CacheConfiguration();
-        $cc->appendCacheLevel(CacheEnum::APCU, 10);
-        $cc->appendCacheLevel(CacheEnum::REDIS, 65, ['server_address' => 'redis-server', 'port' => 6379]);
-        return $cc;
+        $cacheConfiguration = new CacheConfiguration();
+        $cacheConfiguration->appendCacheLevel(CacheEnum::APCU, 10);
+        $cacheConfiguration->appendCacheLevel(CacheEnum::REDIS, 65, ['server_address' => 'redis-server', 'port' => 6379]);
+        return $cacheConfiguration;
     }
 }

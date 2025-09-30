@@ -23,10 +23,10 @@ class RedisCache extends Cache
     #[\Override]
     public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): int
     {
-        $value = $this->redis->decr($key);
+        $value = $this->predisClient->decr($key);
         if ($value <= $checkDecrementToExpire)
         {
-            $this->redis->expire($key, $this->getTtlToUse($ttl));
+            $this->predisClient->expire($key, $this->getTtlToUse($ttl));
         }
 
         return $value;
@@ -39,7 +39,7 @@ class RedisCache extends Cache
     #[\Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
-        $val = $this->redis->get($key);
+        $val = $this->predisClient->get($key);
         if ($val === null)
         {
             return null;
@@ -57,7 +57,7 @@ class RedisCache extends Cache
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
     {
         $data = is_array($val) ? $this->serializeValArray($val) : $this->serializeVal($val);
-        return $this->redis->setex($key, $this->getTtlToUse($ttl), json_encode($data)) !== null;
+        return $this->predisClient->setex($key, $this->getTtlToUse($ttl), json_encode($data)) !== null;
     }
 
     /**
@@ -67,10 +67,10 @@ class RedisCache extends Cache
     #[Override]
     public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): int
     {
-        $value = $this->redis->incr($key);
+        $value = $this->predisClient->incr($key);
         if ($value <= $checkIncrementToExpire)
         {
-            $this->redis->expire($key, $this->getTtlToUse($ttl));
+            $this->predisClient->expire($key, $this->getTtlToUse($ttl));
         }
 
         return $value;
@@ -83,7 +83,7 @@ class RedisCache extends Cache
     #[Override]
     public function clear(string $key): bool
     {
-        return (bool) $this->redis->del($key);
+        return (bool) $this->predisClient->del($key);
     }
 
     /**
@@ -93,7 +93,7 @@ class RedisCache extends Cache
     #[Override]
     public function clearAllCache(): bool
     {
-        return $this->redis->flushall() !== NULL;
+        return $this->predisClient->flushall() !== NULL;
     }
 
     /**
@@ -103,7 +103,7 @@ class RedisCache extends Cache
     #[Override]
     public function getRemainingTTL(string $key): ?int
     {
-        $ttl = $this->redis->ttl($key);
+        $ttl = $this->predisClient->ttl($key);
         return $ttl !== false ? $ttl : null;
     }
 
@@ -114,7 +114,7 @@ class RedisCache extends Cache
     protected function __construct(int $ttl, array $configuration = [])
     {
         parent::__construct($ttl, $configuration);
-        $this->redis = new PredisClient([
+        $this->predisClient = new PredisClient([
             'scheme' => $configuration['tcp'] ?? 'tcp',
             'host' => $configuration['server_address'],
             'port' => $configuration['port'],
@@ -126,7 +126,7 @@ class RedisCache extends Cache
     #[\Override]
     public function isConnected(): bool
     {
-        return $this->redis->ping() !== null;
+        return $this->predisClient->ping() !== null;
     }
 
     #[\Override]
@@ -180,7 +180,7 @@ class RedisCache extends Cache
         return $res;
     }
 
-    private readonly PredisClient $redis;
+    private readonly PredisClient $predisClient;
 
     private array $mandatoryKeys = [
         'server_address'

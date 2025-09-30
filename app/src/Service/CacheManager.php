@@ -16,13 +16,12 @@ use CacheMultiLayer\Interface\Cacheable;
 abstract class CacheManager {
     
     // TODO riscirvere la phpdoc, è un refuso
-
     /**
      * Costruttore della classe che deve necessariamente avere una configurazione in ingresso dei sistemi di cache da utilizzare.
-     * @param CacheConfiguration $configuration la configurazione dei sistemi di cache
+     * @param CacheConfiguration $cacheConfiguration la configurazione dei sistemi di cache
      * @see CacheConfiguration
      */
-    protected abstract function __construct(?CacheConfiguration $configuration);
+    protected abstract function __construct(?CacheConfiguration $cacheConfiguration);
     
     
     
@@ -75,10 +74,10 @@ abstract class CacheManager {
 
     /**
      * Metodo di factory, restituisce Il Sistema di cache in modalità Dev o in modalità Prod in base alla flag settata nell'enviroment di symfony
-     * @param ?CacheConfiguration $cc Configurazione della cache da adottare.
+     * @param ?CacheConfiguration $cacheConfiguration Configurazione della cache da adottare.
      * @return CacheManager istanza della classe che gestisce la cache
      */
-    public static function factory(?CacheConfiguration $cc = null, bool $dryMode = false): CacheManager {
-        return !$dryMode  ? new CacheManagerImpl($cc) : new CacheManagerImplDryMode($cc);
+    public static function factory(?CacheConfiguration $cacheConfiguration = null, bool $dryMode = false): CacheManager {
+        return !$dryMode  ? new CacheManagerImpl($cacheConfiguration) : new CacheManagerImplDryMode($cacheConfiguration);
 }
 }

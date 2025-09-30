@@ -102,15 +102,15 @@ abstract class Cache {
      * Metodo di factory di un sistema di cache, dove attraverso un enumerazione
      * e il ttl da associare, restituisce la specifica classe di Cache.
      * Anche se specificata come intero, non passare numeri, ma usare le costanti di CacheEnum.
-     * @param CacheEnum $enum Enumerazione da passare
+     * @param CacheEnum $cacheEnum Enumerazione da passare
      * @param int $ttl ttl della cache
      * @return Cache Sistema di cache associato all'enumerazione
      * @throws InvalidArgumentException Nel caso non ci sia nessun sistema di cache associato all'enumerazione passata in ingresso
      * @throws CacheMissingConfigurationException
      * @see CacheEnum
      */
-    public static function factory(CacheEnum $enum, int $ttl, array $configuration = []): Cache {
-        return match ($enum) {
+    public static function factory(CacheEnum $cacheEnum, int $ttl, array $configuration = []): Cache {
+        return match ($cacheEnum) {
             CacheEnum::APCU => new ApcuCache($ttl, $configuration),
             CacheEnum::REDIS => new RedisCache($ttl, $configuration)
         };

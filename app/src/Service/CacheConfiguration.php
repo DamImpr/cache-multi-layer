@@ -32,19 +32,19 @@ class CacheConfiguration {
 
     /**
      * metodo che setta il livello successivo di cache
-     * @param CacheEnum $enum l'enumerazione usata per indicare il sistema di cache, tramite l'enumerazione conservata nella classe CacheEnum
+     * @param CacheEnum $cacheEnum l'enumerazione usata per indicare il sistema di cache, tramite l'enumerazione conservata nella classe CacheEnum
      * @param int $ttl Time to live espresso in secondi
      * @see CacheEnum
      * @throws InvalidArgumentException nel caso sia già stato settato il sistema di cache passato
      */
-    public function appendCacheLevel(CacheEnum $enum, int $ttl, array $configuration = []): bool {
-        if (array_key_exists($enum->value, $this->setted)) {
+    public function appendCacheLevel(CacheEnum $cacheEnum, int $ttl, array $configuration = []): bool {
+        if (array_key_exists($cacheEnum->value, $this->setted)) {
             return false;
         }
 
-        $this->configuration[$this->currentLevel] = $this->factoryCache($enum, $ttl, $configuration);
+        $this->configuration[$this->currentLevel] = $this->factoryCache($cacheEnum, $ttl, $configuration);
         ++$this->currentLevel;
-        $this->setted[$enum->value] = true;
+        $this->setted[$cacheEnum->value] = true;
         return true;
     }
 
@@ -63,7 +63,7 @@ class CacheConfiguration {
      *
      * @throws InvalidArgumentException
      */
-    private function factoryCache(CacheEnum $enum, int $ttl, array $configuration): Cache {
-        return Cache::factory($enum, $ttl, $configuration);
+    private function factoryCache(CacheEnum $cacheEnum, int $ttl, array $configuration): Cache {
+        return Cache::factory($cacheEnum, $ttl, $configuration);
     }
 }

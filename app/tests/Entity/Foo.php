@@ -56,12 +56,12 @@ class Foo implements Cacheable {
         return $this;
     }
 
-    public function equals(?Foo $other): bool {
-        if ($other === null) {
+    public function equals(?Foo $foo): bool {
+        if ($foo === null) {
             return false;
         }
 
-        if ($this->x !== $other->x) {
+        if ($this->x !== $foo->x) {
             return false;
         }
 
@@ -70,20 +70,20 @@ class Foo implements Cacheable {
         }
 
         foreach ($this->z as $key => $val) {
-            if (!array_key_exists($key, $other->z)) {
+            if (!array_key_exists($key, $foo->z)) {
                 return false;
             }
 
-            if ($val != $other->z[$key]) {
+            if ($val != $foo->z[$key]) {
                 return false;
             }
         }
 
-        if ($this->foo == null && $other->foo === null) {
+        if ($this->foo == null && $foo->foo === null) {
             return true;
         }
 
-        return $this->foo !== null && $this->foo->equals($other->foo);
+        return $this->foo !== null && $this->foo->equals($foo->foo);
     }
 
     #[Override]

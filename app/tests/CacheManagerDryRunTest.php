@@ -135,9 +135,9 @@ class CacheManagerDryRunTest extends AbstractCacheManager
 
     private static function getConfig(): CacheConfiguration
     {
-        $cc = new CacheConfiguration();
-        $cc->appendCacheLevel(CacheEnum::APCU, 10);
-        $cc->appendCacheLevel(CacheEnum::REDIS, 65, ['server_address' => 'redis-server', 'port' => 6379]);
-        return $cc;
+        $cacheConfiguration = new CacheConfiguration();
+        $cacheConfiguration->appendCacheLevel(CacheEnum::APCU, 10);
+        $cacheConfiguration->appendCacheLevel(CacheEnum::REDIS, 65, ['server_address' => 'redis-server', 'port' => 6379]);
+        return $cacheConfiguration;
     }
 }
