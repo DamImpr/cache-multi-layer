@@ -79,25 +79,7 @@ abstract class Cache {
     public abstract function isConnected(): bool;
     
     public abstract function getEnum():CacheEnum;
-
-    /**
-     * metodo che restituisce il ttl giusta da usare tra quello passato in ingresso e quello della classe
-     * @param ?int $ttl ttl passato in ingresso
-     * @return int ttl da utilizzare
-     */
-    protected function getTtlToUse(?int $ttl): int {
-        return ($ttl ?? -1) < 0 ? $this->ttl : $ttl;
-    }
-
-    protected function assertConfig(array $configuration): void {
-        $mandatoryKeys = $this->getMandatoryConfig();
-        if (!empty(array_diff_key($mandatoryKeys, array_keys($configuration)))) {
-            throw new CacheMissingConfigurationException(implode(',', $mandatoryKeys) . " are mandatory configurations");
-        }
-    }
     
-    protected abstract function getMandatoryConfig():array;
-
     /**
      * Metodo di factory di un sistema di cache, dove attraverso un enumerazione
      * e il ttl da associare, restituisce la specifica classe di Cache.
@@ -116,6 +98,66 @@ abstract class Cache {
         };
     }
 
+
+    /**
+     * metodo che restituisce il ttl giusta da usare tra quello passato in ingresso e quello della classe
+     * @param ?int $ttl ttl passato in ingresso
+     * @return int ttl da utilizzare
+     */
+    protected function getTtlToUse(?int $ttl): int {
+        return ($ttl ?? -1) < 0 ? $this->ttl : $ttl;
+    }
+
+    protected function assertConfig(array $configuration): void {
+        $mandatoryKeys = $this->getMandatoryConfig();
+        if (!empty(array_diff_key($mandatoryKeys, array_keys($configuration)))) {
+            throw new CacheMissingConfigurationException(implode(',', $mandatoryKeys) . " are mandatory configurations");
+        }
+    }
+    
+    protected abstract function getMandatoryConfig():array;
+    
+    
+    protected final function serializeVal(int|float|string|Cacheable $val): int|float|string|array
+    {
+        if ($val instanceof Cacheable)
+        {
+            return ['__cacheable' => 1, '__class' => $val::class, '__data' => $val->serialize()];
+        }
+
+        return $val;
+    }
+
+    protected final function unserializeValArray(array $val): array|Cacheable
+    {
+        $res = [];
+        if (array_key_exists('__cacheable', $val))
+        {
+            $res = new $val['__class']();
+            $res->unserialize($val['__data']);
+        } else
+        {
+            foreach ($val as $key => $value)
+            {
+                $res[$key] = is_array($value) ? $this->unserializeValArray($value) : $value;
+            }
+        }
+
+        return $res;
+    }
+
+    protected final function serializeValArray(array $val): array
+    {
+        $res = [];
+        foreach ($val as $key => $value)
+        {
+            $res[$key] = is_array($value) ? $this->serializeValArray($value) : $this->serializeVal($value);
+        }
+
+        return $res;
+    }
+
+    
     /**
      * ttl in secondi da associare al sistema di cache
      */

@@ -7,9 +7,11 @@ services:
       - ./app/tests:/app/tests
     command: ./vendor/bin/phpunit ./tests/ 
     networks:
-      - redis-network
+      - cache-sw-network
     depends_on:
       redis-server:
+        condition: service_started
+      memcache-server:
         condition: service_started
   update-vendor:
     build:
@@ -34,7 +36,13 @@ services:
     ports:
       - 6379:6379
     networks:
-      - redis-network
+      - cache-sw-network
+  memcache-server:
+    image: memcached
+    ports:
+      - 11211:11211
+    networks:
+      - cache-sw-network
 networks:
-   redis-network:
+   cache-sw-network:
     

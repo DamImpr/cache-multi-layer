@@ -27,8 +27,6 @@
     },
     "require": {
         "php": ">=8.3",
-        "ext-apcu": "*",
-        "ext-redis": "*",
         "predis/predis": "^3.2"
     },
     "require-dev": {

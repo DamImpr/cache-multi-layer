@@ -9,8 +9,8 @@ RUN apk add --no-cache \
     make \
     autoconf \
     libc-dev \
-    && pecl install apcu redis \
-    && docker-php-ext-enable apcu redis \
+    && pecl install apcu redis memcache \
+    && docker-php-ext-enable apcu redis memcache \
     && apk del .build-deps
 
 COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer

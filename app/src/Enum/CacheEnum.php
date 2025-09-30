@@ -9,7 +9,7 @@ namespace CacheMultiLayer\Enum;
  */
 enum CacheEnum: int
 {
-
     case APCU = 1;
     case REDIS = 2;
+    case MEMCACHE = 3;
 }

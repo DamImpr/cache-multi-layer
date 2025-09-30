@@ -141,44 +141,7 @@ class RedisCache extends Cache
         return $this->mandatoryKeys;
     }
 
-    private function serializeVal(int|float|string|Cacheable $val): int|float|string|array
-    {
-        if ($val instanceof Cacheable)
-        {
-            return ['__cacheable' => 1, '__class' => $val::class, '__data' => $val->serialize()];
-        }
-
-        return $val;
-    }
-
-    private function unserializeValArray(array $val): array|Cacheable
-    {
-        $res = [];
-        if (array_key_exists('__cacheable', $val))
-        {
-            $res = new $val['__class']();
-            $res->unserialize($val['__data']);
-        } else
-        {
-            foreach ($val as $key => $value)
-            {
-                $res[$key] = is_array($value) ? $this->unserializeValArray($value) : $value;
-            }
-        }
-
-        return $res;
-    }
-
-    private function serializeValArray(array $val): array
-    {
-        $res = [];
-        foreach ($val as $key => $value)
-        {
-            $res[$key] = is_array($value) ? $this->serializeValArray($value) : $this->serializeVal($value);
-        }
-
-        return $res;
-    }
+    
 
     private readonly PredisClient $predisClient;
 
