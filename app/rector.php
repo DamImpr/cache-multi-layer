@@ -3,8 +3,7 @@ declare(strict_types=1);
 
 use Rector\CodeQuality\Rector\Foreach_\UnusedForeachValueToArrayKeysRector;
 use Rector\Config\RectorConfig;
-use Rector\DeadCode\Rector\ClassMethod\RemoveUselessParamTagRector;
-use Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnTagRector;
+use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedConstructorParamRector;
 use Rector\Php84\Rector\MethodCall\NewMethodCallWithoutParenthesesRector;
 use Rector\Privatization\Rector\Class_\FinalizeTestCaseClassRector;
 use Rector\Set\ValueObject\LevelSetList;
@@ -20,6 +19,7 @@ return RectorConfig::configure()
                     //InlineClassRoutePrefixRector::class,
                     NewMethodCallWithoutParenthesesRector::class,
                     UnusedForeachValueToArrayKeysRector::class,
+                    RemoveUnusedConstructorParamRector::class,
                     //RemoveUnusedForeachKeyRector::class,
                     //RemoveUselessParamTagRector::class,
 //                    RemoveUselessReturnTagRector::class,

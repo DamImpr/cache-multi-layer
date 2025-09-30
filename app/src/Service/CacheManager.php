@@ -21,7 +21,7 @@ abstract class CacheManager {
      * @param CacheConfiguration $cacheConfiguration la configurazione dei sistemi di cache
      * @see CacheConfiguration
      */
-    protected abstract function __construct(?CacheConfiguration $cacheConfiguration);
+    protected abstract function __construct(?CacheConfiguration $cacheConfiguration = null);
     
     
     

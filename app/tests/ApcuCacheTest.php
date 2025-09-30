@@ -19,7 +19,7 @@ class ApcuCacheTest extends AbstractCache
     #[Override]
     public static function setUpBeforeClass(): void
     {
-        set_error_handler(function ($errno, string $errstr, string $errfile, string $errline): false {
+        set_error_handler(function (int $errno, string $errstr, string $errfile, int $errline): false {
             // error was suppressed with the @-operator
             if (0 === error_reporting()) {
                 return false;

@@ -26,7 +26,7 @@ class CacheManagerImpl extends CacheManager
      */
     private int $size = 0;
 
-    protected function __construct(?CacheConfiguration $cacheConfiguration)
+    protected function __construct(?CacheConfiguration $cacheConfiguration = null)
     {
         $this->caches = $cacheConfiguration?->getConfiguration() ?? [];
         $this->size = count($this->caches);

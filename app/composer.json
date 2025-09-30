@@ -29,11 +29,11 @@
         "php": ">=8.3",
         "ext-apcu": "*",
         "ext-redis": "*",
-        "predis/predis": "^3.1"
+        "predis/predis": "^3.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "^12.1",
+        "phpunit/phpunit": "^12.3",
         "phpstan/phpstan": "^2.1",
-        "rector/rector": "^2.1.2"
+        "rector/rector": "^2.1"
     }
 }

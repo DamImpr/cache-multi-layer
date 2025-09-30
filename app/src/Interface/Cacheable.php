@@ -12,11 +12,10 @@ namespace CacheMultiLayer\Interface;
  * 
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
-interface Cacheable {
+interface Cacheable
+{
 
     public function serialize(): string;
 
     public function unserialize(string $serialized): void;
-    
-    
 }

@@ -56,8 +56,9 @@ class Foo implements Cacheable {
         return $this;
     }
 
-    public function equals(?Foo $foo): bool {
-        if ($foo === null) {
+    public function equals(mixed $foo): bool {
+        
+        if (!(is_object($foo) && $foo::class === Foo::class)) {
             return false;
         }
 
