@@ -4,6 +4,7 @@ namespace CacheMultiLayer\Service;
 
 use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Interface\Cacheable;
+use Memcache;
 use Override;
 
 /**
@@ -22,25 +23,30 @@ class MemcacheCache extends Cache
     #[Override]
     public function clear(string $key): bool
     {
-        
+        return $this->memcache->delete($key);
     }
 
     #[Override]
     public function clearAllCache(): bool
     {
-        
+        return $this->memcache->flush();
     }
 
     #[Override]
     public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): int
     {
-        
+        return $this->memcache->decrement($key, 1,0,$this->getTtlToUse($ttl));
     }
 
     #[Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
-        
+        $val = $this->memcache->get($key);
+        if ($val === null) {
+            return null;
+        }
+        $valDecoded = json_decode($val['data'], true);
+        return is_array($valDecoded) ? $this->unserializeValArray($valDecoded) : $valDecoded;
     }
 
     #[Override]
@@ -52,13 +58,17 @@ class MemcacheCache extends Cache
     #[Override]
     public function getRemainingTTL(string $key): ?int
     {
-        
+        $val = $this->memcache->get($key);
+        if ($val === null) {
+            return null;
+        }
+        return $val['exipres_at'] - time();
     }
 
     #[Override]
     public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): int
     {
-        
+        return $this->memcache->increment($key, 1, 1, $this->getTtlToUse($ttl));
     }
 
     #[Override]
@@ -71,13 +81,18 @@ class MemcacheCache extends Cache
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
     {
         $values = is_array($val) ? $this->serializeValArray($val) : $this->serializeVal($val);
-        return $this->memcache->set($key, $values, $this->compress ? MEMCACHE_COMPRESSED : 0, $this->getTtlToUse($ttl));
+        $ttlToUse = $this->getTtlToUse($ttl);
+        $dataToStore = [
+            'data' => json_encode($values)
+            , 'exipres_at' => time() + $ttlToUse
+        ];
+        return $this->memcache->set($key, $dataToStore, $this->compress ? MEMCACHE_COMPRESSED : 0, $ttlToUse);
     }
 
     protected function __construct(int $ttl, array $configuration = [])
     {
         parent::__construct($ttl, $configuration);
-        $this->memcache = new \Memcache();
+        $this->memcache = new Memcache();
         if (array_key_exists('persistent', $configuration)) {
             $this->memcache->pconnect($configuration['server_address'], $configuration['port']);
         } else {

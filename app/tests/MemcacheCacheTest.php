@@ -13,14 +13,14 @@ use Override;
  *
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
-class RedisCacheTest extends AbstractCache
+class MemcacheCacheTest extends AbstractCache
 {
 
     #[Override]
     protected function setUp(): void
     {
         parent::setUp();
-        $this->setCache(Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'redis-server', 'port' => 6379]));
+        $this->setCache(Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => 'memcache-server', 'port' => 11211]));
     }
 
     #[Override]
@@ -98,29 +98,29 @@ class RedisCacheTest extends AbstractCache
     public function testMissingServer(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
-        Cache::factory(CacheEnum::REDIS, 60, ['port' => 6379]);
+        Cache::factory(CacheEnum::MEMCACHE, 60, ['port' => 11211]);
     }
 
     public function testMissingPort(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
-        Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'localhost']);
+        Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => 'localhost']);
     }
 
     public function testConnectionNotFound(): void
     {
         $this->expectException(Exception::class);
-        Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'ip-no-redis', 'port' => 6379])->isConnected();
+        Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => 'ip-no-memwcache', 'port' => 11211])->isConnected();
     }
 
     public function testEnum(): void
     {
-        $this->doTestRealEnum(CacheEnum::REDIS);
+        $this->doTestRealEnum(CacheEnum::MEMCACHE);
     }
 
     #[\Override]
     public static function tearDownAfterClass(): void
     {
-        Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'redis-server', 'port' => 6379])->clearAllCache();
+        Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => 'memcache-server', 'port' => 11211])->clearAllCache();
     }
 }

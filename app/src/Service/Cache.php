@@ -94,7 +94,8 @@ abstract class Cache {
     public static function factory(CacheEnum $cacheEnum, int $ttl, array $configuration = []): Cache {
         return match ($cacheEnum) {
             CacheEnum::APCU => new ApcuCache($ttl, $configuration),
-            CacheEnum::REDIS => new RedisCache($ttl, $configuration)
+            CacheEnum::REDIS => new RedisCache($ttl, $configuration),
+            CacheEnum::MEMCACHE => new MemcacheCache($ttl, $configuration)
         };
     }
 
