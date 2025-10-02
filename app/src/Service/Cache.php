@@ -66,7 +66,7 @@ abstract class Cache {
      * @param int $checkIncrementToExpire limite valore massimo per aggiornare il ttl.
      * @return int il nuovo valore associato alla chiave, nel caso di fallimento restituisce il valore 0 
      */
-    public abstract function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): int;
+    public abstract function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1):  int|false;
 
     /**
      * @param string $key chiave il cui valore intero deve essere incrementato.
@@ -74,7 +74,7 @@ abstract class Cache {
      * @param int $checkDecrementToExpire limite valore massimo per aggiornare il ttl.
      * @return int il nuovo valore associato alla chiave, nel caso di fallimento restituisce il valore 0 
      */
-    public abstract function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): int;
+    public abstract function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1):  int|false;
 
     public abstract function isConnected(): bool;
     

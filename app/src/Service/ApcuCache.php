@@ -43,14 +43,14 @@ class ApcuCache extends Cache
     }
 
     #[Override]
-    public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): int
+    public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1):  int|false
     {
         $success = true;
         return apcu_dec($this->getEffectiveKey($key), 1, $success, $this->getTtlToUse($ttl));
     }
 
     #[Override]
-    public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): int
+    public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1):  int|false
     {
         $success = true;
         return apcu_inc($this->getEffectiveKey($key), 1, $success, $this->getTtlToUse($ttl));

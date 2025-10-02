@@ -21,11 +21,10 @@ class RedisCache extends Cache
      * {@InheritDoc}
      */
     #[\Override]
-    public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): int
+    public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): int|false
     {
         $value = $this->predisClient->decr($key);
-        if ($value <= $checkDecrementToExpire)
-        {
+        if ($value <= $checkDecrementToExpire) {
             $this->predisClient->expire($key, $this->getTtlToUse($ttl));
         }
 
@@ -40,8 +39,7 @@ class RedisCache extends Cache
     public function get(string $key): int|float|string|Cacheable|array|null
     {
         $val = $this->predisClient->get($key);
-        if ($val === null)
-        {
+        if ($val === null) {
             return null;
         }
 
@@ -65,11 +63,10 @@ class RedisCache extends Cache
      * {@InheritDoc}
      */
     #[Override]
-    public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): int
+    public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): int|false
     {
         $value = $this->predisClient->incr($key);
-        if ($value <= $checkIncrementToExpire)
-        {
+        if ($value <= $checkIncrementToExpire) {
             $this->predisClient->expire($key, $this->getTtlToUse($ttl));
         }
 
@@ -141,10 +138,7 @@ class RedisCache extends Cache
         return $this->mandatoryKeys;
     }
 
-    
-
     private readonly PredisClient $predisClient;
-
     private array $mandatoryKeys = [
         'server_address'
         , 'port'

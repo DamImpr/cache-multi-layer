@@ -35,14 +35,26 @@ class MemcacheCache extends Cache
     #[Override]
     public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): int
     {
-        return $this->memcache->decrement($key, 1,0,$this->getTtlToUse($ttl));
+        $pair = $this->memcache->get($key);
+        if (empty($pair)) {
+            $this->set($key, 1, $ttl);
+            return -1;
+        }
+        $value = $pair['data'];
+        if (!is_numeric($value)) {
+            return false;
+        }
+        $value--;
+        $pair['data'] = $value;
+        $this->memcache->set($key, $pair, $this->compress ? MEMCACHE_COMPRESSED : 0, $this->getRemainingTTL($key));
+        return $value;
     }
 
     #[Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
         $val = $this->memcache->get($key);
-        if ($val === null) {
+        if (empty($val)) {
             return null;
         }
         $valDecoded = json_decode($val['data'], true);
@@ -59,16 +71,28 @@ class MemcacheCache extends Cache
     public function getRemainingTTL(string $key): ?int
     {
         $val = $this->memcache->get($key);
-        if ($val === null) {
+        if (empty($val)) {
             return null;
         }
         return $val['exipres_at'] - time();
     }
 
     #[Override]
-    public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): int
+    public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): int|false
     {
-        return $this->memcache->increment($key, 1, 1, $this->getTtlToUse($ttl));
+        $pair = $this->memcache->get($key);
+        if (empty($pair)) {
+            $this->set($key, 1, $ttl);
+            return 1;
+        }
+        $value = $pair['data'];
+        if (!is_numeric($value)) {
+            return false;
+        }
+        $value++;
+        $pair['data'] = $value;
+        $this->memcache->set($key, $pair, $this->compress ? MEMCACHE_COMPRESSED : 0, $this->getRemainingTTL($key));
+        return $value;
     }
 
     #[Override]
@@ -94,9 +118,12 @@ class MemcacheCache extends Cache
         parent::__construct($ttl, $configuration);
         $this->memcache = new Memcache();
         if (array_key_exists('persistent', $configuration)) {
-            $this->memcache->pconnect($configuration['server_address'], $configuration['port']);
+            $resultConnection = $this->memcache->pconnect($configuration['server_address'], $configuration['port']);
         } else {
-            $this->memcache->connect($configuration['server_address'], $configuration['port']);
+            $resultConnection = $this->memcache->connect($configuration['server_address'], $configuration['port']);
+        }
+        if (!$resultConnection) {
+            throw new \Exception("Connection not found");
         }
         $this->compress = array_key_exists('compress', $configuration) && $configuration['compress'];
     }

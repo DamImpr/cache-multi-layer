@@ -27,6 +27,18 @@ class MemcacheCacheTest extends AbstractCache
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
+        set_error_handler(function (int $errno, string $errstr, string $errfile, int $errline): bool {
+            // error was suppressed with the @-operator
+            if (0 === error_reporting()) {
+                return false;
+            }
+            switch($errno){
+                
+            }
+            throw new Exception($errstr . ' -> ' . $errfile . ':' . $errline, 0);
+//            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+        });
+       
     }
 
     #[Override]
@@ -110,7 +122,7 @@ class MemcacheCacheTest extends AbstractCache
     public function testConnectionNotFound(): void
     {
         $this->expectException(Exception::class);
-        Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => 'ip-no-memwcache', 'port' => 11211])->isConnected();
+        Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => '192.168.0.0', 'port' => 11211])->isConnected();
     }
 
     public function testEnum(): void
