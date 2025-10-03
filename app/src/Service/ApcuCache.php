@@ -8,15 +8,14 @@ use Override;
 
 /**
  * APCU cache implementation
- * 
+ *
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  * @see Cache
  */
 class ApcuCache extends Cache
 {
-
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -28,7 +27,7 @@ class ApcuCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -38,7 +37,7 @@ class ApcuCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -48,7 +47,7 @@ class ApcuCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -58,31 +57,31 @@ class ApcuCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
-    public function decrement(string $key, ?int $ttl = null):  int|false
+    public function decrement(string $key, ?int $ttl = null): int|false
     {
         $success = true;
         $res = apcu_dec($this->getEffectiveKey($key), 1, $success, $this->getTtlToUse($ttl));
-        return $success ? $res: false;
+        return $success ? $res : false;
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
-    public function increment(string $key, ?int $ttl = null):  int|false
+    public function increment(string $key, ?int $ttl = null): int|false
     {
         $success = true;
         $res = apcu_inc($this->getEffectiveKey($key), 1, $success, $this->getTtlToUse($ttl));
-        return $success ? $res: false;
+        return $success ? $res : false;
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -93,7 +92,7 @@ class ApcuCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[\Override]
@@ -103,7 +102,7 @@ class ApcuCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[\Override]
@@ -113,7 +112,7 @@ class ApcuCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[\Override]
@@ -123,7 +122,7 @@ class ApcuCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     protected function __construct(int $ttl, array $configuration = [])

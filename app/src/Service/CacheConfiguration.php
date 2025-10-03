@@ -6,21 +6,21 @@ use CacheMultiLayer\Enum\CacheEnum;
 use InvalidArgumentException;
 
 /**
- * 
+ *
  * Class representing the configuration of cache levels, which is
  * then used by CacheManager to manage data across the various levels.
- * 
+ *
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
-class CacheConfiguration {
-
+class CacheConfiguration
+{
     /**
      * Cache configuration.
      * Priority is based on the position of the object in the array, where position 0 is the highest priority.
      */
     private array $configuration = [];
 
-   
+
     /**
      * Current level of the cache set, used during cache appending.
      */
@@ -39,7 +39,8 @@ class CacheConfiguration {
      * @see CacheEnum
      * @throws InvalidArgumentException nel caso sia già stato settato il sistema di cache passato
      */
-    public function appendCacheLevel(CacheEnum $cacheEnum, int $ttl, array $configuration = []): bool {
+    public function appendCacheLevel(CacheEnum $cacheEnum, int $ttl, array $configuration = []): bool
+    {
         if (array_key_exists($cacheEnum->value, $this->setted)) {
             return false;
         }
@@ -52,20 +53,22 @@ class CacheConfiguration {
 
     /**
      * restituisce la configurazione della cache, dove partendo da zero si ha il primo livello e con lo spostarsi nelle celle dell'array a destra i livelli successivi.
-     * @return array la configurazione 
+     * @return array la configurazione
      * @see Cache
      */
-    public function getConfiguration(): array {
+    public function getConfiguration(): array
+    {
         return $this->configuration;
     }
 
-    
+
 
     /**
      *
      * @throws InvalidArgumentException
      */
-    private function factoryCache(CacheEnum $cacheEnum, int $ttl, array $configuration): Cache {
+    private function factoryCache(CacheEnum $cacheEnum, int $ttl, array $configuration): Cache
+    {
         return Cache::factory($cacheEnum, $ttl, $configuration);
     }
 }

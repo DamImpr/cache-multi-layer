@@ -8,16 +8,15 @@ use Override;
 use Predis\Client as PredisClient;
 
 /**
- * 
- * Implementazione della cache Redis 
+ *
+ * Implementazione della cache Redis
  * per la documentazione dei metodi, si rimanda all'interfaccia Cache
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
 class RedisCache extends Cache
 {
-
     /**
-     * 
+     *
      * {@InheritDoc}
      */
     #[\Override]
@@ -32,7 +31,7 @@ class RedisCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@InheritDoc}
      */
     #[\Override]
@@ -48,7 +47,7 @@ class RedisCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@InheritDoc}
      */
     #[\Override]
@@ -59,7 +58,7 @@ class RedisCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@InheritDoc}
      */
     #[Override]
@@ -73,7 +72,7 @@ class RedisCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -83,17 +82,17 @@ class RedisCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
     public function clearAllCache(): bool
     {
-        return $this->predisClient->flushall() !== NULL;
+        return $this->predisClient->flushall() !== null;
     }
 
     /**
-     * 
+     *
      * {@InheritDoc}
      */
     #[Override]
@@ -104,7 +103,7 @@ class RedisCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@InheritDoc}
      */
     protected function __construct(int $ttl, array $configuration = [])
@@ -120,7 +119,7 @@ class RedisCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@InheritDoc}
      */
     #[\Override]
@@ -130,7 +129,7 @@ class RedisCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@InheritDoc}
      */
     #[\Override]
@@ -140,7 +139,7 @@ class RedisCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@InheritDoc}
      */
     #[\Override]

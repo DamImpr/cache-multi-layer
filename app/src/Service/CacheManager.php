@@ -6,22 +6,21 @@ use CacheMultiLayer\Exception\ClearCacheDeniedException;
 use CacheMultiLayer\Interface\Cacheable;
 
 /**
- * 
+ *
  * Cache manager class, responsible for saving and reading data in various cache systems.
  * The search starts from the first cache level, and if it fails, the search continues
- * to the next level. 
+ * to the next level.
  * When a given cache level returns data, all higher cache levels that returned a search failure are updated.
- * 
+ *
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
 abstract class CacheManager
 {
-
     /**
      * A configuration can be passed to the builder where the caches to be used with the established levels are already defined.
      * @param CacheConfiguration $cacheConfiguration the configuration of cache systems
      */
-    protected abstract function __construct(?CacheConfiguration $cacheConfiguration = null);
+    abstract protected function __construct(?CacheConfiguration $cacheConfiguration = null);
 
     /**
      * Adding a cache.
@@ -29,52 +28,52 @@ abstract class CacheManager
      * @parm Cache $cache
      * @return bool true on success, false if cache type is already setted
      */
-    public abstract function appendCache(Cache $cache): bool;
+    abstract public function appendCache(Cache $cache): bool;
 
     /**
-     * 
+     *
      */
-    public abstract function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool;
+    abstract public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool;
 
     /**
-     * 
+     *
      */
-    public abstract function get(string $key): int|float|string|Cacheable|array|null;
+    abstract public function get(string $key): int|float|string|Cacheable|array|null;
 
     /**
-     * 
+     *
      */
-    public abstract function getRemainingTTL(string $key): array;
+    abstract public function getRemainingTTL(string $key): array;
 
     /**
      * Metodo che cancella il valore di una chiave dalla cache.
      * @param string $key la chiave il cui il valore deve essere cancellato
      * @return bool true se è avvenuta una cancellazione, false altrimenti
      */
-    public abstract function clear(string $key): bool;
+    abstract public function clear(string $key): bool;
 
     /**
      * Metodo che cancella tutte i valori contenuti nella cache, se il sistema di cache lo permette
      * @return bool always true
      * @throws ClearCacheDeniedException se la possibilità di cancellare tutta la cache è negata
      */
-    public abstract function clearAllCache(): bool;
+    abstract public function clearAllCache(): bool;
 
     /**
      * @param string $key chiave il cui valore intero deve essere incrementato.
      * @param ?int $ttl time to live specificato in secondi, nel caso non specificato, viene utilizzato quello passato nel costruttore.
      * @param int $checkIncrementToExpire limite valore massimo per aggiornare il ttl.
-     * @return array il nuovo valore associato alla chiave, nel caso di fallimento restituisce il valore 0 
+     * @return array il nuovo valore associato alla chiave, nel caso di fallimento restituisce il valore 0
      */
-    public abstract function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): array;
+    abstract public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): array;
 
     /**
      * @param string $key chiave il cui valore intero deve essere incrementato.
      * @param ?int $ttl time to live specificato in secondi, nel caso non specificato, viene utilizzato quello passato nel costruttore.
      * @param int $checkDecrementToExpire limite valore massimo per aggiornare il ttl.
-     * @return array il nuovo valore associato alla chiave, nel caso di fallimento restituisce il valore 0 
+     * @return array il nuovo valore associato alla chiave, nel caso di fallimento restituisce il valore 0
      */
-    public abstract function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): array;
+    abstract public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): array;
 
     /**
      * Metodo di factory, restituisce Il Sistema di cache in modalità Dev o in modalità Prod in base alla flag settata nell'enviroment di symfony

@@ -6,16 +6,15 @@ use CacheMultiLayer\Interface\Cacheable;
 use Override;
 
 /**
- * 
+ *
  * manager della cache in ambiente di dev, dove tutto il sistema di cache viene ignorato.
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
 class CacheManagerImplDryMode extends CacheManager
 {
-
     protected function __construct(?CacheConfiguration $cacheConfiguration = null)
     {
-        
+
     }
 
     #[\Override]

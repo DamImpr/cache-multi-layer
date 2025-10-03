@@ -15,4 +15,3 @@ $cacheOtherPrefix = Cache::factory(CacheEnum::APCU, 10, ['key_prefix' => 'other_
 
 
 $cacheSamePrefix->set('mammt', 10);
-

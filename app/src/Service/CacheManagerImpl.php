@@ -15,7 +15,6 @@ use Override;
  */
 class CacheManagerImpl extends CacheManager
 {
-
     /**
      * le caches lette dalla configurazione
      */
@@ -35,7 +34,7 @@ class CacheManagerImpl extends CacheManager
     #[\Override]
     public function appendCache(Cache $cache): bool
     {
-        if (!empty(array_filter($this->caches, fn(Cache $current): bool => $cache->getEnum() === $current->getEnum()))) {
+        if (!empty(array_filter($this->caches, fn (Cache $current): bool => $cache->getEnum() === $current->getEnum()))) {
             return false;
         }
 
@@ -44,7 +43,7 @@ class CacheManagerImpl extends CacheManager
     }
 
     /**
-     * 
+     *
      */
     #[Override]
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
@@ -61,7 +60,7 @@ class CacheManagerImpl extends CacheManager
     }
 
     /**
-     * 
+     *
      */
     #[Override]
     public function get(string $key): int|float|string|Cacheable|array|null
@@ -84,7 +83,7 @@ class CacheManagerImpl extends CacheManager
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -102,7 +101,7 @@ class CacheManagerImpl extends CacheManager
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -120,7 +119,7 @@ class CacheManagerImpl extends CacheManager
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -135,7 +134,7 @@ class CacheManagerImpl extends CacheManager
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]

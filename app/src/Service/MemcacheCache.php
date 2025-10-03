@@ -8,14 +8,13 @@ use Memcache;
 use Override;
 
 /**
- * 
+ *
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
 class MemcacheCache extends Cache
 {
-
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -25,7 +24,7 @@ class MemcacheCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -35,7 +34,7 @@ class MemcacheCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -45,7 +44,7 @@ class MemcacheCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -69,7 +68,7 @@ class MemcacheCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -85,7 +84,7 @@ class MemcacheCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -95,7 +94,7 @@ class MemcacheCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -110,7 +109,7 @@ class MemcacheCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -134,7 +133,7 @@ class MemcacheCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -144,7 +143,7 @@ class MemcacheCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     #[Override]
@@ -160,7 +159,7 @@ class MemcacheCache extends Cache
     }
 
     /**
-     * 
+     *
      * {@inheritDoc}
      */
     protected function __construct(int $ttl, array $configuration = [])

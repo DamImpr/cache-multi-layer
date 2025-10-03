@@ -8,18 +8,17 @@ use CacheMultiLayer\Interface\Cacheable;
 use InvalidArgumentException;
 
 /**
- * 
+ *
  * Service class representing a generic cache system.
- * The methods it offers allow you to save and retrieve a single object or an entire collection 
+ * The methods it offers allow you to save and retrieve a single object or an entire collection
  * passed as an array. Saving and retrieval occurs through the serialisation and deserialisation of an object, associating a key and TTL in seconds, which must be set when constructing the class.
- * 
+ *
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
 abstract class Cache
 {
-
     /**
-     * 
+     *
      * @param int $ttl Time to live expressed in seconds
      * @param array<string,mixed> $configuration Parameters required for connecting a specific cache system
      * @throws InvalidArgumentException If the value of ttl is not a positive number
@@ -47,35 +46,35 @@ abstract class Cache
      * @param ?int $ttl = null ttl to use, if the passed value is null, the value defined in the constructor is used
      * @return bool true on success, false otherwise
      */
-    public abstract function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool;
+    abstract public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool;
 
     /**
      * Read data from cache
      * @param string $key cache key
      * @return int|float|string|Cacheable|array|null the value read from the cache, null if nothing was found
      */
-    public abstract function get(string $key): int|float|string|Cacheable|array|null;
+    abstract public function get(string $key): int|float|string|Cacheable|array|null;
 
     /**
      * Check the remaining ttl of a key
      * @param string $key cache key
      * @return ?int ttl remaining ttl, null if nothing was found
      */
-    public abstract function getRemainingTTL(string $key): ?int;
+    abstract public function getRemainingTTL(string $key): ?int;
 
     /**
      * Delete data using a key
      * @param string $key cache key
      * @return bool true on success, false otherwise
      */
-    public abstract function clear(string $key): bool;
+    abstract public function clear(string $key): bool;
 
     /**
      * Clear the entire cache
      * @param string $key cache key
      * @return bool true on success, false otherwise
      */
-    public abstract function clearAllCache(): bool;
+    abstract public function clearAllCache(): bool;
 
     /**
      * Increase the value based on the key
@@ -83,26 +82,26 @@ abstract class Cache
      * @param ?int $ttl = null ttl to be used at the first increment, if the passed value is null, the value defined in the constructor is used
      * @return int|false the new value, false if value is not numeric.
      */
-    public abstract function increment(string $key, ?int $ttl = null): int|false;
+    abstract public function increment(string $key, ?int $ttl = null): int|false;
 
-     /**
-     * Decrease the value based on the key
-     * @param string $key cache key
-     * @param ?int $ttl = null ttl to be used at the first decrement, if the passed value is null, the value defined in the constructor is used
-     * @return int|false the new value, false if value is not numeric.
-     */
-    public abstract function decrement(string $key, ?int $ttl = null): int|false;
+    /**
+    * Decrease the value based on the key
+    * @param string $key cache key
+    * @param ?int $ttl = null ttl to be used at the first decrement, if the passed value is null, the value defined in the constructor is used
+    * @return int|false the new value, false if value is not numeric.
+    */
+    abstract public function decrement(string $key, ?int $ttl = null): int|false;
 
     /**
      * Check whether the connection to the cache is still active.
      * @return bool true on success, false otherwise
      */
-    public abstract function isConnected(): bool;
+    abstract public function isConnected(): bool;
 
     /**
      * Enumeration associated with the instance
      */
-    public abstract function getEnum(): CacheEnum;
+    abstract public function getEnum(): CacheEnum;
 
     /**
      * Factory method of a cache system, where through an enumeration
@@ -149,14 +148,14 @@ abstract class Cache
     /**
      * @retrun array<string> the necessary configurations
      */
-    protected abstract function getMandatoryConfig(): array;
+    abstract protected function getMandatoryConfig(): array;
 
     /**
      * Manages primitive and object variables to save them in the cache
      * @param int|float|string|Cacheable $val value to be serialised
      * @return  int|float|string|array value serialized
      */
-    protected final function serializeVal(int|float|string|Cacheable $val): int|float|string|array
+    final protected function serializeVal(int|float|string|Cacheable $val): int|float|string|array
     {
         if ($val instanceof Cacheable) {
             return ['__cacheable' => 1, '__class' => $val::class, '__data' => $val->serialize()];
@@ -172,7 +171,7 @@ abstract class Cache
      * @see Cache#serializeVal
      * @see Cache#serializeValArray
      */
-    protected final function unserializeVal(array $val): array|Cacheable
+    final protected function unserializeVal(array $val): array|Cacheable
     {
         $res = [];
         if (array_key_exists('__cacheable', $val)) {
@@ -188,12 +187,12 @@ abstract class Cache
     }
 
     /**
-     * 
+     *
      * Manages array variables to save them in the cache
      * @param array to be serialized
      * @return array unserialized
      */
-    protected final function serializeValArray(array $val): array
+    final protected function serializeValArray(array $val): array
     {
         $res = [];
         foreach ($val as $key => $value) {
