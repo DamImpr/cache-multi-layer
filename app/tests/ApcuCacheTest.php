@@ -117,7 +117,7 @@ class ApcuCacheTest extends AbstractCache
     #[\Override]
     public static function tearDownAfterClass(): void
     {
-        restore_error_handler();
+        parent::tearDownAfterClass();
         Cache::factory(CacheEnum::APCU, 60)->clearAllCache();
     }
 

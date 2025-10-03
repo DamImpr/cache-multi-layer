@@ -26,19 +26,24 @@ class MemcacheCacheTest extends AbstractCache
     #[Override]
     public static function setUpBeforeClass(): void
     {
-        parent::setUpBeforeClass();
+       parent::setUpBeforeClass();
         set_error_handler(function (int $errno, string $errstr, string $errfile, int $errline): bool {
             // error was suppressed with the @-operator
             if (0 === error_reporting()) {
                 return false;
             }
-            switch($errno){
-                
+
+            switch ($errno) {
+                case E_USER_WARNING:
+                    return true; // return on warning connection
+                case E_USER_NOTICE:
+                    echo "[NOTICE]: ".$errstr . ' -> ' . $errfile . ':' . $errline;
+                    return true;
             }
+
             throw new Exception($errstr . ' -> ' . $errfile . ':' . $errline, 0);
 //            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
         });
-       
     }
 
     #[Override]
@@ -133,6 +138,7 @@ class MemcacheCacheTest extends AbstractCache
     #[\Override]
     public static function tearDownAfterClass(): void
     {
+         restore_error_handler();
         Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => 'memcache-server', 'port' => 11211])->clearAllCache();
     }
 }

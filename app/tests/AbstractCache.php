@@ -24,8 +24,15 @@ abstract class AbstractCache extends TestCase
     {
         $this->cache = $cache;
     }
+    
+    #[\Override]
+    public static function tearDownAfterClass(): void
+    {
+        parent::tearDownAfterClass();
+        restore_error_handler();
+    }
 
-    #[Override]
+        #[Override]
     protected function setUp(): void
     {
         $this->foo = (new Foo())

@@ -139,6 +139,7 @@ class RedisCache extends Cache
     }
 
     private readonly PredisClient $predisClient;
+
     private array $mandatoryKeys = [
         'server_address'
         , 'port'

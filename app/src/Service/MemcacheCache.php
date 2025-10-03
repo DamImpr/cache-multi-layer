@@ -40,11 +40,13 @@ class MemcacheCache extends Cache
             $this->set($key, 1, $ttl);
             return -1;
         }
+
         $value = $pair['data'];
         if (!is_numeric($value)) {
             return false;
         }
-        $value--;
+
+        --$value;
         $pair['data'] = $value;
         $this->memcache->set($key, $pair, $this->compress ? MEMCACHE_COMPRESSED : 0, $this->getRemainingTTL($key));
         return $value;
@@ -57,7 +59,8 @@ class MemcacheCache extends Cache
         if (empty($val)) {
             return null;
         }
-        $valDecoded = json_decode($val['data'], true);
+
+        $valDecoded = json_decode((string) $val['data'], true);
         return is_array($valDecoded) ? $this->unserializeValArray($valDecoded) : $valDecoded;
     }
 
@@ -74,6 +77,7 @@ class MemcacheCache extends Cache
         if (empty($val)) {
             return null;
         }
+
         return $val['exipres_at'] - time();
     }
 
@@ -85,11 +89,13 @@ class MemcacheCache extends Cache
             $this->set($key, 1, $ttl);
             return 1;
         }
+
         $value = $pair['data'];
         if (!is_numeric($value)) {
             return false;
         }
-        $value++;
+
+        ++$value;
         $pair['data'] = $value;
         $this->memcache->set($key, $pair, $this->compress ? MEMCACHE_COMPRESSED : 0, $this->getRemainingTTL($key));
         return $value;
@@ -122,14 +128,18 @@ class MemcacheCache extends Cache
         } else {
             $resultConnection = $this->memcache->connect($configuration['server_address'], $configuration['port']);
         }
+
         if (!$resultConnection) {
             throw new \Exception("Connection not found");
         }
+
         $this->compress = array_key_exists('compress', $configuration) && $configuration['compress'];
     }
 
     private readonly Memcache $memcache;
+
     private readonly bool $compress;
+
     private array $mandatoryKeys = [
         'server_address'
         , 'port'
