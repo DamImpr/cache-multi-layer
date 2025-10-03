@@ -8,7 +8,7 @@ use Override;
 /**
  *
  * cache manager in dry run mode, where the entire cache system is bypassed
- * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
+ * @author Damiano Improta <code@damianoimprota.dev> 
  */
 class CacheManagerImplDryMode extends CacheManagerImpl
 {

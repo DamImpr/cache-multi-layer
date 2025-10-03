@@ -8,9 +8,10 @@ use Override;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Description of AbstractCacheManager
+ * Abstract class for unit testing a cache manager containing the tests that every class implementing a cache manager must undergo.
+ * For each cache manager implemented, a specific class will be created that extends this one.
  *
- * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
+ * @author Damiano Improta <code@damianoimprota.dev> 
  */
 class AbstractCacheManager extends TestCase
 {

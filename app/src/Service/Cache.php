@@ -13,7 +13,7 @@ use InvalidArgumentException;
  * The methods it offers allow you to save and retrieve a single object or an entire collection
  * passed as an array. Saving and retrieval occurs through the serialisation and deserialisation of an object, associating a key and TTL in seconds, which must be set when constructing the class.
  *
- * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
+ * @author Damiano Improta <code@damianoimprota.dev> 
  */
 abstract class Cache
 {
@@ -167,8 +167,8 @@ abstract class Cache
      * Manages data read from the cache that has been handled using the appropriate methods for insertion
      * @param array $val value to be unserialized
      * @return array|Cacheable value unserialized
-     * @see Cache#serializeVal
-     * @see Cache#serializeValArray
+     * @see Cache::serializeVal
+     * @see Cache::serializeValArray
      */
     final protected function unserializeVal(array $val): array|Cacheable
     {

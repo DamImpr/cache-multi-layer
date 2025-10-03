@@ -9,9 +9,8 @@ use Exception;
 use Override;
 
 /**
- * Description of ApcuCacheTest
- *
- * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
+ * REDIS unit test class implementation
+ * @author Damiano Improta <code@damianoimprota.dev> 
  */
 class RedisCacheTest extends AbstractCache
 {
@@ -105,7 +104,7 @@ class RedisCacheTest extends AbstractCache
     {
         parent::testRemainingTTL();
     }
-    
+
     #[\Override]
     public function testEmptyDecrement(): void
     {

@@ -8,9 +8,9 @@ use CacheMultiLayer\Service\CacheManager;
 use Override;
 
 /**
- * Description of CacheManagerTest
+ * manager one level cache unit test class implementation
  *
- * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
+ * @author Damiano Improta <code@damianoimprota.dev> 
  */
 class CacheManagerOneLevelTest extends AbstractCacheManager
 {

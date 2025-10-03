@@ -10,8 +10,8 @@ use Override;
 
 
 /**
- * 
- * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
+ * dry run manager unit test class implementation
+ * @author Damiano Improta <code@damianoimprota.dev> 
  */
 class CacheManagerDryRunTest extends AbstractCacheManager
 {

@@ -12,7 +12,7 @@ use CacheMultiLayer\Interface\Cacheable;
  * to the next level.
  * When a given cache level returns data, all higher cache levels that returned a search failure are updated.
  *
- * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
+ * @author Damiano Improta <code@damianoimprota.dev> 
  */
 abstract class CacheManager
 {

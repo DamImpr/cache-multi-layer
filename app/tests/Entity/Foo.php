@@ -7,8 +7,9 @@ use Override;
 
 /**
  * 
- *
- * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
+ * test class, used only for the phpunit test suite
+ * 
+ * @author Damiano Improta <code@damianoimprota.dev> 
  */
 class Foo implements Cacheable {
 

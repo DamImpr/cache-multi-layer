@@ -8,8 +8,8 @@ use Memcache;
 use Override;
 
 /**
- *
- * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
+ * MEMCACHE cache implementation
+ * @author Damiano Improta <code@damianoimprota.dev> 
  */
 class MemcacheCache extends Cache
 {

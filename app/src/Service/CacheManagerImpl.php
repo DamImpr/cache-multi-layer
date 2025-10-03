@@ -7,11 +7,9 @@ use CacheMultiLayer\Interface\Cacheable;
 use Override;
 
 /**
-
- * Sistema di cache in produzione, segue fedelmente la gerarchia di livelli passata nella configurazione
- * per la documentazione dei metodi, si rimanda alla classe astratta CacheManager
- * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
- * @see AbstractCacheManager
+ *
+ * Basic CacheManager implementation
+ * @author Damiano Improta <code@damianoimprota.dev> 
  */
 class CacheManagerImpl extends CacheManager
 {

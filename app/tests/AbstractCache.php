@@ -9,9 +9,9 @@ use Override;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Description of ApcuCacheTest
- *
- * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
+ * Abstract class for unit testing a cache containing the tests that every class implementing a cache must undergo.
+ * For each cache implemented, a specific class will be created that extends this one.
+ * @author Damiano Improta <code@damianoimprota.dev> 
  */
 abstract class AbstractCache extends TestCase
 {

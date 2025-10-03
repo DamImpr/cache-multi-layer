@@ -9,9 +9,9 @@ use Exception;
 use Override;
 
 /**
- * Description of ApcuCacheTest
+ * MEMCACHE unit test class implementation
  *
- * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
+ * @author Damiano Improta <code@damianoimprota.dev> 
  */
 class MemcacheCacheTest extends AbstractCache
 {

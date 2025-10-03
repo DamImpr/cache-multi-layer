@@ -9,7 +9,7 @@ use Override;
 /**
  * APCU cache implementation
  *
- * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
+ * @author Damiano Improta <code@damianoimprota.dev> 
  * @see Cache
  */
 class ApcuCache extends Cache

@@ -10,7 +10,7 @@ use InvalidArgumentException;
  * Class representing the configuration of cache levels, which is
  * then used by CacheManager to manage data across the various levels.
  *
- * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
+ * @author Damiano Improta <code@damianoimprota.dev> 
  */
 class CacheConfiguration
 {

@@ -9,9 +9,9 @@ use Exception;
 use Override;
 
 /**
- * Description of ApcuCacheTest
+ * APCU unit test class implementation
  *
- * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
+ * @author Damiano Improta <code@damianoimprota.dev> 
  */
 class ApcuCacheTest extends AbstractCache
 {
