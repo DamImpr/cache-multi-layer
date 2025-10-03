@@ -71,7 +71,6 @@ abstract class Cache
 
     /**
      * Clear the entire cache
-     * @param string $key cache key
      * @return bool true on success, false otherwise
      */
     abstract public function clearAllCache(): bool;
@@ -189,7 +188,7 @@ abstract class Cache
     /**
      *
      * Manages array variables to save them in the cache
-     * @param array to be serialized
+     * @param array $val to be serialized
      * @return array unserialized
      */
     final protected function serializeValArray(array $val): array

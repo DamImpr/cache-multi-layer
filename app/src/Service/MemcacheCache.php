@@ -48,7 +48,7 @@ class MemcacheCache extends Cache
      * {@inheritDoc}
      */
     #[Override]
-    public function decrement(string $key, ?int $ttl = null): int
+    public function decrement(string $key, ?int $ttl = null): int|false
     {
         $pair = $this->memcache->get($key);
         if (empty($pair)) {

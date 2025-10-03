@@ -34,7 +34,7 @@ class CacheManagerImpl extends CacheManager
     #[\Override]
     public function appendCache(Cache $cache): bool
     {
-        if (!empty(array_filter($this->caches, fn (Cache $current): bool => $cache->getEnum() === $current->getEnum()))) {
+        if (!empty(array_filter($this->caches, fn(Cache $current): bool => $cache->getEnum() === $current->getEnum()))) {
             return false;
         }
 
@@ -106,11 +106,7 @@ class CacheManagerImpl extends CacheManager
     {
         $countDeleted = 0;
         for ($i = 0; $i < $this->size; ++$i) {
-            try {
-                $countDeleted += (int) $this->caches[$i]->clearAllCache();
-            } catch (ClearCacheDeniedException) {
-                //skip
-            }
+            $countDeleted += (int) $this->caches[$i]->clearAllCache();
         }
 
         return $countDeleted === $this->size;
