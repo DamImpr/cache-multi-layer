@@ -1,4 +1,4 @@
-FROM php:8.3-cli-alpine
+FROM php:8.2-cli-alpine
 
 RUN apk add --no-cache \
     libzip-dev \
@@ -18,8 +18,7 @@ RUN echo "apc.enable_cli=1" >> /usr/local/etc/php/php.ini
 RUN echo "apc.enable=1" >> /usr/local/etc/php/php.ini
 WORKDIR /app
 
-COPY app/composer.json ./
-COPY app/composer.lock ./
+COPY app/composer.* ./
 
 RUN composer install --no-interaction --no-scripts --no-autoloader --prefer-dist
 

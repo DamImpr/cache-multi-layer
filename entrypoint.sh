@@ -13,9 +13,4 @@ elif [ "$1" = 'phpstan' ]; then
     exec php vendor/bin/phpstan analyse -c phpstan.neon
 fi
 
-echo "comands allowed"
-echo " - test-sw"
-echo " - update-vendor"
-echo " - php-cs-fix"
-echo " - rector"
-echo " - phpstan"
+sh

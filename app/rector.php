@@ -36,8 +36,8 @@ return RectorConfig::configure()
                 //typeDeclarations: true,
                 rectorPreset: true
                 )
-                ->withPhpSets(php83: true)
-                ->withPhpVersion(PhpVersion::PHP_83)
+                ->withPhpSets(php84: true)
+                ->withPhpVersion(PhpVersion::PHP_84)
                 ->withAttributesSets(symfony: true, doctrine: true)
                 ->withComposerBased(twig: true, doctrine: true, phpunit: true, symfony: true)
                 ->withSets(
