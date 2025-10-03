@@ -68,6 +68,7 @@ class RedisCache extends Cache
         if (empty($this->getRemainingTTL($key))) {
             $this->predisClient->expire($key, $this->getTtlToUse($ttl));
         }
+
         return $value;
     }
 

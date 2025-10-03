@@ -34,15 +34,5 @@
         "phpstan/phpstan": "^2.1",
         "rector/rector": "^2.1",
         "friendsofphp/php-cs-fixer": "^3.88"
-    },
-    "scripts": {
-        "cs:check": "php-cs-fixer fix --allow-risky=yes --diff --dry-run",
-        "cs:fix": "php-cs-fixer fix --allow-risky=yes --diff",
-        "post-install-cmd": [
-            "@cs:check"
-        ],
-        "post-update-cmd": [
-            "@cs:check"
-        ]
     }
 }

@@ -20,7 +20,6 @@ class CacheConfiguration
      */
     private array $configuration = [];
 
-
     /**
      * Current level of the cache set, used during cache appending.
      */
@@ -45,30 +44,18 @@ class CacheConfiguration
             return false;
         }
 
-        $this->configuration[$this->currentLevel] = $this->factoryCache($cacheEnum, $ttl, $configuration);
+        $this->configuration[$this->currentLevel] = Cache::factory($cacheEnum, $ttl, $configuration);
         ++$this->currentLevel;
         $this->setted[$cacheEnum->value] = true;
         return true;
     }
 
     /**
-     * restituisce la configurazione della cache, dove partendo da zero si ha il primo livello e con lo spostarsi nelle celle dell'array a destra i livelli successivi.
-     * @return array la configurazione
-     * @see Cache
+     * returns the cache configuration, where starting from zero you have the first level and moving to the cells of the array on the right you have the subsequent levels.
+     * @return array configuration
      */
     public function getConfiguration(): array
     {
         return $this->configuration;
-    }
-
-
-
-    /**
-     *
-     * @throws InvalidArgumentException
-     */
-    private function factoryCache(CacheEnum $cacheEnum, int $ttl, array $configuration): Cache
-    {
-        return Cache::factory($cacheEnum, $ttl, $configuration);
     }
 }

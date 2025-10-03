@@ -110,6 +110,18 @@ class ApcuCacheTest extends AbstractCache
         parent::testRemainingTTL();
     }
 
+    #[\Override]
+    public function testEmptyDecrement(): void
+    {
+        parent::testEmptyDecrement();
+    }
+
+    #[\Override]
+    public function testEmptyIncrement(): void
+    {
+        parent::testEmptyIncrement();
+    }
+
     public function testEnum(): void
     {
         $this->doTestRealEnum(CacheEnum::APCU);

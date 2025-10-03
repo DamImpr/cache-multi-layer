@@ -52,7 +52,7 @@ class MemcacheCache extends Cache
     {
         $pair = $this->memcache->get($key);
         if (empty($pair)) {
-            $this->set($key, 1, $ttl);
+            $this->set($key, -1, $ttl);
             return -1;
         }
 

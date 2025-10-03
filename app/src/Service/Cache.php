@@ -56,7 +56,7 @@ abstract class Cache
     abstract public function get(string $key): int|float|string|Cacheable|array|null;
 
     /**
-     * Check the remaining ttl of a key
+     * get the remaining ttl of a key
      * @param string $key cache key
      * @return ?int ttl remaining ttl, null if nothing was found
      */

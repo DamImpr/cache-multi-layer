@@ -89,15 +89,12 @@ class CacheManagerImpl extends CacheManager
     #[Override]
     public function clear(string $key): bool
     {
-        $res = false;
+        $countDeleted = 0;
         for ($i = 0; $i < $this->size; ++$i) {
-            $tmp = $this->caches[$i]->clear($key);
-            if ($tmp === true) {
-                $res = true;
-            }
+            $countDeleted += (int) $this->caches[$i]->clear($key);
         }
 
-        return $res;
+        return $countDeleted === $this->size;
     }
 
     /**
@@ -107,15 +104,16 @@ class CacheManagerImpl extends CacheManager
     #[Override]
     public function clearAllCache(): bool
     {
+        $countDeleted = 0;
         for ($i = 0; $i < $this->size; ++$i) {
             try {
-                $this->caches[$i]->clearAllCache();
+                $countDeleted += (int) $this->caches[$i]->clearAllCache();
             } catch (ClearCacheDeniedException) {
                 //skip
             }
         }
 
-        return true;
+        return $countDeleted === $this->size;
     }
 
     /**
@@ -123,11 +121,11 @@ class CacheManagerImpl extends CacheManager
      * {@inheritDoc}
      */
     #[Override]
-    public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): array
+    public function increment(string $key, ?int $ttl = null): array
     {
         $res = [];
         for ($i = 0; $i < $this->size; ++$i) {
-            $res[$this->caches[$i]->getEnum()->name] = $this->caches[$i]->increment($key, $ttl, $checkIncrementToExpire);
+            $res[$this->caches[$i]->getEnum()->name] = $this->caches[$i]->increment($key, $ttl);
         }
 
         return $res;
@@ -149,11 +147,11 @@ class CacheManagerImpl extends CacheManager
     }
 
     #[Override]
-    public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): array
+    public function decrement(string $key, ?int $ttl = null): array
     {
         $res = [];
         for ($i = 0; $i < $this->size; ++$i) {
-            $res[$this->caches[$i]->getEnum()->name] = $this->caches[$i]->decrement($key, $ttl, $checkDecrementToExpire);
+            $res[$this->caches[$i]->getEnum()->name] = $this->caches[$i]->decrement($key, $ttl);
         }
 
         return $res;

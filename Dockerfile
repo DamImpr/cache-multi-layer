@@ -26,3 +26,8 @@ RUN composer install --no-interaction --no-scripts --no-autoloader --prefer-dist
 COPY ./app .
 
 RUN composer dump-autoload --optimize
+
+COPY ./entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["entrypoint.sh"]

@@ -7,20 +7,20 @@ use Override;
 
 /**
  *
- * manager della cache in ambiente di dev, dove tutto il sistema di cache viene ignorato.
+ * cache manager in dry run mode, where the entire cache system is bypassed
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
-class CacheManagerImplDryMode extends CacheManager
+class CacheManagerImplDryMode extends CacheManagerImpl
 {
     protected function __construct(?CacheConfiguration $cacheConfiguration = null)
     {
-
+        parent::__construct($cacheConfiguration);
     }
 
     #[\Override]
     public function appendCache(Cache $cache): bool
     {
-        return true;
+        return parent::appendCache($cache);
     }
 
     #[Override]
@@ -36,7 +36,7 @@ class CacheManagerImplDryMode extends CacheManager
     }
 
     #[Override]
-    public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): array
+    public function decrement(string $key, ?int $ttl = null): array
     {
         return [];
     }
@@ -54,7 +54,7 @@ class CacheManagerImplDryMode extends CacheManager
     }
 
     #[Override]
-    public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): array
+    public function increment(string $key, ?int $ttl = null): array
     {
         return [];
     }

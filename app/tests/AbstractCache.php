@@ -24,8 +24,7 @@ abstract class AbstractCache extends TestCase
     {
         $this->cache = $cache;
     }
-    
-    
+
     #[\Override]
     public static function tearDownAfterClass(): void
     {
@@ -33,7 +32,7 @@ abstract class AbstractCache extends TestCase
         restore_error_handler();
     }
 
-        #[Override]
+    #[Override]
     protected function setUp(): void
     {
         $this->foo = (new Foo())
@@ -148,6 +147,22 @@ abstract class AbstractCache extends TestCase
         $this->assertNull($val2);
     }
 
+    public function testEmptyIncrement(): void
+    {
+        $key="test_empty_increment";
+        $expected = 1;
+        $actual = $this->cache->increment($key);
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testEmptyDecrement(): void
+    {
+        $key="test_empty_decrement";
+        $expected = -1;
+        $actual = $this->cache->decrement($key);
+        $this->assertEquals($expected, $actual);
+    }
+
     public function testRemainingTTL(): void
     {
         $key = 'test_clear';
@@ -169,11 +184,9 @@ abstract class AbstractCache extends TestCase
     {
         $this->assertEquals($cacheEnum, $this->cache->getEnum());
     }
-    
+
     public final function getCache(): ?Cache
     {
         return $this->cache;
     }
-
-
 }

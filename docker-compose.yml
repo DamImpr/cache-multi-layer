@@ -1,48 +1,23 @@
 services:
-  test-sw:
-    build: 
-      context: .
+  app:
+    build: .
     volumes:
-      - ./app/src:/app/src
-      - ./app/tests:/app/tests
-    command: ./vendor/bin/phpunit ./tests/ 
+      - ./app:/app
     networks:
-      - cache-sw-network
+      - cache-multi-layer-network
     depends_on:
       redis-server:
         condition: service_started
       memcache-server:
         condition: service_started
-  update-vendor:
-    build:
-      context: .
-    volumes:
-      - ./app:/app
-    command: composer update --no-interaction --no-scripts --no-autoloader --prefer-dist  
-  rector:
-    build:
-      context: .
-    volumes:
-      - ./app:/app
-    command: php vendor/bin/rector process
-  phpstan:
-    build:
-      context: .
-    volumes:
-      - ./app:/app
-    command: php vendor/bin/phpstan analyse -c phpstan.neon
   redis-server:
     image: redis
-    ports:
-      - 6379:6379
     networks:
-      - cache-sw-network
+      - cache-multi-layer-network
   memcache-server:
     image: memcached
-    ports:
-      - 11211:11211
     networks:
-      - cache-sw-network
+      - cache-multi-layer-network
 networks:
-   cache-sw-network:
+   cache-multi-layer-network:
     

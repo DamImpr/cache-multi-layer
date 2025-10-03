@@ -101,6 +101,18 @@ class MemcacheCacheTest extends AbstractCache
     {
         parent::testIsConnected();
     }
+    
+    #[\Override]
+    public function testEmptyDecrement(): void
+    {
+        parent::testEmptyDecrement();
+    }
+
+    #[\Override]
+    public function testEmptyIncrement(): void
+    {
+        parent::testEmptyIncrement();
+    }
 
     #[\Override]
     public function testRemainingTTL(): void
