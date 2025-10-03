@@ -4,6 +4,7 @@ services:
     volumes:
       - ./app/src:/app/src
       - ./app/tests:/app/tests
+      - ./app/composer.json:/app/composer.json
     networks:
       - cache-multi-layer-network
     depends_on:
