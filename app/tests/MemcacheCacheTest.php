@@ -32,16 +32,11 @@ class MemcacheCacheTest extends AbstractCache
             if (0 === error_reporting()) {
                 return false;
             }
+            return match ($errno) {
+                E_USER_WARNING => true,
+                default => throw new Exception($errstr . ' -> ' . $errfile . ':' . $errline, 0),
+            };
 
-            switch ($errno) {
-                case E_USER_WARNING:
-                    return true; // return on warning connection
-                case E_USER_NOTICE:
-                    echo "[NOTICE]: ".$errstr . ' -> ' . $errfile . ':' . $errline;
-                    return true;
-            }
-
-            throw new Exception($errstr . ' -> ' . $errfile . ':' . $errline, 0);
 //            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
         });
     }
