@@ -9,7 +9,7 @@ use Override;
 /**
  *
  * Basic CacheManager implementation
- * @author Damiano Improta <code@damianoimprota.dev> 
+ * @author Damiano Improta <code@damianoimprota.dev>
  */
 class CacheManagerImpl extends CacheManager
 {
@@ -32,7 +32,7 @@ class CacheManagerImpl extends CacheManager
     #[\Override]
     public function appendCache(Cache $cache): bool
     {
-        if (!empty(array_filter($this->caches, fn(Cache $current): bool => $cache->getEnum() === $current->getEnum()))) {
+        if (!empty(array_filter($this->caches, fn (Cache $current): bool => $cache->getEnum() === $current->getEnum()))) {
             return false;
         }
 

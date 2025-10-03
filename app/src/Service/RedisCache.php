@@ -10,7 +10,7 @@ use Predis\Client as PredisClient;
 /**
  *
  * REDIS cache implementation
- * @author Damiano Improta <code@damianoimprota.dev> 
+ * @author Damiano Improta <code@damianoimprota.dev>
  */
 class RedisCache extends Cache
 {

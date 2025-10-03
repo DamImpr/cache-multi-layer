@@ -10,7 +10,7 @@ namespace CacheMultiLayer\Interface;
  * When implementing the interface methods, be careful to always serialise and deserialise
  * the same properties, otherwise the entity will have missing values when read from the cache
  *
- * @author Damiano Improta <code@damianoimprota.dev> 
+ * @author Damiano Improta <code@damianoimprota.dev>
  */
 interface Cacheable
 {

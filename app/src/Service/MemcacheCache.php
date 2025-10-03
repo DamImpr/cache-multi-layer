@@ -9,7 +9,7 @@ use Override;
 
 /**
  * MEMCACHE cache implementation
- * @author Damiano Improta <code@damianoimprota.dev> 
+ * @author Damiano Improta <code@damianoimprota.dev>
  */
 class MemcacheCache extends Cache
 {

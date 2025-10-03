@@ -13,7 +13,7 @@ use InvalidArgumentException;
  * The methods it offers allow you to save and retrieve a single object or an entire collection
  * passed as an array. Saving and retrieval occurs through the serialisation and deserialisation of an object, associating a key and TTL in seconds, which must be set when constructing the class.
  *
- * @author Damiano Improta <code@damianoimprota.dev> 
+ * @author Damiano Improta <code@damianoimprota.dev>
  */
 abstract class Cache
 {
