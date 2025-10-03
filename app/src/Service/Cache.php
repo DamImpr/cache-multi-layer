@@ -4,28 +4,29 @@ namespace CacheMultiLayer\Service;
 
 use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Exception\CacheMissingConfigurationException;
-use CacheMultiLayer\Exception\ClearCacheDeniedException;
 use CacheMultiLayer\Interface\Cacheable;
 use InvalidArgumentException;
 
 /**
  * 
- * Classe di servizio che rappresenta un generico sistema di cache.
- * I metodi che offre consentono di salvare e recuperare un singolo oggetto oppure un intera collezione 
- * passata come array. Il salvataggio ed il recupero avviene attraverso la serializzazione e la deserializzazione di un oggetto, associando chiave e ttl in secondi che deve essere settato nella costruzione della classe.
+ * Service class representing a generic cache system.
+ * The methods it offers allow you to save and retrieve a single object or an entire collection 
+ * passed as an array. Saving and retrieval occurs through the serialisation and deserialisation of an object, associating a key and TTL in seconds, which must be set when constructing the class.
  * 
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
-abstract class Cache {
+abstract class Cache
+{
 
     /**
-     * La costruzione di ogni cache prevede obbligatoriamente la specifica del "TimeToLive"
-     * @param int $ttl time to live specificato in secondi
-     * @param array $configuration = []
-     * @throws InvalidArgumentException se il valore di ttl non è un numero positivo
-     * @throws CacheMissingConfigurationException
+     * 
+     * @param int $ttl Time to live expressed in seconds
+     * @param array<string,mixed> $configuration Parameters required for connecting a specific cache system
+     * @throws InvalidArgumentException If the value of ttl is not a positive number
+     * @throws CacheMissingConfigurationException If a particular cache system requires configurations that have not been passed in the specific array
      */
-    protected function __construct(int $ttl, array $configuration = []) {
+    protected function __construct(int $ttl, array $configuration = [])
+    {
         if ($ttl <= 0) {
             throw new InvalidArgumentException("ttl must be positive, not like your life");
         }
@@ -34,64 +35,87 @@ abstract class Cache {
         $this->ttl = $ttl;
     }
 
-    /**
-     * getter della attributo $ttl
-     */
-    public function getTtl(): int {
+    public function getTtl(): int
+    {
         return $this->ttl;
     }
 
+    /**
+     * Save data to cache
+     * @param string $key cache key
+     * @param int|float|string|Cacheable|array $val value to store
+     * @param ?int $ttl = null ttl to use, if the passed value is null, the value defined in the constructor is used
+     * @return bool true on success, false otherwise
+     */
     public abstract function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool;
 
+    /**
+     * Read data from cache
+     * @param string $key cache key
+     * @return int|float|string|Cacheable|array|null the value read from the cache, null if nothing was found
+     */
     public abstract function get(string $key): int|float|string|Cacheable|array|null;
 
+    /**
+     * Check the remaining ttl of a key
+     * @param string $key cache key
+     * @return ?int ttl remaining ttl, null if nothing was found
+     */
     public abstract function getRemainingTTL(string $key): ?int;
 
     /**
-     * Metodo che cancella il valore di una chiave dalla cache.
-     * @param string $key la chiave il cui il valore deve essere cancellato
-     * @return bool true se è avvenuta una cancellazione, false altrimenti
+     * Delete data using a key
+     * @param string $key cache key
+     * @return bool true on success, false otherwise
      */
     public abstract function clear(string $key): bool;
 
     /**
-     * Metodo che cancella tutte i valori contenuti nella cache, se il sistema di cache lo permette
-     * @throws ClearCacheDeniedException se la possibilità di cancellare tutta la cache è negata
+     * Clear the entire cache
+     * @param string $key cache key
+     * @return bool true on success, false otherwise
      */
     public abstract function clearAllCache(): bool;
 
     /**
-     * @param string $key chiave il cui valore intero deve essere incrementato.
-     * @param int|null $ttl time to live specificato in secondi, nel caso non specificato, viene utilizzato quello passato nel costruttore.
-     * @param int $checkIncrementToExpire limite valore massimo per aggiornare il ttl.
-     * @return int il nuovo valore associato alla chiave, nel caso di fallimento restituisce il valore 0 
+     * Increase the value based on the key
+     * @param string $key cache key
+     * @param ?int $ttl = null ttl to be used at the first increment, if the passed value is null, the value defined in the constructor is used
+     * @return int|false the new value, false if value is not numeric.
      */
-    public abstract function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1):  int|false;
+    public abstract function increment(string $key, ?int $ttl = null): int|false;
+
+     /**
+     * Decrease the value based on the key
+     * @param string $key cache key
+     * @param ?int $ttl = null ttl to be used at the first decrement, if the passed value is null, the value defined in the constructor is used
+     * @return int|false the new value, false if value is not numeric.
+     */
+    public abstract function decrement(string $key, ?int $ttl = null): int|false;
 
     /**
-     * @param string $key chiave il cui valore intero deve essere incrementato.
-     * @param int|null $ttl time to live specificato in secondi, nel caso non specificato, viene utilizzato quello passato nel costruttore.
-     * @param int $checkDecrementToExpire limite valore massimo per aggiornare il ttl.
-     * @return int il nuovo valore associato alla chiave, nel caso di fallimento restituisce il valore 0 
+     * Check whether the connection to the cache is still active.
+     * @return bool true on success, false otherwise
      */
-    public abstract function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1):  int|false;
-
     public abstract function isConnected(): bool;
-    
-    public abstract function getEnum():CacheEnum;
-    
+
     /**
-     * Metodo di factory di un sistema di cache, dove attraverso un enumerazione
-     * e il ttl da associare, restituisce la specifica classe di Cache.
-     * Anche se specificata come intero, non passare numeri, ma usare le costanti di CacheEnum.
-     * @param CacheEnum $cacheEnum Enumerazione da passare
-     * @param int $ttl ttl della cache
-     * @return Cache Sistema di cache associato all'enumerazione
-     * @throws InvalidArgumentException Nel caso non ci sia nessun sistema di cache associato all'enumerazione passata in ingresso
-     * @throws CacheMissingConfigurationException
-     * @see CacheEnum
+     * Enumeration associated with the instance
      */
-    public static function factory(CacheEnum $cacheEnum, int $ttl, array $configuration = []): Cache {
+    public abstract function getEnum(): CacheEnum;
+
+    /**
+     * Factory method of a cache system, where through an enumeration
+     * and the ttl to be associated, it returns the specific Cache class.
+     * Even if specified as an integer, do not pass numbers, but use the CacheEnum constants.
+     * @param CacheEnum $cacheEnum the enumeration used to indicate the cache system, via the enumeration stored in the CacheEnum class
+     * @param int $ttl Time to live expressed in seconds
+     * @param array<string,mixed> $configuration Parameters required for connecting a specific cache system
+     * @return Cache Cache system associated with enumeration
+     * @throws CacheMissingConfigurationException If a particular cache system requires configurations that have not been passed in the specific array
+     */
+    public static function factory(CacheEnum $cacheEnum, int $ttl, array $configuration = []): Cache
+    {
         return match ($cacheEnum) {
             CacheEnum::APCU => new ApcuCache($ttl, $configuration),
             CacheEnum::REDIS => new RedisCache($ttl, $configuration),
@@ -99,68 +123,88 @@ abstract class Cache {
         };
     }
 
-
     /**
-     * metodo che restituisce il ttl giusta da usare tra quello passato in ingresso e quello della classe
-     * @param ?int $ttl ttl passato in ingresso
-     * @return int ttl da utilizzare
+     * Used in subclasses to check whether a ttl different from that of the constructor is defined in operations and use it, or use that of the constructor.
+     * @param ?int $ttl different to check
+     * @return int ttl to be used
      */
-    protected function getTtlToUse(?int $ttl): int {
+    protected function getTtlToUse(?int $ttl): int
+    {
         return ($ttl ?? -1) < 0 ? $this->ttl : $ttl;
     }
 
-    protected function assertConfig(array $configuration): void {
+    /**
+     * Checks whether the necessary configurations for the cache are present
+     * @param array<string,mixed> $configuration
+     * @throws CacheMissingConfigurationException if a configuration is missing
+     */
+    protected function assertConfig(array $configuration): void
+    {
         $mandatoryKeys = $this->getMandatoryConfig();
         if (!empty(array_diff_key($mandatoryKeys, array_keys($configuration)))) {
             throw new CacheMissingConfigurationException(implode(',', $mandatoryKeys) . " are mandatory configurations");
         }
     }
-    
-    protected abstract function getMandatoryConfig():array;
-    
-    
+
+    /**
+     * @retrun array<string> the necessary configurations
+     */
+    protected abstract function getMandatoryConfig(): array;
+
+    /**
+     * Manages primitive and object variables to save them in the cache
+     * @param int|float|string|Cacheable $val value to be serialised
+     * @return  int|float|string|array value serialized
+     */
     protected final function serializeVal(int|float|string|Cacheable $val): int|float|string|array
     {
-        if ($val instanceof Cacheable)
-        {
+        if ($val instanceof Cacheable) {
             return ['__cacheable' => 1, '__class' => $val::class, '__data' => $val->serialize()];
         }
 
         return $val;
     }
 
-    protected final function unserializeValArray(array $val): array|Cacheable
+    /**
+     * Manages data read from the cache that has been handled using the appropriate methods for insertion
+     * @param array $val value to be unserialized
+     * @return array|Cacheable value unserialized
+     * @see Cache#serializeVal
+     * @see Cache#serializeValArray
+     */
+    protected final function unserializeVal(array $val): array|Cacheable
     {
         $res = [];
-        if (array_key_exists('__cacheable', $val))
-        {
+        if (array_key_exists('__cacheable', $val)) {
             $res = new $val['__class']();
             $res->unserialize($val['__data']);
-        } else
-        {
-            foreach ($val as $key => $value)
-            {
-                $res[$key] = is_array($value) ? $this->unserializeValArray($value) : $value;
+        } else {
+            foreach ($val as $key => $value) {
+                $res[$key] = is_array($value) ? $this->unserializeVal($value) : $value;
             }
         }
 
         return $res;
     }
 
+    /**
+     * 
+     * Manages array variables to save them in the cache
+     * @param array to be serialized
+     * @return array unserialized
+     */
     protected final function serializeValArray(array $val): array
     {
         $res = [];
-        foreach ($val as $key => $value)
-        {
+        foreach ($val as $key => $value) {
             $res[$key] = is_array($value) ? $this->serializeValArray($value) : $this->serializeVal($value);
         }
 
         return $res;
     }
 
-    
     /**
-     * ttl in secondi da associare al sistema di cache
+     * ttl in seconds to associate with the cache system
      */
     private readonly int $ttl;
 }

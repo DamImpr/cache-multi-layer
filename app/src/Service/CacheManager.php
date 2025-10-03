@@ -7,26 +7,30 @@ use CacheMultiLayer\Interface\Cacheable;
 
 /**
  * 
- * Classe gestore delle cache, si occupa di Salvare e Leggere i dati nei vari sistemi di cache.
- * La ricerca viene fatta partendo dal primo livello di cache, e in caso di fallimento viene fatta la ricerca
- * al prossimo livello. Quando un determinato livello di cache restituisce dati, vengono aggiornate tutti i livelli di cache superiori che hanno restuito un fallimento nella ricerca.
+ * Cache manager class, responsible for saving and reading data in various cache systems.
+ * The search starts from the first cache level, and if it fails, the search continues
+ * to the next level. 
+ * When a given cache level returns data, all higher cache levels that returned a search failure are updated.
  * 
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
-abstract class CacheManager {
-    
-    // TODO riscirvere la phpdoc, è un refuso
+abstract class CacheManager
+{
+
     /**
-     * Costruttore della classe che deve necessariamente avere una configurazione in ingresso dei sistemi di cache da utilizzare.
-     * @param CacheConfiguration $cacheConfiguration la configurazione dei sistemi di cache
-     * @see CacheConfiguration
+     * A configuration can be passed to the builder where the caches to be used with the established levels are already defined.
+     * @param CacheConfiguration $cacheConfiguration the configuration of cache systems
      */
     protected abstract function __construct(?CacheConfiguration $cacheConfiguration = null);
-    
-    
-    
-    public abstract function appendCache(Cache $cache):bool;
-    
+
+    /**
+     * Adding a cache.
+     * Whenever a cache is added, it should be considered as the last level.
+     * @parm Cache $cache
+     * @return bool true on success, false if cache type is already setted
+     */
+    public abstract function appendCache(Cache $cache): bool;
+
     /**
      * 
      */
@@ -77,7 +81,8 @@ abstract class CacheManager {
      * @param ?CacheConfiguration $cacheConfiguration Configurazione della cache da adottare.
      * @return CacheManager istanza della classe che gestisce la cache
      */
-    public static function factory(?CacheConfiguration $cacheConfiguration = null, bool $dryMode = false): CacheManager {
-        return !$dryMode  ? new CacheManagerImpl($cacheConfiguration) : new CacheManagerImplDryMode($cacheConfiguration);
-}
+    public static function factory(?CacheConfiguration $cacheConfiguration = null, bool $dryMode = false): CacheManager
+    {
+        return !$dryMode ? new CacheManagerImpl($cacheConfiguration) : new CacheManagerImplDryMode($cacheConfiguration);
+    }
 }

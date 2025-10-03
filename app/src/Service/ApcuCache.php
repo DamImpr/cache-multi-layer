@@ -7,8 +7,7 @@ use CacheMultiLayer\Interface\Cacheable;
 use Override;
 
 /**
- * Implementazione della cache APCU 
- * per la documentazione dei metodi, si rimanda alla classe astratta Cache
+ * APCU cache implementation
  * 
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  * @see Cache
@@ -16,6 +15,10 @@ use Override;
 class ApcuCache extends Cache
 {
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
@@ -24,38 +27,64 @@ class ApcuCache extends Cache
         return $success ? $res : null;
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
     {
         return apcu_store($this->getEffectiveKey($key), $val, $this->getTtlToUse($ttl));
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
     public function clear(string $key): bool
     {
         return \apcu_delete($this->getEffectiveKey($key));
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
     public function clearAllCache(): bool
     {
         return apcu_clear_cache();
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
-    public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1):  int|false
+    public function decrement(string $key, ?int $ttl = null):  int|false
     {
         $success = true;
-        return apcu_dec($this->getEffectiveKey($key), 1, $success, $this->getTtlToUse($ttl));
+        $res = apcu_dec($this->getEffectiveKey($key), 1, $success, $this->getTtlToUse($ttl));
+        return $success ? $res: false;
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
-    public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1):  int|false
+    public function increment(string $key, ?int $ttl = null):  int|false
     {
         $success = true;
-        return apcu_inc($this->getEffectiveKey($key), 1, $success, $this->getTtlToUse($ttl));
+        $res = apcu_inc($this->getEffectiveKey($key), 1, $success, $this->getTtlToUse($ttl));
+        return $success ? $res: false;
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
     public function getRemainingTTL(string $key): ?int
     {
@@ -63,30 +92,51 @@ class ApcuCache extends Cache
         return $keyInfo !== null ? $keyInfo['ttl'] : null;
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[\Override]
     public function isConnected(): bool
     {
         return extension_loaded('apcu');
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[\Override]
     public function getEnum(): CacheEnum
     {
         return CacheEnum::APCU;
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[\Override]
     protected function getMandatoryConfig(): array
     {
         return [];
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     protected function __construct(int $ttl, array $configuration = [])
     {
         parent::__construct($ttl, $configuration);
-        $this->prefixKey = $configuration['prefix_key'] ?? '';
+        $this->prefixKey = $configuration['key_prefix'] ?? '';
     }
 
+    /**
+     * manages keys by adding the prefix set during configuration
+     * @param string $key cache key
+     * @return string key to be used
+     */
     private function getEffectiveKey(string $key): string
     {
         return $this->prefixKey . $key;

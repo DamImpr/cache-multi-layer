@@ -7,33 +7,35 @@ use InvalidArgumentException;
 
 /**
  * 
- * Classe che rappresenta la configurazione dei livelli di cache che viene
- * utilizzata poi da CacheManager per la gestione dei dati nei vari livelli.
+ * Class representing the configuration of cache levels, which is
+ * then used by CacheManager to manage data across the various levels.
+ * 
  * @author Damiano Improta <code@damianoimprota.dev> aka Drizella
  */
 class CacheConfiguration {
 
     /**
-     * configurazione della cache.
-     * La priorità è basta sulla posizione dell'oggetto nell'array, dove la posizione 0 è la priorità più alta
+     * Cache configuration.
+     * Priority is based on the position of the object in the array, where position 0 is the highest priority.
      */
     private array $configuration = [];
 
    
     /**
-     * livello attuale della cache settata, utilizzata durante l'append delle cache.
+     * Current level of the cache set, used during cache appending.
      */
     private int $currentLevel = 0;
 
     /**
-     * Array utilizzato per tracciare le cache già settate e controllare che non ci siano diversi livelli della stessa cache
+     * Array used to track caches that have already been set and check that there are no different levels of the same cache.
      */
     private array $setted = [];
 
     /**
-     * metodo che setta il livello successivo di cache
-     * @param CacheEnum $cacheEnum l'enumerazione usata per indicare il sistema di cache, tramite l'enumerazione conservata nella classe CacheEnum
-     * @param int $ttl Time to live espresso in secondi
+     * Method that sets the next cache level
+     * @param CacheEnum $cacheEnum the enumeration used to indicate the cache system, via the enumeration stored in the CacheEnum class
+     * @param int $ttl Time to live expressed in seconds
+     * @param array<string,mixed> $configuration Parameters required for connecting a specific cache system
      * @see CacheEnum
      * @throws InvalidArgumentException nel caso sia già stato settato il sistema di cache passato
      */

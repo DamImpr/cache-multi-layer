@@ -14,26 +14,42 @@ use Override;
 class MemcacheCache extends Cache
 {
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
     protected function getMandatoryConfig(): array
     {
         return $this->mandatoryKeys;
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
     public function clear(string $key): bool
     {
         return $this->memcache->delete($key);
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
     public function clearAllCache(): bool
     {
         return $this->memcache->flush();
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
-    public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): int
+    public function decrement(string $key, ?int $ttl = null): int
     {
         $pair = $this->memcache->get($key);
         if (empty($pair)) {
@@ -52,6 +68,10 @@ class MemcacheCache extends Cache
         return $value;
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
@@ -61,15 +81,23 @@ class MemcacheCache extends Cache
         }
 
         $valDecoded = json_decode((string) $val['data'], true);
-        return is_array($valDecoded) ? $this->unserializeValArray($valDecoded) : $valDecoded;
+        return is_array($valDecoded) ? $this->unserializeVal($valDecoded) : $valDecoded;
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
     public function getEnum(): CacheEnum
     {
         return CacheEnum::MEMCACHE;
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
     public function getRemainingTTL(string $key): ?int
     {
@@ -81,8 +109,12 @@ class MemcacheCache extends Cache
         return $val['exipres_at'] - time();
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
-    public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): int|false
+    public function increment(string $key, ?int $ttl = null): int|false
     {
         $pair = $this->memcache->get($key);
         if (empty($pair)) {
@@ -101,12 +133,20 @@ class MemcacheCache extends Cache
         return $value;
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
     public function isConnected(): bool
     {
         return $this->memcache->getStats() !== false;
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     #[Override]
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
     {
@@ -119,6 +159,10 @@ class MemcacheCache extends Cache
         return $this->memcache->set($key, $dataToStore, $this->compress ? MEMCACHE_COMPRESSED : 0, $ttlToUse);
     }
 
+    /**
+     * 
+     * {@inheritDoc}
+     */
     protected function __construct(int $ttl, array $configuration = [])
     {
         parent::__construct($ttl, $configuration);

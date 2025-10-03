@@ -41,9 +41,9 @@ class ApcuCacheTest extends AbstractCache
     protected function setUp(): void
     {
         parent::setUp();
-        $this->setCache(Cache::factory(CacheEnum::APCU, 60));
+        $this->setCache(Cache::factory(CacheEnum::APCU, 60, ['key_prefix' => 'pre_']));
     }
-    
+
     #[Override]
     public function testArray(): void
     {
@@ -113,6 +113,17 @@ class ApcuCacheTest extends AbstractCache
     public function testEnum(): void
     {
         $this->doTestRealEnum(CacheEnum::APCU);
+    }
+
+    public function testPrefix(): void
+    {
+        $val = 10; //maradona
+        $key = "test_prefix";
+        $cacheSamePrefix = Cache::factory(CacheEnum::APCU, 60, ['key_prefix' => 'pre_']);
+        $cacheOtherPrefix = Cache::factory(CacheEnum::APCU, 10, ['key_prefix' => 'other_']);
+        $this->getCache()->set($key, $val);
+        $this->assertEquals($cacheSamePrefix->get($key), $val);
+        $this->assertNull($cacheOtherPrefix->get($key));
     }
 
     #[\Override]

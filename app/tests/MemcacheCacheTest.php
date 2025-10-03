@@ -32,6 +32,7 @@ class MemcacheCacheTest extends AbstractCache
             if (0 === error_reporting()) {
                 return false;
             }
+
             return match ($errno) {
                 E_USER_WARNING => true,
                 default => throw new Exception($errstr . ' -> ' . $errfile . ':' . $errline, 0),

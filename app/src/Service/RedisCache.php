@@ -21,10 +21,10 @@ class RedisCache extends Cache
      * {@InheritDoc}
      */
     #[\Override]
-    public function decrement(string $key, ?int $ttl = null, int $checkDecrementToExpire = 1): int|false
+    public function decrement(string $key, ?int $ttl = null): int|false
     {
         $value = $this->predisClient->decr($key);
-        if ($value <= $checkDecrementToExpire) {
+        if (empty($this->getRemainingTTL($key))) {
             $this->predisClient->expire($key, $this->getTtlToUse($ttl));
         }
 
@@ -44,7 +44,7 @@ class RedisCache extends Cache
         }
 
         $valDecoded = json_decode($val, true);
-        return is_array($valDecoded) ? $this->unserializeValArray($valDecoded) : $valDecoded;
+        return is_array($valDecoded) ? $this->unserializeVal($valDecoded) : $valDecoded;
     }
 
     /**
@@ -63,13 +63,12 @@ class RedisCache extends Cache
      * {@InheritDoc}
      */
     #[Override]
-    public function increment(string $key, ?int $ttl = null, int $checkIncrementToExpire = 1): int|false
+    public function increment(string $key, ?int $ttl = null): int|false
     {
         $value = $this->predisClient->incr($key);
-        if ($value <= $checkIncrementToExpire) {
+        if (empty($this->getRemainingTTL($key))) {
             $this->predisClient->expire($key, $this->getTtlToUse($ttl));
         }
-
         return $value;
     }
 
@@ -120,18 +119,30 @@ class RedisCache extends Cache
         ]);
     }
 
+    /**
+     * 
+     * {@InheritDoc}
+     */
     #[\Override]
     public function isConnected(): bool
     {
         return $this->predisClient->ping() !== null;
     }
 
+    /**
+     * 
+     * {@InheritDoc}
+     */
     #[\Override]
     public function getEnum(): CacheEnum
     {
         return CacheEnum::REDIS;
     }
 
+    /**
+     * 
+     * {@InheritDoc}
+     */
     #[\Override]
     protected function getMandatoryConfig(): array
     {

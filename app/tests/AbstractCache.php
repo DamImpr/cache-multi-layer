@@ -25,6 +25,7 @@ abstract class AbstractCache extends TestCase
         $this->cache = $cache;
     }
     
+    
     #[\Override]
     public static function tearDownAfterClass(): void
     {
@@ -168,4 +169,11 @@ abstract class AbstractCache extends TestCase
     {
         $this->assertEquals($cacheEnum, $this->cache->getEnum());
     }
+    
+    public final function getCache(): ?Cache
+    {
+        return $this->cache;
+    }
+
+
 }
