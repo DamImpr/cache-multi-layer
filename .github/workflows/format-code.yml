@@ -35,7 +35,7 @@ jobs:
     - name: Commit and Push changes
       run: |
         if [ -z "$(git status --porcelain)" ]; then
-          echo "✅ No changes to commit."
+          echo "No changes to commit."
         else
           echo "Found changes, committing..."
           git config --global user.name "GitHub Actions Bot"
