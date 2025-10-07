@@ -104,7 +104,7 @@ class CacheManagerMultiLevelTest extends AbstractCacheManager
     {
         $cacheConfiguration = new CacheConfiguration();
         $cacheConfiguration->appendCacheLevel(CacheEnum::APCU, 10);
-        $cacheConfiguration->appendCacheLevel(CacheEnum::REDIS, 65, ['server_address' => 'redis-server', 'port' => 6379]);
+        $cacheConfiguration->appendCacheLevel(CacheEnum::REDIS, 65, ['server_address' => 'redis-server']);
         return $cacheConfiguration;
     }
 }

@@ -112,7 +112,7 @@ class RedisCache extends Cache
         $this->predisClient = new PredisClient([
             'scheme' => $configuration['tcp'] ?? 'tcp',
             'host' => $configuration['server_address'],
-            'port' => $configuration['port'],
+            'port' => $configuration['port'] ?? 6379,
             'password' => $configuration['password'] ?? '',
             'database' => $configuration['database'] ?? 0,
         ]);
@@ -152,6 +152,5 @@ class RedisCache extends Cache
 
     private array $mandatoryKeys = [
         'server_address'
-        , 'port'
     ];
 }

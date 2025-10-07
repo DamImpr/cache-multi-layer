@@ -19,7 +19,7 @@ class RedisCacheTest extends AbstractCache
     protected function setUp(): void
     {
         parent::setUp();
-        $this->setCache(Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'redis-server', 'port' => 6379]));
+        $this->setCache(Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'redis-server']));
     }
 
     #[Override]
@@ -120,19 +120,14 @@ class RedisCacheTest extends AbstractCache
     public function testMissingServer(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
-        Cache::factory(CacheEnum::REDIS, 60, ['port' => 6379]);
+        Cache::factory(CacheEnum::REDIS, 60);
     }
 
-    public function testMissingPort(): void
-    {
-        $this->expectException(CacheMissingConfigurationException::class);
-        Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'localhost']);
-    }
 
     public function testConnectionNotFound(): void
     {
         $this->expectException(Exception::class);
-        Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'ip-no-redis', 'port' => 6379])->isConnected();
+        Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'ip-no-redis'])->isConnected();
     }
 
     public function testEnum(): void
@@ -144,6 +139,6 @@ class RedisCacheTest extends AbstractCache
     public static function tearDownAfterClass(): void
     {
         restore_error_handler();
-        Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'redis-server', 'port' => 6379])->clearAllCache();
+        Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'redis-server'])->clearAllCache();
     }
 }

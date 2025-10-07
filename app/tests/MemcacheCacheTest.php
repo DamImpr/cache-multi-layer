@@ -20,7 +20,7 @@ class MemcacheCacheTest extends AbstractCache
     protected function setUp(): void
     {
         parent::setUp();
-        $this->setCache(Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => 'memcache-server', 'port' => 11211]));
+        $this->setCache(Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => 'memcache-server']));
     }
 
     #[Override]
@@ -123,19 +123,13 @@ class MemcacheCacheTest extends AbstractCache
     public function testMissingServer(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
-        Cache::factory(CacheEnum::MEMCACHE, 60, ['port' => 11211]);
-    }
-
-    public function testMissingPort(): void
-    {
-        $this->expectException(CacheMissingConfigurationException::class);
-        Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => 'localhost']);
+        Cache::factory(CacheEnum::MEMCACHE, 60);
     }
 
     public function testConnectionNotFound(): void
     {
         $this->expectException(Exception::class);
-        Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => '192.168.0.0', 'port' => 11211])->isConnected();
+        Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => 'ip-no-memcache'])->isConnected();
     }
 
     public function testEnum(): void
@@ -147,6 +141,6 @@ class MemcacheCacheTest extends AbstractCache
     public static function tearDownAfterClass(): void
     {
          restore_error_handler();
-        Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => 'memcache-server', 'port' => 11211])->clearAllCache();
+        Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => 'memcache-server'])->clearAllCache();
     }
 }

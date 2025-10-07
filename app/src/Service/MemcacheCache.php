@@ -166,10 +166,11 @@ class MemcacheCache extends Cache
     {
         parent::__construct($ttl, $configuration);
         $this->memcache = new Memcache();
+        $port = $configuration['port'] ?? 11211;
         if (array_key_exists('persistent', $configuration)) {
-            $resultConnection = $this->memcache->pconnect($configuration['server_address'], $configuration['port']);
+            $resultConnection = $this->memcache->pconnect($configuration['server_address'], $port);
         } else {
-            $resultConnection = $this->memcache->connect($configuration['server_address'], $configuration['port']);
+            $resultConnection = $this->memcache->connect($configuration['server_address'], $port);
         }
 
         if (!$resultConnection) {
@@ -185,6 +186,5 @@ class MemcacheCache extends Cache
 
     private array $mandatoryKeys = [
         'server_address'
-        , 'port'
     ];
 }
