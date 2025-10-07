@@ -1,7 +1,5 @@
 name: Run phpunit test
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
