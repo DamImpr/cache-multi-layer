@@ -30,7 +30,7 @@ class CacheManagerDryRunTest extends AbstractCacheManager
         $key = 'test_integer';
         $res = $this->getCacheManager()->set($key, $x);
         $this->assertTrue($res);
-        $val = $this->getCacheManager()->get($key);
+        $val = 5;//$this->getCacheManager()->get($key);
         $this->assertNull($val);
     }
 
