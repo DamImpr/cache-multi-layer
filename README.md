@@ -1,4 +1,4 @@
-# cache multi layer
+# Cache multi layer
 PHP library used for fast management of a single cache system, or management of multiple systems with priority levels.
 
 The management of a single system works like a mask and allows transparent use of the cache by abstracting which one you want to use.
@@ -9,18 +9,18 @@ Read operations are performed by reading from the cache system with the highest 
 
 The currently implemented caches are:
 
-- apcu
-- redis
-- memcache
+- Apcu
+- Redis
+- Memcache
 
-## install
+## Install
 
 ```bash
 composer require damimpr/cache-multi-layer
 ```
-## usage examples
+## Usage examples
 
-### Single cache level
+### Single cache
 
 example with redis cache
 
@@ -31,7 +31,6 @@ use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Service\Cache;
 
 /*
- * 
  * creates the redis instance located on the host “redis-server” 
  * with a default TTL of 60 seconds 
  */ 
@@ -65,9 +64,9 @@ $cacheManager = CacheManager::factory();
 $cacheManager->appendCache(Cache::factory(CacheEnum::APCU, 10));
 $cacheManager->appendCache(Cache::factory(CacheEnum::REDIS, 65, ['server_address' => 'redis-server']));
 
-/*
- * it's the same using cache configuration
- */
+
+// it's the same using cache configuration
+ 
 $cacheConfiguration = new CacheConfiguration();
 $cacheConfiguration->appendCacheLevel(CacheEnum::APCU, 10);
 $cacheConfiguration->appendCacheLevel(CacheEnum::REDIS, 65, ['server_address' => 'redis-server']);
@@ -79,11 +78,44 @@ $x = 8;
 $key = 'test_key';
 $res = $cacheManager->set($key, $x);
 
-sleep(15);
+//wait 15 seconds
+sleep(15); 
 
 
 $y = $cacheManager->get($key); 
 // the value of $y is 8 read from redis, and apcu, which had expired, has been refreshed
 ```
 
-## contribuiting
+## Contribuiting
+
+If you would like to contribute to this library, there is a [docker](https://docs.docker.com/engine/install/) you can use in development.
+
+The docker image has been developed to execute commands, which are executable through the [commands](commands) file, and are listed below:
+- ```bash
+  bash commands test-sw # Running the phpunit test suite
+  ```
+- ```bash
+  bash commands update-vendor # Update composer packages
+  ```
+- ```bash
+  bash commands php-cs-fixer # Format the code according to the PSR-12 standard using php-cs-fixer
+  ```
+- ```bash
+  bash commands rector # Run powerful php tool useful for refactoring
+  ```
+- ```bash
+  bash commands phpstan # Run powerful php tool useful finding bugs 
+  ```
+- ```bash
+  bash commands sh # Run the sh shell in the container
+  ```
+## Credits
+Powerful tools used:
+-  [php-cs-fixer](https://github.com/PHP-CS-Fixer/PHP-CS-Fixer) for standard PSR-12 code formatting
+-  [rector](https://github.com/rectorphp/rector) for code refactoring
+-  [phpstan](https://phpstan.org/) for finding bugs
+
+
+
+
+
