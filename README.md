@@ -114,8 +114,3 @@ Powerful tools used:
 -  [php-cs-fixer](https://github.com/PHP-CS-Fixer/PHP-CS-Fixer) for standard PSR-12 code formatting
 -  [rector](https://github.com/rectorphp/rector) for code refactoring
 -  [phpstan](https://phpstan.org/) for finding bugs
-
-
-
-
-
