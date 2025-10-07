@@ -24,7 +24,6 @@ COPY composer.* ./
 
 RUN composer install --no-interaction --no-scripts --no-autoloader --prefer-dist
 
-
 RUN composer dump-autoload --optimize
 
 COPY ./entrypoint.sh /usr/local/bin/

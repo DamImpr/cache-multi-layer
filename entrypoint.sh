@@ -3,6 +3,7 @@
 
 case "$1" in
     'test-sw')
+        composer install
         exec ./vendor/bin/phpunit ./tests/
         ;;
     'update-vendor')
