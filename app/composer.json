@@ -1,6 +1,6 @@
 {
     "name": "damimpr/cache-multi-layer",
-    "description": "to do",
+    "description": "PHP library used for fast management of a single cache system, or management of multiple systems with priority levels.v",
     "keywords": ["cache", "cache-layer", "cache-multi-layer"],
     "homepage": "https://damianoimprota.dev",
     "type": "library",
