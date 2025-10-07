@@ -1,47 +1,46 @@
-#name: Run format-code
+name: Run format-code
 
-#
-#on:
-#  pull_request:
-#    types: [opened, synchronize, reopened]
-#
-#permissions:
-#  contents: write
-#
-#jobs:
-#  build:
-#
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#    - uses: actions/checkout@v4
-#
-#    - name: Validate composer.json and composer.lock
-#      run: composer validate
-#
-#    - name: Cache Composer packages
-#      id: composer-cache
-#      uses: actions/cache@v3
-#      with:
-#        path: ./app/vendor
-#        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-#        restore-keys: |
-#          ${{ runner.os }}-php-
-#
-#    - name: Install dependencies
-#      run: composer install --prefer-dist --no-progress
-#
-#    - name: format code
-#      run: bash commands php-cs-fixer
-#    - name: Check for changes
-#      run: |
-#          git config user.name "github-actions[bot]"
-#          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-#          if [ -n "$(git status --porcelain)" ]; then
-#            echo "Formatting changes detected"
-#            git add -A
-#            git commit -m "chore: apply formatting" || echo "no commit"
-#            git push origin HEAD:${{ github.head_ref }}
-#          else
-#            echo "No formatting changes"
-#          fi
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: ./vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: format code
+      run: bash commands php-cs-fixer
+    - name: Commit and Push changes
+      run: |
+        if [ -z "$(git status --porcelain)" ]; then
+          echo "No changes to commit."
+        else
+          echo "Found changes, committing..."
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "github-actions-bot@users.noreply.github.com"
+          git add .
+          git commit -m "style: Fix PHP code style issues"
+          git push
+        fi
