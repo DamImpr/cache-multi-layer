@@ -2,7 +2,14 @@ services:
   app:
     build: .
     volumes:
-      - ./app:/app
+      - ./src:/app/src
+      - ./tests:/app//tests
+      - ./vendor:/app/vendor
+      - ./composer.json:/app/composer.json
+      - ./composer.lock:/app/composer.lock
+      - ./rector.php:/app/rector.php
+      - ./phpstan.neon:/app/phpstan.neon
+      - ./.php-cs-fixer.dist.php:/app/.php-cs-fixer.dist.php
     networks:
       - cache-multi-layer-network
     depends_on:

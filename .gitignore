@@ -1,6 +1,4 @@
 /nbproject/
 /vendor/
-/app/nbproject/
-/app/vendor/
-/app/.php-cs-fixer.cache
-/app/.phpdoc/
+/.php-cs-fixer.cache
+/.phpdoc/

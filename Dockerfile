@@ -18,11 +18,11 @@ RUN echo "apc.enable_cli=1" >> /usr/local/etc/php/php.ini
 RUN echo "apc.enable=1" >> /usr/local/etc/php/php.ini
 WORKDIR /app
 
-COPY app/composer.* ./
+COPY ./src ./src
+COPY ./tests ./tests
+COPY composer.* ./
 
 RUN composer install --no-interaction --no-scripts --no-autoloader --prefer-dist
-
-COPY ./app .
 
 RUN composer dump-autoload --optimize
 

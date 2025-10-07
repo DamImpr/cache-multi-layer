@@ -3,6 +3,6 @@ commands export-ignore
 .github/ export-ignore
 docker-compose.yml export-ignore
 entrypoint.sh export-ignore
-app/.php-cs-fixer.dist.php export-ignore
-app/phpstan.neon export-ignore
-app/rector.php export-ignore
+.php-cs-fixer.dist.php export-ignore
+phpstan.neon export-ignore
+rector.php export-ignore
