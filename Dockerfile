@@ -21,7 +21,7 @@ WORKDIR /app
 COPY ./src ./src
 COPY ./tests ./tests
 COPY composer.* ./
-
+COPY .php-cs-fixer.dist.php ./
 RUN composer install --no-interaction --no-scripts --no-autoloader --prefer-dist
 
 RUN composer dump-autoload --optimize
