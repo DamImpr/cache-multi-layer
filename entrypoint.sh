@@ -8,7 +8,7 @@ case "$1" in
     'update-vendor')
         exec composer update --no-interaction --no-scripts --no-autoloader --prefer-dist
         ;;
-    'php-cs-fix')
+    'php-cs-fixer')
         exec php vendor/bin/php-cs-fixer fix --allow-risky=yes --diff
         ;;
     'rector')

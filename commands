@@ -7,8 +7,8 @@ case "$1" in
     'update-vendor')
         docker compose run --rm --remove-orphans app update-vendor && docker compose down
         ;;
-    'php-cs-fix')
-        docker compose run --rm --remove-orphans app php-cs-fix && docker compose down
+    'php-cs-fixer')
+        docker compose run --rm --remove-orphans app php-cs-fixer && docker compose down
         ;;
     'rector')
         docker compose run --rm --remove-orphans app rector && docker compose down
@@ -23,7 +23,7 @@ case "$1" in
         echo "comands allowed"
         echo " - test-sw"
         echo " - update-vendor"
-        echo " - php-cs-fix"
+        echo " - php-cs-fixer"
         echo " - rector"
         echo " - phpstan"
         echo " - sh"
