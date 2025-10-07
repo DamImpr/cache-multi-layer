@@ -1,0 +1,34 @@
+#!/bin/bash
+
+case "$1" in
+    'test-sw')
+        docker compose run --rm --remove-orphans app test-sw && docker compose down
+        ;;
+    'update-vendor')
+        docker compose run --rm --remove-orphans app update-vendor && docker compose down
+        ;;
+    'php-cs-fix')
+        docker compose run --rm --remove-orphans app php-cs-fix && docker compose down
+        ;;
+    'rector')
+        docker compose run --rm --remove-orphans app rector && docker compose down
+        ;;
+    'phpstan')
+        docker compose run --rm --remove-orphans app phpstan && docker compose down
+        ;;
+    'sh')
+        docker compose run --rm --remove-orphans app sh && docker compose down
+        ;;
+    *)
+        echo "comands allowed"
+        echo " - test-sw"
+        echo " - update-vendor"
+        echo " - php-cs-fix"
+        echo " - rector"
+        echo " - phpstan"
+        echo " - sh"
+        exit 1
+        ;;
+esac
+
+
