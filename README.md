@@ -13,6 +13,9 @@ The currently implemented caches are:
 - Redis
 - Memcache
 
+All cache systems support all primitive types (int, float, string) and instances of classes that implement the [Cacheable](src/Interface/Cacheable.php) interface.
+Arrays are also supported, provided that the elements they contain are as described above.
+
 ## Install
 
 ```bash
