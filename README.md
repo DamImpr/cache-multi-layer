@@ -47,7 +47,22 @@ $res = $cache->set($key, $x);
 
 // get
 $y = $cache->get($key); // the value of $y is 8
+
+
+
+//test with object
+
+$foo = new Foo(); //Foo implements Cacheable
+$foo->x = 5;
+$keyFoo = 'key_foo';
+$resFoo = $cache->set($keyFoo, $foo);
+$fooCache = $cache->get($keyFoo);
+
+$testEqual = $keyFoo === $foo; //$testEquals could be false
+$testEqualX = $keyFoo->x === $foo->x; //testEqualX is true
 ```
+
+
 
 ### Multi cache level
 
