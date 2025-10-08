@@ -32,6 +32,9 @@ jobs:
         id: changelog
         uses: TriPSs/conventional-changelog-action@v3
         with:
+
+          # ice all'azione di non cercare e aggiornare nessun file di versione perché non esiste il package,json
+          skip-version-file: true 
           # Genera il changelog e determina il nuovo numero di versione
           github-token: ${{ secrets.GITHUB_TOKEN }}
           
