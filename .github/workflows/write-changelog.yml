@@ -1,4 +1,4 @@
-name: Automazione del Rilascio (Al Merge PR)
+name: Changelog (Merge PR)
 
 on:
   pull_request:
@@ -12,7 +12,6 @@ jobs:
     # Esegue il job solo se la PR è stata *unita* (merged)
     if: github.event.pull_request.merged == true
     
-    # Richiede i permessi di scrittura sul contenuto per poter creare tag, commit e release
     permissions:
       contents: write
       pull-requests: write 
@@ -22,8 +21,6 @@ jobs:
       - name: Checkout del Codice
         uses: actions/checkout@v4
         with:
-          # Fetch della cronologia completa per l'analisi dei commit
-          # Per analizzare i commit della PR che sono stati uniti.
           fetch-depth: 0 
           
       - name: Configurazione Utente Git
@@ -37,32 +34,35 @@ jobs:
         with:
           # Genera il changelog e determina il nuovo numero di versione
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          git-tag: true              # Crea un tag con la nuova versione
+          
+          # Rimosso: 'git-tag: true' (è l'impostazione predefinita)
+          # Rimosso: 'skip-unstable: true' (sostituita da 'pre-release')
+          
           output-file: CHANGELOG.md  # Aggiorna il file CHANGELOG.md
-          skip-unstable: true        # Non rilascia versioni 'alpha', 'beta', ecc.
+          
+          # L'opzione 'skip-tag: false' omettiamo di specificarla, 
+          # poiché vogliamo creare il tag.
           
       - name: Verifica se è stata creata una nuova versione
         id: check_version
+        # Uso 'tag_name' che è un alias per 'tag' (presente nell'elenco degli input validi)
         run: echo "NEW_VERSION_TAG=${{ steps.changelog.outputs.tag }}" >> $GITHUB_ENV
 
       - name: Push del CHANGELOG e del Tag
-        if: env.NEW_VERSION_TAG != '' # Esegue solo se una nuova versione è stata creata
+        if: env.NEW_VERSION_TAG != ''
         run: |
-          # 1. Aggiunge i file aggiornati (es. CHANGELOG.md, file di versione)
           git add CHANGELOG.md
-          # 2. Crea un commit (ignorato se non ci sono cambiamenti)
           git commit -m "chore(release): ${{ env.NEW_VERSION_TAG }}" || echo "Nessun cambiamento da committare"
-          # 3. Invia il commit e il tag al repository
           git push
+          # Spinge il tag. Il tag viene creato implicitamente dall'azione precedente.
           git push origin ${{ env.NEW_VERSION_TAG }}
 
       - name: Crea GitHub Release
         if: env.NEW_VERSION_TAG != ''
         uses: softprops/action-gh-release@v1
         with:
-          # Usa il corpo del changelog generato come note di rilascio
           body: ${{ steps.changelog.outputs.clean_changelog }}
-          tag_name: ${{ steps.NEW_VERSION_TAG }} # Uso della variabile d'ambiente
+          tag_name: ${{ env.NEW_VERSION_TAG }} 
           name: Release ${{ env.NEW_VERSION_TAG }}
-          draft: false             # Pubblica immediatamente la release
+          draft: false
           prerelease: false
