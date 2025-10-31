@@ -66,9 +66,9 @@ jobs:
           if [ "$first_line" = "# Changelog" ]; then
             rest=$(tail -n +2 "$changelog_file")
             rest=$(printf "%s\n" "$rest" | sed '1{/^$/d;}')
-            printf "%s\n\n%s\n\n%s\n" "# Changelog" "$entry" "$rest" > "$changelog_file"
+            printf "%s  %s %s " "# Changelog" "$entry" "$rest" > "$changelog_file"
           else
-            printf "%s\n\n%s\n" "$entry" "$(cat "$changelog_file")" > "$changelog_file"
+            printf "%s  %s " "$entry" "$(cat "$changelog_file")" > "$changelog_file"
           fi
 
       - name: Commit and push changelog to PR branch
