@@ -1,71 +1,100 @@
-#name: Changelog (Merge PR)
-#
-#on:
-#  pull_request:
-#    types:
-#      - closed
-#    branches:
-#      - main  # Si attiva solo per le PR che si uniscono al branch 'main'
-#
-#jobs:
-#  release:
-#    # Esegue il job solo se la PR è stata *unita* (merged)
-#    if: github.event.pull_request.merged == true
-#    
-#    permissions:
-#      contents: write
-#      pull-requests: write 
-#    runs-on: ubuntu-latest
-#    
-#    steps:
-#      - name: Checkout del Codice
-#        uses: actions/checkout@v4
-#        with:
-#          fetch-depth: 0 
-#          
-#      - name: Configurazione Utente Git
-#        run: |
-#          git config user.name 'github-actions[bot]'
-#          git config user.email 'github-actions[bot]@users.noreply.github.com'
-#
-#      - name: Esecuzione di Conventional Changelog Action
-#        id: changelog
-#        uses: TriPSs/conventional-changelog-action@v3
-#        with:
-#
-#          # ice all'azione di non cercare e aggiornare nessun file di versione perché non esiste il package,json
-#          skip-version-file: true 
-#          # Genera il changelog e determina il nuovo numero di versione
-#          github-token: ${{ secrets.GITHUB_TOKEN }}
-#          
-#          # Rimosso: 'git-tag: true' (è l'impostazione predefinita)
-#          # Rimosso: 'skip-unstable: true' (sostituita da 'pre-release')
-#          
-#          output-file: CHANGELOG.md  # Aggiorna il file CHANGELOG.md
-#          
-#          # L'opzione 'skip-tag: false' omettiamo di specificarla, 
-#          # poiché vogliamo creare il tag.
-#          
-#      - name: Verifica se è stata creata una nuova versione
-#        id: check_version
-#        # Uso 'tag_name' che è un alias per 'tag' (presente nell'elenco degli input validi)
-#        run: echo "NEW_VERSION_TAG=${{ steps.changelog.outputs.tag }}" >> $GITHUB_ENV
-#
-#      - name: Push del CHANGELOG e del Tag
-#        if: env.NEW_VERSION_TAG != ''
-#        run: |
-#          git add CHANGELOG.md
-#          git commit -m "chore(release): ${{ env.NEW_VERSION_TAG }}" || echo "Nessun cambiamento da committare"
-#          git push
-#          # Spinge il tag. Il tag viene creato implicitamente dall'azione precedente.
-#          git push origin ${{ env.NEW_VERSION_TAG }}
-#
-#      - name: Crea GitHub Release
-#        if: env.NEW_VERSION_TAG != ''
-#        uses: softprops/action-gh-release@v1
-#        with:
-#          body: ${{ steps.changelog.outputs.clean_changelog }}
-#          tag_name: ${{ env.NEW_VERSION_TAG }} 
-#          name: Release ${{ env.NEW_VERSION_TAG }}
-#          draft: false
-#          prerelease: false
+name: Update Changelog on PR merge to main
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  update-changelog:
+    if: |
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gather PR and merge info
+        id: info
+        run: |
+          pr_number=$(jq -r .pull_request.number "$GITHUB_EVENT_PATH")
+          pr_title=$(jq -r .pull_request.title "$GITHUB_EVENT_PATH")
+          pr_user_login=$(jq -r .pull_request.user.login "$GITHUB_EVENT_PATH")
+          pr_html_url=$(jq -r .pull_request.html_url "$GITHUB_EVENT_PATH")
+          merged_at=$(jq -r .pull_request.merged_at "$GITHUB_EVENT_PATH")
+          if [ "$merged_at" = "null" ] || [ -z "$merged_at" ]; then
+            merged_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          fi
+          merge_sha=$(jq -r .pull_request.merge_commit_sha "$GITHUB_EVENT_PATH")
+          if [ "$merge_sha" = "null" ] || [ -z "$merge_sha" ]; then
+            merge_sha=$(jq -r .pull_request.head.sha "$GITHUB_EVENT_PATH")
+          fi
+          echo "pr_number=$pr_number" >> "$GITHUB_OUTPUT"
+          echo "pr_title=$pr_title" >> "$GITHUB_OUTPUT"
+          echo "pr_user_login=$pr_user_login" >> "$GITHUB_OUTPUT"
+          echo "pr_html_url=$pr_html_url" >> "$GITHUB_OUTPUT"
+          echo "merged_at=$merged_at" >> "$GITHUB_OUTPUT"
+          echo "merge_sha=$merge_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Format changelog entry
+        id: entry
+        run: |
+          date_iso="${{ steps.info.outputs.merged_at }}"
+          # Format date as YYYY-MM-DD (portable)
+          if date -d "$date_iso" +"%Y-%m-%d" >/dev/null 2>&1; then
+            date_short=$(date -u -d "$date_iso" +"%Y-%m-%d")
+          else
+            date_short=$(date -u +"%Y-%m-%d")
+          fi
+          author="${{ steps.info.outputs.pr_user_login }}"
+          title="${{ steps.info.outputs.pr_title }}"
+          sha="${{ steps.info.outputs.merge_sha }}"
+          pr_url="${{ steps.info.outputs.pr_html_url }}"
+          pr_number="${{ steps.info.outputs.pr_number }}"
+          safe_title=$(printf '%s' "$title" | sed 's/|/\\|/g')
+          safe_author=$(printf '%s' "$author" | sed 's/|/\\|/g')
+          entry="### ${date_short} — ${safe_title}\n\n- **Autore:** ${safe_author}\n- **PR:** [#${pr_number}](${pr_url})\n- **Commit:** \`${sha}\`\n"
+          echo "changelog_entry<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$entry" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Prepend entry to CHANGELOG.md
+        run: |
+          changelog_file=CHANGELOG.md
+          mkdir -p "$(dirname "$changelog_file")"
+          if [ ! -f "$changelog_file" ]; then
+            echo "# Changelog" > "$changelog_file"
+            echo "" >> "$changelog_file"
+          fi
+          old=$(cat "$changelog_file")
+          entry=$(cat <<'EOF'
+${{ steps.entry.outputs.changelog_entry }}
+EOF
+)
+          first_line=$(head -n1 "$changelog_file" || true)
+          if [ "$first_line" = "# Changelog" ]; then
+            printf "%s\n\n%s\n" "# Changelog" "$entry" > "$changelog_file"
+            tail -n +2 <<< "$old" >> "$changelog_file"
+          else
+            printf "%s\n\n%s\n" "$entry" "$old" > "$changelog_file"
+          fi
+
+      - name: Commit and push changelog
+        env:
+          GIT_AUTHOR_NAME: github-actions
+          GIT_AUTHOR_EMAIL: actions@github.com
+        run: |
+          git config user.name "$GIT_AUTHOR_NAME"
+          git config user.email "$GIT_AUTHOR_EMAIL"
+          git add CHANGELOG.md
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: update CHANGELOG for PR #${{ steps.info.outputs.pr_number }} (${ { steps.info.outputs.merge_sha } })"
+          git push origin HEAD:refs/heads/${GITHUB_REF#refs/heads/}
