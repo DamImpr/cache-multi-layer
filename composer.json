@@ -4,7 +4,7 @@
     "keywords": ["cache", "cache-layer", "cache-multi-layer"],
     "homepage": "https://damianoimprota.dev",
     "type": "library",
-    "license": "GPL-3.0-or-later",
+    "license": "Apache-2.0",
     "minimum-stability": "stable",
     "prefer-stable": true,
     "version": "1.0.0",
