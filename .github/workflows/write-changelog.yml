@@ -70,12 +70,9 @@ jobs:
             echo "" >> "$changelog_file"
           fi
           entry=$(cat "${{ steps.entry.outputs.changelog_entry_path }}")
-          # If file starts with "# Changelog", keep heading and insert entry after it
           first_line=$(head -n1 "$changelog_file" || true)
           if [ "$first_line" = "# Changelog" ]; then
-            # keep heading, then blank line, then entry, then remaining content (skip possible blank line)
             rest=$(tail -n +2 "$changelog_file")
-            # remove a single leading blank line from rest if present
             rest=$(printf "%s\n" "$rest" | sed '1{/^$/d;}')
             printf "%s\n\n%s\n\n%s\n" "# Changelog" "$entry" "$rest" > "$changelog_file"
           else
@@ -94,5 +91,6 @@ jobs:
             echo "No changes to commit."
             exit 0
           fi
-          git commit -m "chore: update CHANGELOG for PR #${{ steps.info.outputs.pr_number }} (${ { steps.info.outputs.merge_sha } })"
+          commit_msg="chore: update CHANGELOG for PR #${{ steps.info.outputs.pr_number }} (${{ steps.info.outputs.merge_sha }})"
+          git commit -m "$commit_msg"
           git push origin HEAD:refs/heads/${GITHUB_REF#refs/heads/}
