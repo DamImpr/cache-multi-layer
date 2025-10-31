@@ -45,7 +45,6 @@ jobs:
         id: entry
         run: |
           date_iso="${{ steps.info.outputs.merged_at }}"
-          # Format date as YYYY-MM-DD (portable)
           if date -d "$date_iso" +"%Y-%m-%d" >/dev/null 2>&1; then
             date_short=$(date -u -d "$date_iso" +"%Y-%m-%d")
           else
@@ -59,9 +58,8 @@ jobs:
           safe_title=$(printf '%s' "$title" | sed 's/|/\\|/g')
           safe_author=$(printf '%s' "$author" | sed 's/|/\\|/g')
           entry="### ${date_short} — ${safe_title}\n\n- **Autore:** ${safe_author}\n- **PR:** [#${pr_number}](${pr_url})\n- **Commit:** \`${sha}\`\n"
-          echo "changelog_entry<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$entry" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "$entry" > changelog_entry.txt
+          echo "changelog_entry_path=changelog_entry.txt" >> "$GITHUB_OUTPUT"
 
       - name: Prepend entry to CHANGELOG.md
         run: |
@@ -71,17 +69,17 @@ jobs:
             echo "# Changelog" > "$changelog_file"
             echo "" >> "$changelog_file"
           fi
-          old=$(cat "$changelog_file")
-          entry=$(cat <<'EOF'
-${{ steps.entry.outputs.changelog_entry }}
-EOF
-)
+          entry=$(cat "${{ steps.entry.outputs.changelog_entry_path }}")
+          # If file starts with "# Changelog", keep heading and insert entry after it
           first_line=$(head -n1 "$changelog_file" || true)
           if [ "$first_line" = "# Changelog" ]; then
-            printf "%s\n\n%s\n" "# Changelog" "$entry" > "$changelog_file"
-            tail -n +2 <<< "$old" >> "$changelog_file"
+            # keep heading, then blank line, then entry, then remaining content (skip possible blank line)
+            rest=$(tail -n +2 "$changelog_file")
+            # remove a single leading blank line from rest if present
+            rest=$(printf "%s\n" "$rest" | sed '1{/^$/d;}')
+            printf "%s\n\n%s\n\n%s\n" "# Changelog" "$entry" "$rest" > "$changelog_file"
           else
-            printf "%s\n\n%s\n" "$entry" "$old" > "$changelog_file"
+            printf "%s\n\n%s\n" "$entry" "$(cat "$changelog_file")" > "$changelog_file"
           fi
 
       - name: Commit and push changelog
