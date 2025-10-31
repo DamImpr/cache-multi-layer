@@ -1,5 +1,1 @@
-# Changelog
-
-### 2025-10-31 — Remove blank line from entrypoint.sh\n\n- **Autore:** DamImpr\n- **PR:** [#20](https://github.com/DamImpr/cache-multi-layer/pull/20)\n
-
-
+# Changelog  ### 2025-10-31 — Fix formatting in write-changelog.yml script\n\n- **Autore:** DamImpr\n- **PR:** [#21](https://github.com/DamImpr/cache-multi-layer/pull/21)\n ### 2025-10-31 — Remove blank line from entrypoint.sh\n\n- **Autore:** DamImpr\n- **PR:** [#20](https://github.com/DamImpr/cache-multi-layer/pull/20)\n 
