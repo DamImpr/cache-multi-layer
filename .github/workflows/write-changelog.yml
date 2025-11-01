@@ -49,7 +49,7 @@ jobs:
           pr_number="${{ steps.info.outputs.pr_number }}"
           safe_title=$(printf '%s' "$title" | sed 's/|/\\|/g')
           safe_author=$(printf '%s' "$author" | sed 's/|/\\|/g')
-          entry="- [${date_short}] ${safe_author}: ${safe_title} [#${pr_number}](${pr_url})\ "
+          entry="- [${date_short}] ${safe_author}: ${safe_title} [#${pr_number}](${pr_url}) "
           echo "$entry" > changelog_entry.txt
           echo "changelog_entry_path=changelog_entry.txt" >> "$GITHUB_OUTPUT"
 
