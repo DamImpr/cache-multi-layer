@@ -6,3 +6,4 @@ entrypoint.sh export-ignore
 .php-cs-fixer.dist.php export-ignore
 phpstan.neon export-ignore
 rector.php export-ignore
+CHANGELOG.md export-ignore
