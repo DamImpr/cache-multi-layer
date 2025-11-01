@@ -1,34 +1,56 @@
-name: Update Changelog on PR (write to PR branch)
+name: Update Changelog on merge to main (append)
 
 on:
-  pull_request:
-    types: [opened, edited, synchronize, reopened]
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: read
 
 jobs:
   update-changelog:
-    if: >
-      github.event.pull_request.merged != true &&
-      github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: read
     steps:
-      - name: Checkout PR branch
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: main
           fetch-depth: 0
 
-      - name: Gather PR info
+      - name: Determine source PR (if any)
+        id: prinfo
+        run: |
+          # Try to find the pull request that was merged into this push (if the push is a merge commit)
+          # Look for PRs whose merge_commit_sha matches HEAD
+          head_sha=$(git rev-parse HEAD)
+          pr_number=$(gh api repos/${{ github.repository }}/commits/${head_sha}/pulls --jq '.[0].number' 2>/dev/null || true)
+          if [ -z "$pr_number" ]; then
+            # fallback: try to find PR by searching merged PRs with HEAD in merge_commit_sha via REST
+            pr_number=$(gh api repos/${{ github.repository }}/pulls --jq '.[] | select(.merge_commit_sha == env.HEAD_SHA) | .number' --paginate 2>/dev/null || true)
+          fi
+          echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
+          echo "pr_number=${pr_number:-}" >> "$GITHUB_OUTPUT"
+
+      - name: Gather PR info (if found) or use last commit message
         id: info
         run: |
-          pr_number=$(jq -r .pull_request.number "$GITHUB_EVENT_PATH")
-          pr_title=$(jq -r .pull_request.title "$GITHUB_EVENT_PATH")
-          pr_user_login=$(jq -r .pull_request.user.login "$GITHUB_EVENT_PATH")
-          pr_html_url=$(jq -r .pull_request.html_url "$GITHUB_EVENT_PATH")
-          created_at=$(jq -r .pull_request.created_at "$GITHUB_EVENT_PATH")
-          echo "pr_number=$pr_number" >> "$GITHUB_OUTPUT"
+          pr_number="${{ steps.prinfo.outputs.pr_number }}"
+          if [ -n "$pr_number" ]; then
+            pr_json=$(gh api repos/${{ github.repository }}/pulls/$pr_number)
+            pr_title=$(printf '%s' "$pr_json" | jq -r .title)
+            pr_user_login=$(printf '%s' "$pr_json" | jq -r .user.login)
+            pr_html_url=$(printf '%s' "$pr_json" | jq -r .html_url)
+            created_at=$(printf '%s' "$pr_json" | jq -r .created_at)
+          else
+            # No PR found: use last commit info
+            pr_title=$(git log -1 --pretty=%s)
+            pr_user_login=$(git log -1 --pretty=%an)
+            pr_html_url=""
+            created_at=$(git log -1 --pretty=%cI)
+          fi
+          echo "pr_number=${pr_number:-}" >> "$GITHUB_OUTPUT"
           echo "pr_title=$pr_title" >> "$GITHUB_OUTPUT"
           echo "pr_user_login=$pr_user_login" >> "$GITHUB_OUTPUT"
           echo "pr_html_url=$pr_html_url" >> "$GITHUB_OUTPUT"
@@ -49,11 +71,15 @@ jobs:
           pr_number="${{ steps.info.outputs.pr_number }}"
           safe_title=$(printf '%s' "$title" | sed 's/|/\\|/g')
           safe_author=$(printf '%s' "$author" | sed 's/|/\\|/g')
-          entry="- [${date_short}] ${safe_author}: ${safe_title} [#${pr_number}](${pr_url}) "
+          if [ -n "$pr_number" ]; then
+            entry="- [${date_short}] ${safe_author}: ${safe_title} [#${pr_number}](${pr_url})"
+          else
+            entry="- [${date_short}] ${safe_author}: ${safe_title}"
+          fi
           echo "$entry" > changelog_entry.txt
           echo "changelog_entry_path=changelog_entry.txt" >> "$GITHUB_OUTPUT"
 
-      - name: Prepend entry to CHANGELOG.md
+      - name: Append entry to CHANGELOG.md
         run: |
           changelog_file=CHANGELOG.md
           mkdir -p "$(dirname "$changelog_file")"
@@ -62,16 +88,10 @@ jobs:
             echo "" >> "$changelog_file"
           fi
           entry=$(cat "${{ steps.entry.outputs.changelog_entry_path }}")
-          first_line=$(head -n1 "$changelog_file" || true)
-          if [ "$first_line" = "# Changelog" ]; then
-            rest=$(tail -n +2 "$changelog_file")
-            rest=$(printf "%s\n" "$rest" | sed '1{/^$/d;}')
-            printf "%s\n\n%s\n\n%s\n" "# Changelog" "$entry" "$rest" > "$changelog_file"
-          else
-            printf "%s\n\n%s\n" "$entry" "$(cat "$changelog_file")" > "$changelog_file"
-          fi
+          # Ensure there is a header; append entry at the end of file separated by a blank line
+          printf "%s\n\n" "$entry" >> "$changelog_file"
 
-      - name: Commit and push changelog to PR branch
+      - name: Commit and push changelog to main
         env:
           GIT_AUTHOR_NAME: github-actions
           GIT_AUTHOR_EMAIL: actions@github.com
@@ -83,6 +103,6 @@ jobs:
             echo "No changes to commit."
             exit 0
           fi
-          commit_msg="chore: update CHANGELOG for PR #${{ steps.info.outputs.pr_number }}"
+          commit_msg="chore: append CHANGELOG entry for merge ${GITHUB_SHA::7}"
           git commit -m "$commit_msg"
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          git push origin main
