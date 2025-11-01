@@ -53,7 +53,7 @@ jobs:
           echo "$entry" > changelog_entry.txt
           echo "changelog_entry_path=changelog_entry.txt" >> "$GITHUB_OUTPUT"
 
-      - name: Prepend entry to CHANGELOG.md
+      - name: Append entry to CHANGELOG.md
         run: |
           changelog_file=CHANGELOG.md
           mkdir -p "$(dirname "$changelog_file")"
@@ -62,13 +62,12 @@ jobs:
             echo "" >> "$changelog_file"
           fi
           entry=$(cat "${{ steps.entry.outputs.changelog_entry_path }}")
-          first_line=$(head -n1 "$changelog_file" || true)
-          if [ "$first_line" = "# Changelog" ]; then
-            rest=$(tail -n +2 "$changelog_file")
-            rest=$(printf "%s\n" "$rest" | sed '1{/^$/d;}')
-            printf "%s\n\n%s\n\n%s\n" "# Changelog" "$entry" "$rest" > "$changelog_file"
+          # Se il file termina senza newline, assicurati separazione
+          tail_char=$(tail -c1 "$changelog_file" 2>/dev/null || true)
+          if [ -n "$tail_char" ] && [ "$tail_char" != $'\n' ]; then
+            printf "\n\n%s\n" "$entry" >> "$changelog_file"
           else
-            printf "%s\n\n%s\n" "$entry" "$(cat "$changelog_file")" > "$changelog_file"
+            printf "\n%s\n" "$entry" >> "$changelog_file"
           fi
 
       - name: Commit and push changelog to PR branch
