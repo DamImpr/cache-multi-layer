@@ -1,4 +1,5 @@
-FROM php:8.2-cli-alpine
+ARG PHP_VERSION=8.2
+FROM php:${PHP_VERSION}-cli-alpine
 
 RUN apk add --no-cache \
     libzip-dev \
