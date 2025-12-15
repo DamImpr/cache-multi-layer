@@ -2,7 +2,11 @@
 
 case "$1" in
     'test-sw')
-        docker compose run --rm --remove-orphans app test-sw && docker compose down
+        for i in 8.2 8.3 8.4
+        do
+            PHP_VERSION=$i docker compose build 
+            docker compose run --rm --remove-orphans app test-sw && docker compose down
+        done
         ;;
     'update-vendor')
         docker compose run --rm --remove-orphans app update-vendor && docker compose down

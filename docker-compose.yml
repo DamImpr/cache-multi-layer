@@ -1,6 +1,9 @@
 services:
   app:
-    build: .
+    build: 
+        context: .
+        args:
+            PHP_VERSION: ${PHP_VERSION}
     volumes:
       - ./src:/app/src
       - ./tests:/app//tests
