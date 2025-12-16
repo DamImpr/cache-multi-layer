@@ -6,7 +6,7 @@ services:
             PHP_VERSION: ${PHP_VERSION:-8.2}
     volumes:
       - ./src:/app/src
-      - ./tests:/app//tests
+      - ./tests:/app/tests
       - ./vendor:/app/vendor
       - ./composer.json:/app/composer.json
       - ./composer.lock:/app/composer.lock
