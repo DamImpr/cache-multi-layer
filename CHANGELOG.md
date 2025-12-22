@@ -10,3 +10,5 @@
 - [2025-12-15] DamImpr: create different docker with different php version [#28](https://github.com/DamImpr/cache-multi-layer/pull/28) 
 
 - [2025-12-16] DamImpr: changelog wrote only on PR opened [#29](https://github.com/DamImpr/cache-multi-layer/pull/29) 
+
+- [2025-12-22] DamImpr: Add tests directory to export-ignore in .gitattributes [#30](https://github.com/DamImpr/cache-multi-layer/pull/30) 
