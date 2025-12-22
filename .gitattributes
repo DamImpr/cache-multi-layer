@@ -1,6 +1,7 @@
 Dockerfile export-ignore
 commands export-ignore
 .github/ export-ignore
+tests/ export-ignore
 docker-compose.yml export-ignore
 entrypoint.sh export-ignore
 .php-cs-fixer.dist.php export-ignore
