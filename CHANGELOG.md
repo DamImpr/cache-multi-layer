@@ -12,3 +12,5 @@
 - [2025-12-16] DamImpr: changelog wrote only on PR opened [#29](https://github.com/DamImpr/cache-multi-layer/pull/29) 
 
 - [2025-12-22] DamImpr: Add tests directory to export-ignore in .gitattributes [#30](https://github.com/DamImpr/cache-multi-layer/pull/30) 
+
+- [2026-01-05] DamImpr: add persistent connection redis [#31](https://github.com/DamImpr/cache-multi-layer/pull/31) 
