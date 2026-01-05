@@ -115,6 +115,7 @@ class RedisCache extends Cache
             'port' => $configuration['port'] ?? 6379,
             'password' => $configuration['password'] ?? '',
             'database' => $configuration['database'] ?? 0,
+            'persistent' => $configuration['persistent'] ?? false
         ]);
     }
 

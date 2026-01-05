@@ -123,7 +123,6 @@ class RedisCacheTest extends AbstractCache
         Cache::factory(CacheEnum::REDIS, 60);
     }
 
-
     public function testConnectionNotFound(): void
     {
         $this->expectException(Exception::class);
@@ -133,6 +132,11 @@ class RedisCacheTest extends AbstractCache
     public function testEnum(): void
     {
         $this->doTestRealEnum(CacheEnum::REDIS);
+    }
+
+    public function testConnectionPersistent(): void
+    {
+        $this->assertTrue(Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'redis-server', 'persistent' => true])->isConnected());
     }
 
     #[\Override]
