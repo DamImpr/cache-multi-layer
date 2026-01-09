@@ -15,7 +15,6 @@ use Override;
  */
 class MemcacheCache extends Cache
 {
-
     /**
      *
      * {@inheritDoc}
@@ -191,7 +190,7 @@ class MemcacheCache extends Cache
     {
         if (!array_key_exists('instance', $configuration) || $configuration['instance'] instanceof Memcache) {
             parent::assertConfig($configuration);
-        } else if (array_key_exists('instance', $configuration)) {
+        } elseif (array_key_exists('instance', $configuration)) {
             throw new CacheMissingConfigurationException("instance must be " . Memcache::class . " class");
         }
     }

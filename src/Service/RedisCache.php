@@ -15,7 +15,6 @@ use Predis\Client as PredisClient;
  */
 class RedisCache extends Cache
 {
-
     /**
      *
      * {@InheritDoc}
@@ -160,7 +159,7 @@ class RedisCache extends Cache
     {
         if (!array_key_exists('instance', $configuration) || $configuration['instance'] instanceof PredisClient) {
             parent::assertConfig($configuration);
-        } else if (array_key_exists('instance', $configuration)) {
+        } elseif (array_key_exists('instance', $configuration)) {
             throw new CacheMissingConfigurationException("instance must be " . PredisClient::class . " class");
         }
     }
