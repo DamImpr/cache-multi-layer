@@ -110,7 +110,8 @@ class RedisCache extends Cache
     protected function __construct(int $ttl, array $configuration = [])
     {
         parent::__construct($ttl, $configuration);
-        if (array_key_exists('instance', $configuration)) {
+        if (array_key_exists('instance', $configuration)) 
+        {
             $this->predisClient = $configuration['instance'];
         } else {
             $this->predisClient = new PredisClient([
