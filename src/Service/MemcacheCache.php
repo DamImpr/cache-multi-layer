@@ -190,7 +190,7 @@ class MemcacheCache extends Cache
     {
         if (!array_key_exists('instance', $configuration) || $configuration['instance'] instanceof Memcache) {
             parent::assertConfig($configuration);
-        } elseif (array_key_exists('instance', $configuration)) {
+        } else if (array_key_exists('instance', $configuration)) {
             throw new CacheMissingConfigurationException("instance must be " . Memcache::class . " class");
         }
     }
