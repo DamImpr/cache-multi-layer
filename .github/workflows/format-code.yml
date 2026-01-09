@@ -46,5 +46,6 @@ jobs:
           git add .
           commit_msg="style: Fix PHP code style issues"
           git commit -m "$commit_msg"
+          git pull origin ${{ github.event.pull_request.head.ref }}
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
         fi
