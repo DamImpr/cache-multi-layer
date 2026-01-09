@@ -16,3 +16,5 @@
 - [2026-01-05] DamImpr: add persistent connection redis [#31](https://github.com/DamImpr/cache-multi-layer/pull/31) 
 
 - [2026-01-09] DamImpr: Redis and memcache cache, instance passed in construction [#32](https://github.com/DamImpr/cache-multi-layer/pull/32) 
+
+- [2026-01-09] DamImpr: Instance configuration [#33](https://github.com/DamImpr/cache-multi-layer/pull/33) 
