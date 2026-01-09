@@ -3,6 +3,7 @@
 namespace CacheMultiLayer\Service;
 
 use CacheMultiLayer\Enum\CacheEnum;
+use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Interface\Cacheable;
 use Override;
 use Predis\Client as PredisClient;
@@ -109,14 +110,18 @@ class RedisCache extends Cache
     protected function __construct(int $ttl, array $configuration = [])
     {
         parent::__construct($ttl, $configuration);
-        $this->predisClient = new PredisClient([
-            'scheme' => $configuration['tcp'] ?? 'tcp',
-            'host' => $configuration['server_address'],
-            'port' => $configuration['port'] ?? 6379,
-            'password' => $configuration['password'] ?? '',
-            'database' => $configuration['database'] ?? 0,
-            'persistent' => $configuration['persistent'] ?? false
-        ]);
+        if (array_key_exists('instance', $configuration)) {
+            $this->predisClient = $configuration['instance'];
+        } else {
+            $this->predisClient = new PredisClient([
+                'scheme' => $configuration['tcp'] ?? 'tcp',
+                'host' => $configuration['server_address'],
+                'port' => $configuration['port'] ?? 6379,
+                'password' => $configuration['password'] ?? '',
+                'database' => $configuration['database'] ?? 0,
+                'persistent' => $configuration['persistent'] ?? false
+            ]);
+        }
     }
 
     /**
@@ -149,8 +154,16 @@ class RedisCache extends Cache
         return $this->mandatoryKeys;
     }
 
+    #[\Override]
+    protected function assertConfig(array $configuration): void
+    {
+        if (!array_key_exists('instance', $configuration) || $configuration['instance'] instanceof PredisClient) {
+            parent::assertConfig($configuration);
+        } elseif (array_key_exists('instance', $configuration)) {
+            throw new CacheMissingConfigurationException("instance must be " . PredisClient::class . " class");
+        }
+    }
     private readonly PredisClient $predisClient;
-
     private array $mandatoryKeys = [
         'server_address'
     ];
