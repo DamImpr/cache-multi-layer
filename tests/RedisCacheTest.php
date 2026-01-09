@@ -7,6 +7,7 @@ use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Service\Cache;
 use Exception;
 use Override;
+use Predis\Client;
 
 /**
  * REDIS unit test class implementation
@@ -137,6 +138,22 @@ class RedisCacheTest extends AbstractCache
     public function testConnectionPersistent(): void
     {
         $this->assertTrue(Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'redis-server', 'persistent' => true])->isConnected());
+    }
+
+    public function testInstance(): void
+    {
+        $redis = new Client([
+            'host' => 'redis-server',
+            'port' => 6379
+        ]);
+        Cache::factory(CacheEnum::REDIS, 60, ['instance' => $redis]);
+        $this->assertTrue(true); //no exception throwns
+    }
+
+    public function testMissingInstance(): void
+    {
+        $this->expectException(CacheMissingConfigurationException::class);
+        Cache::factory(CacheEnum::REDIS, 60, ['instance' => 5]);
     }
 
     #[\Override]

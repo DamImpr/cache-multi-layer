@@ -6,6 +6,7 @@ use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Service\Cache;
 use Exception;
+use Memcache;
 use Override;
 
 /**
@@ -26,7 +27,7 @@ class MemcacheCacheTest extends AbstractCache
     #[Override]
     public static function setUpBeforeClass(): void
     {
-       parent::setUpBeforeClass();
+        parent::setUpBeforeClass();
         set_error_handler(function (int $errno, string $errstr, string $errfile, int $errline): bool {
             // error was suppressed with the @-operator
             if (0 === error_reporting()) {
@@ -101,7 +102,7 @@ class MemcacheCacheTest extends AbstractCache
     {
         parent::testIsConnected();
     }
-    
+
     #[\Override]
     public function testEmptyDecrement(): void
     {
@@ -132,6 +133,20 @@ class MemcacheCacheTest extends AbstractCache
         Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => 'ip-no-memcache'])->isConnected();
     }
 
+    public function testInstance(): void
+    {
+        $memcache = new Memcache();
+        $memcache->connect('memcache-server', 11211);
+        Cache::factory(CacheEnum::MEMCACHE, 60, ['instance' => $memcache]);
+        $this->assertTrue(true); //no exception throwns
+    }
+
+    public function testMissingInstance(): void
+    {
+        $this->expectException(CacheMissingConfigurationException::class);
+        Cache::factory(CacheEnum::MEMCACHE, 60, ['instance' => 5]);
+    }
+
     public function testEnum(): void
     {
         $this->doTestRealEnum(CacheEnum::MEMCACHE);
@@ -140,7 +155,7 @@ class MemcacheCacheTest extends AbstractCache
     #[\Override]
     public static function tearDownAfterClass(): void
     {
-         restore_error_handler();
+        restore_error_handler();
         Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => 'memcache-server'])->clearAllCache();
     }
 }

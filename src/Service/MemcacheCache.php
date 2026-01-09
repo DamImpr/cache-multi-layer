@@ -3,7 +3,9 @@
 namespace CacheMultiLayer\Service;
 
 use CacheMultiLayer\Enum\CacheEnum;
+use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Interface\Cacheable;
+use Exception;
 use Memcache;
 use Override;
 
@@ -13,6 +15,7 @@ use Override;
  */
 class MemcacheCache extends Cache
 {
+
     /**
      *
      * {@inheritDoc}
@@ -165,25 +168,35 @@ class MemcacheCache extends Cache
     protected function __construct(int $ttl, array $configuration = [])
     {
         parent::__construct($ttl, $configuration);
-        $this->memcache = new Memcache();
-        $port = $configuration['port'] ?? 11211;
-        if (array_key_exists('persistent', $configuration)) {
-            $resultConnection = $this->memcache->pconnect($configuration['server_address'], $port);
+        if (array_key_exists('instance', $configuration)) {
+            $this->memcache = $configuration['instance'];
         } else {
-            $resultConnection = $this->memcache->connect($configuration['server_address'], $port);
-        }
+            $this->memcache = new Memcache();
+            $port = $configuration['port'] ?? 11211;
+            if (array_key_exists('persistent', $configuration)) {
+                $resultConnection = $this->memcache->pconnect($configuration['server_address'], $port);
+            } else {
+                $resultConnection = $this->memcache->connect($configuration['server_address'], $port);
+            }
 
-        if (!$resultConnection) {
-            throw new \Exception("Connection not found");
+            if (!$resultConnection) {
+                throw new Exception("Connection not found");
+            }
         }
-
         $this->compress = array_key_exists('compress', $configuration) && $configuration['compress'];
     }
 
+    #[\Override]
+    protected function assertConfig(array $configuration): void
+    {
+        if (!array_key_exists('instance', $configuration) || $configuration['instance'] instanceof Memcache) {
+            parent::assertConfig($configuration);
+        } else if (array_key_exists('instance', $configuration)) {
+            throw new CacheMissingConfigurationException("instance must be " . Memcache::class . " class");
+        }
+    }
     private readonly Memcache $memcache;
-
     private readonly bool $compress;
-
     private array $mandatoryKeys = [
         'server_address'
     ];
