@@ -47,3 +47,15 @@ jobs:
         commit_msg="style: Fix PHP code style issues"
         git commit -m "$commit_msg"
         git push origin HEAD:${{ github.event.pull_request.head.ref }}
+        
+        if [ -z "$(git status --porcelain)" ]; then
+          echo "No changes to commit."
+        else
+          echo "Found changes, committing..."
+          git config user.name "$GIT_AUTHOR_NAME"
+          git config user.email "$GIT_AUTHOR_EMAIL"
+          git add .
+          commit_msg="style: Fix PHP code style issues"
+          git commit -m "$commit_msg"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+        fi
