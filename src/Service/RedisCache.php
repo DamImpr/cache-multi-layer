@@ -114,7 +114,7 @@ class RedisCache extends Cache
         } else {
             $this->redis = new \Redis();
             if (array_key_exists('persistent', $configuration) && $configuration['persistent']) {
-                $this->redis->connect($configuration['server_address'], $configuration['port'] ?? 6379, $configuration['timeout'] ?? 3, $configuration['connection_id'] ?? 'app_redis_connection');
+                $this->redis->pconnect($configuration['server_address'], $configuration['port'] ?? 6379, $configuration['timeout'] ?? 3, $configuration['connection_id'] ?? 'app_redis_connection');
             } else {
                 $this->redis->connect($configuration['server_address'], $configuration['port'] ?? 6379, $configuration['timeout'] ?? 3);
             }
