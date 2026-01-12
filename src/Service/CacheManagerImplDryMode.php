@@ -12,11 +12,6 @@ use Override;
  */
 class CacheManagerImplDryMode extends CacheManagerImpl
 {
-    protected function __construct(?CacheConfiguration $cacheConfiguration = null)
-    {
-        parent::__construct($cacheConfiguration);
-    }
-
     #[\Override]
     public function appendCache(Cache $cache): bool
     {

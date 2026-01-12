@@ -6,13 +6,14 @@ use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Interface\Cacheable;
 use Override;
+use Predis\Client as PredisClient;
 
 /**
  *
- * REDIS cache implementation
+ * PREDIS cache implementation
  * @author Damiano Improta <code@damianoimprota.dev>
  */
-class RedisCache extends Cache
+class PRedisCache extends Cache
 {
     /**
      *
@@ -21,9 +22,9 @@ class RedisCache extends Cache
     #[\Override]
     public function decrement(string $key, ?int $ttl = null): int|false
     {
-        $value = $this->redis->decr($key);
+        $value = $this->predisClient->decr($key);
         if (empty($this->getRemainingTTL($key))) {
-            $this->redis->expire($key, $this->getTtlToUse($ttl));
+            $this->predisClient->expire($key, $this->getTtlToUse($ttl));
         }
 
         return $value;
@@ -36,12 +37,12 @@ class RedisCache extends Cache
     #[\Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
-        $val = $this->redis->get($key);
+        $val = $this->predisClient->get($key);
         if ($val === null) {
             return null;
         }
 
-        $valDecoded = json_decode((string) $val, true);
+        $valDecoded = json_decode($val, true);
         return is_array($valDecoded) ? $this->unserializeVal($valDecoded) : $valDecoded;
     }
 
@@ -53,7 +54,7 @@ class RedisCache extends Cache
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
     {
         $data = is_array($val) ? $this->serializeValArray($val) : $this->serializeVal($val);
-        return $this->redis->setex($key, $this->getTtlToUse($ttl), json_encode($data)) !== null;
+        return $this->predisClient->setex($key, $this->getTtlToUse($ttl), json_encode($data)) !== null;
     }
 
     /**
@@ -63,9 +64,9 @@ class RedisCache extends Cache
     #[Override]
     public function increment(string $key, ?int $ttl = null): int|false
     {
-        $value = $this->redis->incr($key);
+        $value = $this->predisClient->incr($key);
         if (empty($this->getRemainingTTL($key))) {
-            $this->redis->expire($key, $this->getTtlToUse($ttl));
+            $this->predisClient->expire($key, $this->getTtlToUse($ttl));
         }
 
         return $value;
@@ -78,7 +79,7 @@ class RedisCache extends Cache
     #[Override]
     public function clear(string $key): bool
     {
-        return (bool) $this->redis->del($key);
+        return (bool) $this->predisClient->del($key);
     }
 
     /**
@@ -88,7 +89,7 @@ class RedisCache extends Cache
     #[Override]
     public function clearAllCache(): bool
     {
-        return $this->redis->flushall() !== null;
+        return $this->predisClient->flushall() !== null;
     }
 
     /**
@@ -98,7 +99,7 @@ class RedisCache extends Cache
     #[Override]
     public function getRemainingTTL(string $key): ?int
     {
-        $ttl = $this->redis->ttl($key);
+        $ttl = $this->predisClient->ttl($key);
         return $ttl !== false ? $ttl : null;
     }
 
@@ -110,14 +111,17 @@ class RedisCache extends Cache
     {
         parent::__construct($ttl, $configuration);
         if (array_key_exists('instance', $configuration)) {
-            $this->redis = $configuration['instance'];
+            $this->predisClient = $configuration['instance'];
         } else {
-            $this->redis = new \Redis();
-            if (array_key_exists('persistent', $configuration) && $configuration['persistent']) {
-                $this->redis->connect($configuration['server_address'], $configuration['port'] ?? 6379, $configuration['timeout'] ?? 3, $configuration['connection_id'] ?? 'app_redis_connection');
-            } else {
-                $this->redis->connect($configuration['server_address'], $configuration['port'] ?? 6379, $configuration['timeout'] ?? 3);
-            }
+            $this->predisClient = new PredisClient([
+                'scheme' => $configuration['tcp'] ?? 'tcp',
+                'host' => $configuration['server_address'],
+                'port' => $configuration['port'] ?? 6379,
+                'password' => $configuration['password'] ?? '',
+                'database' => $configuration['database'] ?? 0,
+                'persistent' => $configuration['persistent'] ?? false,
+                'conn_uid' => $configuration['connection_id'] ?? ''
+            ]);
         }
     }
 
@@ -128,7 +132,7 @@ class RedisCache extends Cache
     #[\Override]
     public function isConnected(): bool
     {
-        return $this->redis->ping() !== null;
+        return $this->predisClient->ping() !== null;
     }
 
     /**
@@ -138,7 +142,7 @@ class RedisCache extends Cache
     #[\Override]
     public function getEnum(): CacheEnum
     {
-        return CacheEnum::REDIS;
+        return CacheEnum::PREDIS;
     }
 
     /**
@@ -154,14 +158,14 @@ class RedisCache extends Cache
     #[\Override]
     protected function assertConfig(array $configuration): void
     {
-        if (!array_key_exists('instance', $configuration) || $configuration['instance'] instanceof \Redis) {
+        if (!array_key_exists('instance', $configuration) || $configuration['instance'] instanceof PredisClient) {
             parent::assertConfig($configuration);
         } elseif (array_key_exists('instance', $configuration)) {
-            throw new CacheMissingConfigurationException("instance must be " . \Redis::class . " class");
+            throw new CacheMissingConfigurationException("instance must be " . PredisClient::class . " class");
         }
     }
 
-    private readonly \Redis $redis;
+    private readonly PredisClient $predisClient;
 
     private array $mandatoryKeys = [
         'server_address'

@@ -7,19 +7,20 @@ use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Service\Cache;
 use Exception;
 use Override;
+use Predis\Client;
 
 /**
- * REDIS unit test class implementation
+ * PREDIS unit test class implementation
  * @author Damiano Improta <code@damianoimprota.dev> 
  */
-class RedisCacheTest extends AbstractCache
+class PRedisCacheTest extends AbstractCache
 {
 
     #[Override]
     protected function setUp(): void
     {
         parent::setUp();
-        $this->setCache(Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'redis-server']));
+        $this->setCache(Cache::factory(CacheEnum::PREDIS, 60, ['server_address' => 'redis-server']));
     }
 
     #[Override]
@@ -120,43 +121,45 @@ class RedisCacheTest extends AbstractCache
     public function testMissingServer(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
-        Cache::factory(CacheEnum::REDIS, 60);
+        Cache::factory(CacheEnum::PREDIS, 60);
     }
 
     public function testConnectionNotFound(): void
     {
         $this->expectException(Exception::class);
-        Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'ip-no-redis'])->isConnected();
+        Cache::factory(CacheEnum::PREDIS, 60, ['server_address' => 'ip-no-redis'])->isConnected();
     }
 
     public function testEnum(): void
     {
-        $this->doTestRealEnum(CacheEnum::REDIS);
+        $this->doTestRealEnum(CacheEnum::PREDIS);
     }
 
     public function testConnectionPersistent(): void
     {
-        $this->assertTrue(Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'redis-server', 'persistent' => true])->isConnected());
+        $this->assertTrue(Cache::factory(CacheEnum::PREDIS, 60, ['server_address' => 'redis-server', 'persistent' => true])->isConnected());
     }
 
     public function testInstance(): void
     {
-        $redis = new \Redis();
-        $redis->connect('redis-server', 6379);
-        Cache::factory(CacheEnum::REDIS, 60, ['instance' => $redis]);
+        $client = new Client([
+            'host' => 'redis-server',
+            'port' => 6379
+        ]);
+        Cache::factory(CacheEnum::PREDIS, 60, ['instance' => $client]);
         $this->assertTrue(true); //no exception throwns
     }
 
     public function testMissingInstance(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
-        Cache::factory(CacheEnum::REDIS, 60, ['instance' => 5]);
+        Cache::factory(CacheEnum::PREDIS, 60, ['instance' => 5]);
     }
 
     #[\Override]
     public static function tearDownAfterClass(): void
     {
         restore_error_handler();
-        Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'redis-server'])->clearAllCache();
+        Cache::factory(CacheEnum::PREDIS, 60, ['server_address' => 'redis-server'])->clearAllCache();
     }
 }
