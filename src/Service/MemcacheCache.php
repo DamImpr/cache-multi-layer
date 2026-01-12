@@ -172,7 +172,7 @@ class MemcacheCache extends Cache
         } else {
             $this->memcache = new Memcache();
             $port = $configuration['port'] ?? 11211;
-            if (array_key_exists('persistent', $configuration)) {
+            if (array_key_exists('persistent', $configuration) && $configuration['persistent']) {
                 $resultConnection = $this->memcache->pconnect($configuration['server_address'], $port);
             } else {
                 $resultConnection = $this->memcache->connect($configuration['server_address'], $port);
@@ -182,6 +182,7 @@ class MemcacheCache extends Cache
                 throw new Exception("Connection not found");
             }
         }
+
         $this->compress = array_key_exists('compress', $configuration) && $configuration['compress'];
     }
 
@@ -194,8 +195,11 @@ class MemcacheCache extends Cache
             throw new CacheMissingConfigurationException("instance must be " . Memcache::class . " class");
         }
     }
+
     private readonly Memcache $memcache;
+
     private readonly bool $compress;
+
     private array $mandatoryKeys = [
         'server_address'
     ];
