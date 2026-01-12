@@ -11,7 +11,7 @@ use Predis\Client as PredisClient;
 /**
  *
  * PREDIS cache implementation
- * @author Damiano Improta <code@damianoimprota.dev>
+ * @author Damiano Improta <code@damianoimprota.it>
  */
 class PRedisCache extends Cache
 {

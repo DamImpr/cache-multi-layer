@@ -9,7 +9,7 @@ use Override;
 /**
  *
  * Basic CacheManager implementation
- * @author Damiano Improta <code@damianoimprota.dev>
+ * @author Damiano Improta <code@damianoimprota.it>
  */
 class CacheManagerImpl extends CacheManager
 {
