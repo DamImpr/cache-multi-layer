@@ -20,3 +20,5 @@
 - [2026-01-09] DamImpr: Instance configuration [#33](https://github.com/DamImpr/cache-multi-layer/pull/33) 
 
 - [2026-01-12] DamImpr: redis cache with phpredis or predis [#34](https://github.com/DamImpr/cache-multi-layer/pull/34) 
+
+- [2026-01-16] DamImpr: prefix key [#35](https://github.com/DamImpr/cache-multi-layer/pull/35) 
