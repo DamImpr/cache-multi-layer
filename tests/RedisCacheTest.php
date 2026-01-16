@@ -153,6 +153,17 @@ class RedisCacheTest extends AbstractCache
         Cache::factory(CacheEnum::REDIS, 60, ['instance' => 5]);
     }
 
+    public function testPrefix(): void
+    {
+        $val = 10; //maradona
+        $key = "test_prefix";
+        $cacheSamePrefix = Cache::factory(CacheEnum::REDIS, 60, ['key_prefix' => '','server_address' => 'redis-server']);
+        $cacheOtherPrefix = Cache::factory(CacheEnum::REDIS, 10, ['key_prefix' => 'other_','server_address' => 'redis-server']);
+        $this->getCache()->set($key, $val);
+        $this->assertEquals($cacheSamePrefix->get($key), $val);
+        $this->assertNull($cacheOtherPrefix->get($key));
+    }
+
     #[\Override]
     public static function tearDownAfterClass(): void
     {

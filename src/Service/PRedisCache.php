@@ -22,9 +22,9 @@ class PRedisCache extends Cache
     #[\Override]
     public function decrement(string $key, ?int $ttl = null): int|false
     {
-        $value = $this->predisClient->decr($key);
+        $value = $this->predisClient->decr($this->getEffectiveKey($key));
         if (empty($this->getRemainingTTL($key))) {
-            $this->predisClient->expire($key, $this->getTtlToUse($ttl));
+            $this->predisClient->expire($this->getEffectiveKey($key), $this->getTtlToUse($ttl));
         }
 
         return $value;
@@ -37,7 +37,7 @@ class PRedisCache extends Cache
     #[\Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
-        $val = $this->predisClient->get($key);
+        $val = $this->predisClient->get($this->getEffectiveKey($key));
         if ($val === null) {
             return null;
         }
@@ -54,7 +54,7 @@ class PRedisCache extends Cache
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
     {
         $data = is_array($val) ? $this->serializeValArray($val) : $this->serializeVal($val);
-        return $this->predisClient->setex($key, $this->getTtlToUse($ttl), json_encode($data)) !== null;
+        return $this->predisClient->setex($this->getEffectiveKey($key), $this->getTtlToUse($ttl), json_encode($data)) !== null;
     }
 
     /**
@@ -64,9 +64,9 @@ class PRedisCache extends Cache
     #[Override]
     public function increment(string $key, ?int $ttl = null): int|false
     {
-        $value = $this->predisClient->incr($key);
+        $value = $this->predisClient->incr($this->getEffectiveKey($key));
         if (empty($this->getRemainingTTL($key))) {
-            $this->predisClient->expire($key, $this->getTtlToUse($ttl));
+            $this->predisClient->expire($this->getEffectiveKey($key), $this->getTtlToUse($ttl));
         }
 
         return $value;
@@ -79,7 +79,7 @@ class PRedisCache extends Cache
     #[Override]
     public function clear(string $key): bool
     {
-        return (bool) $this->predisClient->del($key);
+        return (bool) $this->predisClient->del($this->getEffectiveKey($key));
     }
 
     /**
@@ -123,6 +123,7 @@ class PRedisCache extends Cache
                 'conn_uid' => $configuration['connection_id'] ?? ''
             ]);
         }
+        $this->prefixKey = $configuration['key_prefix'] ?? '';
     }
 
     /**
@@ -165,8 +166,18 @@ class PRedisCache extends Cache
         }
     }
 
+    
+    /**
+     * manages keys by adding the prefix set during configuration
+     * @param string $key cache key
+     * @return string key to be used
+     */
+    private function getEffectiveKey(string $key): string
+    {
+        return $this->prefixKey . $key;
+    }
     private readonly PredisClient $predisClient;
-
+    private readonly string $prefixKey;
     private array $mandatoryKeys = [
         'server_address'
     ];

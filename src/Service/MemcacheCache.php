@@ -15,6 +15,7 @@ use Override;
  */
 class MemcacheCache extends Cache
 {
+
     /**
      *
      * {@inheritDoc}
@@ -32,7 +33,7 @@ class MemcacheCache extends Cache
     #[Override]
     public function clear(string $key): bool
     {
-        return $this->memcache->delete($key);
+        return $this->memcache->delete($this->getEffectiveKey($key));
     }
 
     /**
@@ -52,7 +53,7 @@ class MemcacheCache extends Cache
     #[Override]
     public function decrement(string $key, ?int $ttl = null): int|false
     {
-        $pair = $this->memcache->get($key);
+        $pair = $this->memcache->get($this->getEffectiveKey($key));
         if (empty($pair)) {
             $this->set($key, -1, $ttl);
             return -1;
@@ -65,7 +66,7 @@ class MemcacheCache extends Cache
 
         --$value;
         $pair['data'] = $value;
-        $this->memcache->set($key, $pair, $this->compress ? MEMCACHE_COMPRESSED : 0, $this->getRemainingTTL($key));
+        $this->memcache->set($this->getEffectiveKey($key), $pair, $this->compress ? MEMCACHE_COMPRESSED : 0, $this->getRemainingTTL($key));
         return $value;
     }
 
@@ -76,7 +77,7 @@ class MemcacheCache extends Cache
     #[Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
-        $val = $this->memcache->get($key);
+        $val = $this->memcache->get($this->getEffectiveKey($key));
         if (empty($val)) {
             return null;
         }
@@ -102,7 +103,7 @@ class MemcacheCache extends Cache
     #[Override]
     public function getRemainingTTL(string $key): ?int
     {
-        $val = $this->memcache->get($key);
+        $val = $this->memcache->get($this->getEffectiveKey($key));
         if (empty($val)) {
             return null;
         }
@@ -117,7 +118,7 @@ class MemcacheCache extends Cache
     #[Override]
     public function increment(string $key, ?int $ttl = null): int|false
     {
-        $pair = $this->memcache->get($key);
+        $pair = $this->memcache->get($this->getEffectiveKey($key));
         if (empty($pair)) {
             $this->set($key, 1, $ttl);
             return 1;
@@ -130,7 +131,7 @@ class MemcacheCache extends Cache
 
         ++$value;
         $pair['data'] = $value;
-        $this->memcache->set($key, $pair, $this->compress ? MEMCACHE_COMPRESSED : 0, $this->getRemainingTTL($key));
+        $this->memcache->set($this->getEffectiveKey($key), $pair, $this->compress ? MEMCACHE_COMPRESSED : 0, $this->getRemainingTTL($key));
         return $value;
     }
 
@@ -157,7 +158,7 @@ class MemcacheCache extends Cache
             'data' => json_encode($values)
             , 'exipres_at' => time() + $ttlToUse
         ];
-        return $this->memcache->set($key, $dataToStore, $this->compress ? MEMCACHE_COMPRESSED : 0, $ttlToUse);
+        return $this->memcache->set($this->getEffectiveKey($key), $dataToStore, $this->compress ? MEMCACHE_COMPRESSED : 0, $ttlToUse);
     }
 
     /**
@@ -182,7 +183,7 @@ class MemcacheCache extends Cache
                 throw new Exception("Connection not found");
             }
         }
-
+        $this->prefixKey = $configuration['key_prefix'] ?? '';
         $this->compress = array_key_exists('compress', $configuration) && $configuration['compress'];
     }
 
@@ -196,10 +197,18 @@ class MemcacheCache extends Cache
         }
     }
 
+    /**
+     * manages keys by adding the prefix set during configuration
+     * @param string $key cache key
+     * @return string key to be used
+     */
+    private function getEffectiveKey(string $key): string
+    {
+        return $this->prefixKey . $key;
+    }
     private readonly Memcache $memcache;
-
+    private readonly string $prefixKey;
     private readonly bool $compress;
-
     private array $mandatoryKeys = [
         'server_address'
     ];

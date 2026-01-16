@@ -5,23 +5,29 @@ case "$1" in
         for i in 8.2 8.3 8.4
         do
             PHP_VERSION=$i docker compose build 
-            docker compose run --rm --remove-orphans app test-sw && docker compose down
+            docker compose run --rm --remove-orphans app test-sw 
+            docker compose down
         done
         ;;
     'update-vendor')
-        docker compose run --rm --remove-orphans app update-vendor && docker compose down
+        docker compose run --rm --remove-orphans app update-vendor 
+        docker compose down
         ;;
     'php-cs-fixer')
-        docker compose run --rm --remove-orphans app php-cs-fixer && docker compose down
+        docker compose run --rm --remove-orphans app php-cs-fixer 
+        docker compose down
         ;;
     'rector')
-        docker compose run --rm --remove-orphans app rector && docker compose down
+        docker compose run --rm --remove-orphans app rector 
+        docker compose down
         ;;
     'phpstan')
-        docker compose run --rm --remove-orphans app phpstan && docker compose down
+        docker compose run --rm --remove-orphans app phpstan 
+        docker compose down
         ;;
     'sh')
-        docker compose run --rm --remove-orphans app sh && docker compose down
+        docker compose run --rm --remove-orphans app sh 
+        docker compose down
         ;;
     *)
         echo "comands allowed"
