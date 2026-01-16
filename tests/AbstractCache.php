@@ -15,9 +15,7 @@ use PHPUnit\Framework\TestCase;
  */
 abstract class AbstractCache extends TestCase
 {
-
     private ?Cache $cache = null;
-
     private ?Foo $foo = null;
 
     public final function setCache(?Cache $cache): void
@@ -80,7 +78,7 @@ abstract class AbstractCache extends TestCase
 
     public function testArray(): void
     {
-        $x = [1, 2, 3];
+        $x = [1, 2, 3, null];
         $key = 'test_array';
         $res = $this->cache->set($key, $x);
         $this->assertTrue($res);
@@ -149,7 +147,7 @@ abstract class AbstractCache extends TestCase
 
     public function testEmptyIncrement(): void
     {
-        $key="test_empty_increment";
+        $key = "test_empty_increment";
         $expected = 1;
         $actual = $this->cache->increment($key);
         $this->assertEquals($expected, $actual);
@@ -157,7 +155,7 @@ abstract class AbstractCache extends TestCase
 
     public function testEmptyDecrement(): void
     {
-        $key="test_empty_decrement";
+        $key = "test_empty_decrement";
         $expected = -1;
         $actual = $this->cache->decrement($key);
         $this->assertEquals($expected, $actual);

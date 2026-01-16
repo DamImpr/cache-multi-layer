@@ -155,7 +155,7 @@ abstract class Cache
      * @param int|float|string|Cacheable $val value to be serialised
      * @return  int|float|string|array value serialized
      */
-    final protected function serializeVal(int|float|string|Cacheable $val): int|float|string|array
+    final protected function serializeVal(int|float|string|Cacheable|null $val): int|float|string|array|null
     {
         if ($val instanceof Cacheable) {
             return ['__cacheable' => 1, '__class' => $val::class, '__data' => $val->serialize()];
