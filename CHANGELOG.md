@@ -24,3 +24,5 @@
 - [2026-01-16] DamImpr: prefix key [#35](https://github.com/DamImpr/cache-multi-layer/pull/35) 
 
 - [2026-01-16] DamImpr: hotfix null value [#36](https://github.com/DamImpr/cache-multi-layer/pull/36) 
+
+- [2026-01-16] DamImpr: chore: update CHANGELOG for PR #36 [#37](https://github.com/DamImpr/cache-multi-layer/pull/37) 
