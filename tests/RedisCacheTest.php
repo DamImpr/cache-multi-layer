@@ -163,6 +163,12 @@ class RedisCacheTest extends AbstractCache
         $this->assertEquals($cacheSamePrefix->get($key), $val);
         $this->assertNull($cacheOtherPrefix->get($key));
     }
+    
+    #[\Override]
+    public function testArrayDepth(): void
+    {
+        parent::testArrayDepth();
+    }
 
     #[\Override]
     public static function tearDownAfterClass(): void

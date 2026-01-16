@@ -144,6 +144,12 @@ class ApcuCacheTest extends AbstractCache
         parent::tearDownAfterClass();
         Cache::factory(CacheEnum::APCU, 60)->clearAllCache();
     }
+    
+    #[\Override]
+    public function testArrayDepth(): void
+    {
+        parent::testArrayDepth();
+    }
 
     /**
      *
