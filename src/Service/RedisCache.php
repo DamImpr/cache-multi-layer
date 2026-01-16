@@ -14,7 +14,6 @@ use Override;
  */
 class RedisCache extends Cache
 {
-
     /**
      *
      * {@InheritDoc}

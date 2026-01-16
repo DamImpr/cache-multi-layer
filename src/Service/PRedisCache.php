@@ -166,7 +166,7 @@ class PRedisCache extends Cache
         }
     }
 
-    
+
     /**
      * manages keys by adding the prefix set during configuration
      * @param string $key cache key

@@ -15,7 +15,6 @@ use Override;
  */
 class MemcacheCache extends Cache
 {
-
     /**
      *
      * {@inheritDoc}
