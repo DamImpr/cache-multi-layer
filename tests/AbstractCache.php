@@ -86,6 +86,21 @@ abstract class AbstractCache extends TestCase
         $this->assertEquals($val, $x);
     }
 
+    public function testArrayDepth(): void
+    {
+        $x = [1, 2, 3, null, [
+                1, 2, 3, null, [
+                    1, 2, 3, null
+                ]
+            ]
+        ];
+        $key = 'test_array_depth';
+        $res = $this->cache->set($key, $x);
+        $this->assertTrue($res);
+        $val = $this->cache->get($key);
+        $this->testRecursiveArray($x, $val);
+    }
+
     public function testClass(): void
     {
         $key = 'test_class';
@@ -186,5 +201,17 @@ abstract class AbstractCache extends TestCase
     public final function getCache(): ?Cache
     {
         return $this->cache;
+    }
+
+    private function testRecursiveArray(array $actual, array $expected): void
+    {
+        foreach($expected as $key => $value){
+            $this->assertArrayHasKey($key, $actual); 
+            if(is_array($value)){
+                $this->testRecursiveArray($value, $actual[$key]);
+            } else {
+                $this->assertEquals($value, $actual[$key]);
+            }
+        }
     }
 }

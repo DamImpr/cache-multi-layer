@@ -26,3 +26,5 @@
 - [2026-01-16] DamImpr: hotfix null value [#36](https://github.com/DamImpr/cache-multi-layer/pull/36) 
 
 - [2026-01-16] DamImpr: chore: update CHANGELOG for PR #36 [#37](https://github.com/DamImpr/cache-multi-layer/pull/37) 
+
+- [2026-01-16] DamImpr: test method with depth array greater than 1 [#38](https://github.com/DamImpr/cache-multi-layer/pull/38) 

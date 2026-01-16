@@ -156,11 +156,17 @@ class MemcacheCacheTest extends AbstractCache
     {
         $val = 10; //maradona
         $key = "test_prefix";
-        $cacheSamePrefix = Cache::factory(CacheEnum::MEMCACHE, 60, ['key_prefix' => '','server_address' => 'memcache-server']);
-        $cacheOtherPrefix = Cache::factory(CacheEnum::MEMCACHE, 10, ['key_prefix' => 'other_','server_address' => 'memcache-server']);
+        $cacheSamePrefix = Cache::factory(CacheEnum::MEMCACHE, 60, ['key_prefix' => '', 'server_address' => 'memcache-server']);
+        $cacheOtherPrefix = Cache::factory(CacheEnum::MEMCACHE, 10, ['key_prefix' => 'other_', 'server_address' => 'memcache-server']);
         $this->getCache()->set($key, $val);
         $this->assertEquals($cacheSamePrefix->get($key), $val);
         $this->assertNull($cacheOtherPrefix->get($key));
+    }
+
+    #[\Override]
+    public function testArrayDepth(): void
+    {
+        parent::testArrayDepth();
     }
 
     #[\Override]
