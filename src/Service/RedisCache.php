@@ -21,9 +21,9 @@ class RedisCache extends Cache
     #[\Override]
     public function decrement(string $key, ?int $ttl = null): int|false
     {
-        $value = $this->redis->decr($key);
+        $value = $this->redis->decr($this->getEffectiveKey($key));
         if (empty($this->getRemainingTTL($key))) {
-            $this->redis->expire($key, $this->getTtlToUse($ttl));
+            $this->redis->expire($this->getEffectiveKey($key), $this->getTtlToUse($ttl));
         }
 
         return $value;
@@ -36,7 +36,7 @@ class RedisCache extends Cache
     #[\Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
-        $val = $this->redis->get($key);
+        $val = $this->redis->get($this->getEffectiveKey($key));
         if ($val === null) {
             return null;
         }
@@ -53,7 +53,7 @@ class RedisCache extends Cache
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
     {
         $data = is_array($val) ? $this->serializeValArray($val) : $this->serializeVal($val);
-        return $this->redis->setex($key, $this->getTtlToUse($ttl), json_encode($data)) !== null;
+        return $this->redis->setex($this->getEffectiveKey($key), $this->getTtlToUse($ttl), json_encode($data)) !== null;
     }
 
     /**
@@ -63,9 +63,9 @@ class RedisCache extends Cache
     #[Override]
     public function increment(string $key, ?int $ttl = null): int|false
     {
-        $value = $this->redis->incr($key);
+        $value = $this->redis->incr($this->getEffectiveKey($key));
         if (empty($this->getRemainingTTL($key))) {
-            $this->redis->expire($key, $this->getTtlToUse($ttl));
+            $this->redis->expire($this->getEffectiveKey($key), $this->getTtlToUse($ttl));
         }
 
         return $value;
@@ -78,7 +78,7 @@ class RedisCache extends Cache
     #[Override]
     public function clear(string $key): bool
     {
-        return (bool) $this->redis->del($key);
+        return (bool) $this->redis->del($this->getEffectiveKey($key));
     }
 
     /**
@@ -98,7 +98,7 @@ class RedisCache extends Cache
     #[Override]
     public function getRemainingTTL(string $key): ?int
     {
-        $ttl = $this->redis->ttl($key);
+        $ttl = $this->redis->ttl($this->getEffectiveKey($key));
         return $ttl !== false ? $ttl : null;
     }
 
@@ -119,6 +119,7 @@ class RedisCache extends Cache
                 $this->redis->connect($configuration['server_address'], $configuration['port'] ?? 6379, $configuration['timeout'] ?? 3);
             }
         }
+        $this->prefixKey = $configuration['key_prefix'] ?? '';
     }
 
     /**
@@ -161,8 +162,17 @@ class RedisCache extends Cache
         }
     }
 
+    /**
+     * manages keys by adding the prefix set during configuration
+     * @param string $key cache key
+     * @return string key to be used
+     */
+    private function getEffectiveKey(string $key): string
+    {
+        return $this->prefixKey . $key;
+    }
     private readonly \Redis $redis;
-
+    private readonly string $prefixKey;
     private array $mandatoryKeys = [
         'server_address'
     ];
