@@ -11,13 +11,11 @@ use PHPUnit\Framework\TestCase;
 /**
  * Abstract class for unit testing a cache containing the tests that every class implementing a cache must undergo.
  * For each cache implemented, a specific class will be created that extends this one.
- * @author Damiano Improta <code@damianoimprota.dev> 
+ * @author Damiano Improta <code@damianoimprota.it> 
  */
 abstract class AbstractCache extends TestCase
 {
-
     private ?Cache $cache = null;
-
     private ?Foo $foo = null;
 
     public final function setCache(?Cache $cache): void
@@ -80,12 +78,27 @@ abstract class AbstractCache extends TestCase
 
     public function testArray(): void
     {
-        $x = [1, 2, 3];
+        $x = [1, 2, 3, null];
         $key = 'test_array';
         $res = $this->cache->set($key, $x);
         $this->assertTrue($res);
         $val = $this->cache->get($key);
         $this->assertEquals($val, $x);
+    }
+
+    public function testArrayDepth(): void
+    {
+        $x = [1, 2, 3, null, [
+                1, 2, 3, null, [
+                    1, 2, 3, null
+                ]
+            ]
+        ];
+        $key = 'test_array_depth';
+        $res = $this->cache->set($key, $x);
+        $this->assertTrue($res);
+        $val = $this->cache->get($key);
+        $this->testRecursiveArray($x, $val);
     }
 
     public function testClass(): void
@@ -149,7 +162,7 @@ abstract class AbstractCache extends TestCase
 
     public function testEmptyIncrement(): void
     {
-        $key="test_empty_increment";
+        $key = "test_empty_increment";
         $expected = 1;
         $actual = $this->cache->increment($key);
         $this->assertEquals($expected, $actual);
@@ -157,7 +170,7 @@ abstract class AbstractCache extends TestCase
 
     public function testEmptyDecrement(): void
     {
-        $key="test_empty_decrement";
+        $key = "test_empty_decrement";
         $expected = -1;
         $actual = $this->cache->decrement($key);
         $this->assertEquals($expected, $actual);
@@ -188,5 +201,17 @@ abstract class AbstractCache extends TestCase
     public final function getCache(): ?Cache
     {
         return $this->cache;
+    }
+
+    private function testRecursiveArray(array $actual, array $expected): void
+    {
+        foreach($expected as $key => $value){
+            $this->assertArrayHasKey($key, $actual); 
+            if(is_array($value)){
+                $this->testRecursiveArray($value, $actual[$key]);
+            } else {
+                $this->assertEquals($value, $actual[$key]);
+            }
+        }
     }
 }

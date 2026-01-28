@@ -3,13 +3,15 @@
 namespace CacheMultiLayer\Service;
 
 use CacheMultiLayer\Enum\CacheEnum;
+use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Interface\Cacheable;
+use Exception;
 use Memcache;
 use Override;
 
 /**
  * MEMCACHE cache implementation
- * @author Damiano Improta <code@damianoimprota.dev>
+ * @author Damiano Improta <code@damianoimprota.it>
  */
 class MemcacheCache extends Cache
 {
@@ -30,7 +32,7 @@ class MemcacheCache extends Cache
     #[Override]
     public function clear(string $key): bool
     {
-        return $this->memcache->delete($key);
+        return $this->memcache->delete($this->getEffectiveKey($key));
     }
 
     /**
@@ -50,7 +52,7 @@ class MemcacheCache extends Cache
     #[Override]
     public function decrement(string $key, ?int $ttl = null): int|false
     {
-        $pair = $this->memcache->get($key);
+        $pair = $this->memcache->get($this->getEffectiveKey($key));
         if (empty($pair)) {
             $this->set($key, -1, $ttl);
             return -1;
@@ -63,7 +65,7 @@ class MemcacheCache extends Cache
 
         --$value;
         $pair['data'] = $value;
-        $this->memcache->set($key, $pair, $this->compress ? MEMCACHE_COMPRESSED : 0, $this->getRemainingTTL($key));
+        $this->memcache->set($this->getEffectiveKey($key), $pair, $this->compress ? MEMCACHE_COMPRESSED : 0, $this->getRemainingTTL($key));
         return $value;
     }
 
@@ -74,7 +76,7 @@ class MemcacheCache extends Cache
     #[Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
-        $val = $this->memcache->get($key);
+        $val = $this->memcache->get($this->getEffectiveKey($key));
         if (empty($val)) {
             return null;
         }
@@ -100,7 +102,7 @@ class MemcacheCache extends Cache
     #[Override]
     public function getRemainingTTL(string $key): ?int
     {
-        $val = $this->memcache->get($key);
+        $val = $this->memcache->get($this->getEffectiveKey($key));
         if (empty($val)) {
             return null;
         }
@@ -115,7 +117,7 @@ class MemcacheCache extends Cache
     #[Override]
     public function increment(string $key, ?int $ttl = null): int|false
     {
-        $pair = $this->memcache->get($key);
+        $pair = $this->memcache->get($this->getEffectiveKey($key));
         if (empty($pair)) {
             $this->set($key, 1, $ttl);
             return 1;
@@ -128,7 +130,7 @@ class MemcacheCache extends Cache
 
         ++$value;
         $pair['data'] = $value;
-        $this->memcache->set($key, $pair, $this->compress ? MEMCACHE_COMPRESSED : 0, $this->getRemainingTTL($key));
+        $this->memcache->set($this->getEffectiveKey($key), $pair, $this->compress ? MEMCACHE_COMPRESSED : 0, $this->getRemainingTTL($key));
         return $value;
     }
 
@@ -155,7 +157,7 @@ class MemcacheCache extends Cache
             'data' => json_encode($values)
             , 'exipres_at' => time() + $ttlToUse
         ];
-        return $this->memcache->set($key, $dataToStore, $this->compress ? MEMCACHE_COMPRESSED : 0, $ttlToUse);
+        return $this->memcache->set($this->getEffectiveKey($key), $dataToStore, $this->compress ? MEMCACHE_COMPRESSED : 0, $ttlToUse);
     }
 
     /**
@@ -165,25 +167,47 @@ class MemcacheCache extends Cache
     protected function __construct(int $ttl, array $configuration = [])
     {
         parent::__construct($ttl, $configuration);
-        $this->memcache = new Memcache();
-        $port = $configuration['port'] ?? 11211;
-        if (array_key_exists('persistent', $configuration)) {
-            $resultConnection = $this->memcache->pconnect($configuration['server_address'], $port);
+        if (array_key_exists('instance', $configuration)) {
+            $this->memcache = $configuration['instance'];
         } else {
-            $resultConnection = $this->memcache->connect($configuration['server_address'], $port);
-        }
+            $this->memcache = new Memcache();
+            $port = $configuration['port'] ?? 11211;
+            if (array_key_exists('persistent', $configuration) && $configuration['persistent']) {
+                $resultConnection = $this->memcache->pconnect($configuration['server_address'], $port);
+            } else {
+                $resultConnection = $this->memcache->connect($configuration['server_address'], $port);
+            }
 
-        if (!$resultConnection) {
-            throw new \Exception("Connection not found");
+            if (!$resultConnection) {
+                throw new Exception("Connection not found");
+            }
         }
-
+        $this->prefixKey = $configuration['key_prefix'] ?? '';
         $this->compress = array_key_exists('compress', $configuration) && $configuration['compress'];
     }
 
+    #[\Override]
+    protected function assertConfig(array $configuration): void
+    {
+        if (!array_key_exists('instance', $configuration) || $configuration['instance'] instanceof Memcache) {
+            parent::assertConfig($configuration);
+        } elseif (array_key_exists('instance', $configuration)) {
+            throw new CacheMissingConfigurationException("instance must be " . Memcache::class . " class");
+        }
+    }
+
+    /**
+     * manages keys by adding the prefix set during configuration
+     * @param string $key cache key
+     * @return string key to be used
+     */
+    private function getEffectiveKey(string $key): string
+    {
+        return $this->prefixKey . $key;
+    }
     private readonly Memcache $memcache;
-
+    private readonly string $prefixKey;
     private readonly bool $compress;
-
     private array $mandatoryKeys = [
         'server_address'
     ];

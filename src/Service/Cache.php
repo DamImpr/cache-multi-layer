@@ -13,7 +13,7 @@ use InvalidArgumentException;
  * The methods it offers allow you to save and retrieve a single object or an entire collection
  * passed as an array. Saving and retrieval occurs through the serialisation and deserialisation of an object, associating a key and TTL in seconds, which must be set when constructing the class.
  *
- * @author Damiano Improta <code@damianoimprota.dev>
+ * @author Damiano Improta <code@damianoimprota.it>
  */
 abstract class Cache
 {
@@ -117,6 +117,7 @@ abstract class Cache
         return match ($cacheEnum) {
             CacheEnum::APCU => new ApcuCache($ttl, $configuration),
             CacheEnum::REDIS => new RedisCache($ttl, $configuration),
+            CacheEnum::PREDIS => new PRedisCache($ttl, $configuration),
             CacheEnum::MEMCACHE => new MemcacheCache($ttl, $configuration)
         };
     }
@@ -154,7 +155,7 @@ abstract class Cache
      * @param int|float|string|Cacheable $val value to be serialised
      * @return  int|float|string|array value serialized
      */
-    final protected function serializeVal(int|float|string|Cacheable $val): int|float|string|array
+    final protected function serializeVal(int|float|string|Cacheable|null $val): int|float|string|array|null
     {
         if ($val instanceof Cacheable) {
             return ['__cacheable' => 1, '__class' => $val::class, '__data' => $val->serialize()];

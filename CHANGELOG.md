@@ -14,3 +14,17 @@
 - [2025-12-22] DamImpr: Add tests directory to export-ignore in .gitattributes [#30](https://github.com/DamImpr/cache-multi-layer/pull/30) 
 
 - [2026-01-05] DamImpr: add persistent connection redis [#31](https://github.com/DamImpr/cache-multi-layer/pull/31) 
+
+- [2026-01-09] DamImpr: Redis and memcache cache, instance passed in construction [#32](https://github.com/DamImpr/cache-multi-layer/pull/32) 
+
+- [2026-01-09] DamImpr: Instance configuration [#33](https://github.com/DamImpr/cache-multi-layer/pull/33) 
+
+- [2026-01-12] DamImpr: redis cache with phpredis or predis [#34](https://github.com/DamImpr/cache-multi-layer/pull/34) 
+
+- [2026-01-16] DamImpr: prefix key [#35](https://github.com/DamImpr/cache-multi-layer/pull/35) 
+
+- [2026-01-16] DamImpr: hotfix null value [#36](https://github.com/DamImpr/cache-multi-layer/pull/36) 
+
+- [2026-01-16] DamImpr: chore: update CHANGELOG for PR #36 [#37](https://github.com/DamImpr/cache-multi-layer/pull/37) 
+
+- [2026-01-16] DamImpr: test method with depth array greater than 1 [#38](https://github.com/DamImpr/cache-multi-layer/pull/38) 

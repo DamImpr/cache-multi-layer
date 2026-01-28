@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
  * Abstract class for unit testing a cache manager containing the tests that every class implementing a cache manager must undergo.
  * For each cache manager implemented, a specific class will be created that extends this one.
  *
- * @author Damiano Improta <code@damianoimprota.dev> 
+ * @author Damiano Improta <code@damianoimprota.it> 
  */
 class AbstractCacheManager extends TestCase
 {

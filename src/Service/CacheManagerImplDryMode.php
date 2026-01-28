@@ -8,15 +8,10 @@ use Override;
 /**
  *
  * cache manager in dry run mode, where the entire cache system is bypassed
- * @author Damiano Improta <code@damianoimprota.dev>
+ * @author Damiano Improta <code@damianoimprota.it>
  */
 class CacheManagerImplDryMode extends CacheManagerImpl
 {
-    protected function __construct(?CacheConfiguration $cacheConfiguration = null)
-    {
-        parent::__construct($cacheConfiguration);
-    }
-
     #[\Override]
     public function appendCache(Cache $cache): bool
     {
