@@ -6,23 +6,22 @@ use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Service\Cache;
 use Exception;
-use Override;
 
 /**
- * REDIS unit test class implementation
- * @author Damiano Improta <code@damianoimprota.it> 
+ * REDIS unit test class implementation.
+ *
+ * @author Damiano Improta <code@damianoimprota.it>
  */
 class RedisCacheTest extends AbstractCache
 {
-
-    #[Override]
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
         $this->setCache(Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'redis-server']));
     }
 
-    #[Override]
+    #[\Override]
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
@@ -34,60 +33,60 @@ class RedisCacheTest extends AbstractCache
 
             return match ($errno) {
                 E_USER_WARNING => true,
-                default => throw new Exception($errstr . ' -> ' . $errfile . ':' . $errline, 0),
+                default => throw new \Exception($errstr.' -> '.$errfile.':'.$errline, 0),
             };
         });
     }
 
-    #[Override]
+    #[\Override]
     public function testArray(): void
     {
         parent::testArray();
     }
 
-    #[Override]
+    #[\Override]
     public function testClass(): void
     {
         parent::testClass();
     }
 
-    #[Override]
+    #[\Override]
     public function testClear(): void
     {
         parent::testClear();
     }
 
-    #[Override]
+    #[\Override]
     public function testClearAllCache(): void
     {
         parent::testClearAllCache();
     }
 
-    #[Override]
+    #[\Override]
     public function testExpireTtl(): void
     {
         parent::testExpireTtl();
     }
 
-    #[Override]
+    #[\Override]
     public function testFloat(): void
     {
         parent::testFloat();
     }
 
-    #[Override]
+    #[\Override]
     public function testIncrDecr(): void
     {
         parent::testIncrDecr();
     }
 
-    #[Override]
+    #[\Override]
     public function testInteger(): void
     {
         parent::testInteger();
     }
 
-    #[Override]
+    #[\Override]
     public function testString(): void
     {
         parent::testString();
@@ -120,12 +119,12 @@ class RedisCacheTest extends AbstractCache
     public function testMissingServer(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
-        Cache::factory(CacheEnum::REDIS, 60,['port' => 6379]);
+        Cache::factory(CacheEnum::REDIS, 60, ['port' => 6379]);
     }
 
     public function testConnectionNotFound(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'ip-no-redis'])->isConnected();
     }
 
@@ -144,7 +143,7 @@ class RedisCacheTest extends AbstractCache
         $redis = new \Redis();
         $redis->connect('redis-server', 6379);
         Cache::factory(CacheEnum::REDIS, 60, ['instance' => $redis]);
-        $this->assertTrue(true); //no exception throwns
+        $this->assertTrue(true); // no exception throwns
     }
 
     public function testMissingInstance(): void
@@ -155,15 +154,15 @@ class RedisCacheTest extends AbstractCache
 
     public function testPrefix(): void
     {
-        $val = 10; //maradona
-        $key = "test_prefix";
-        $cacheSamePrefix = Cache::factory(CacheEnum::REDIS, 60, ['key_prefix' => '','server_address' => 'redis-server']);
-        $cacheOtherPrefix = Cache::factory(CacheEnum::REDIS, 10, ['key_prefix' => 'other_','server_address' => 'redis-server']);
+        $val = 10; // maradona
+        $key = 'test_prefix';
+        $cacheSamePrefix = Cache::factory(CacheEnum::REDIS, 60, ['key_prefix' => '', 'server_address' => 'redis-server']);
+        $cacheOtherPrefix = Cache::factory(CacheEnum::REDIS, 10, ['key_prefix' => 'other_', 'server_address' => 'redis-server']);
         $this->getCache()->set($key, $val);
         $this->assertEquals($cacheSamePrefix->get($key), $val);
         $this->assertNull($cacheOtherPrefix->get($key));
     }
-    
+
     #[\Override]
     public function testArrayDepth(): void
     {

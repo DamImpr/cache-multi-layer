@@ -3,37 +3,33 @@
 namespace CacheMultiLayer\Service;
 
 use CacheMultiLayer\Interface\Cacheable;
-use Override;
 
 /**
+ * Basic CacheManager implementation.
  *
- * Basic CacheManager implementation
  * @author Damiano Improta <code@damianoimprota.it>
  */
 class CacheManagerImpl extends CacheManager
 {
-
     private array $caches = [];
 
-    #[Override]
+    #[\Override]
     public function appendCache(Cache $cache): bool
     {
-        if (!empty(array_filter($this->caches, fn(Cache $current): bool => $cache->getEnum() === $current->getEnum()))) {
+        if (!empty(array_filter($this->caches, fn (Cache $current): bool => $cache->getEnum() === $current->getEnum()))) {
             return false;
         }
 
         $this->caches[] = $cache;
+
         return true;
     }
 
-    /**
-     *
-     */
-    #[Override]
+    #[\Override]
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
     {
         $size = count($this->caches);
-        if ($size === 0) {
+        if (0 === $size) {
             return false;
         }
         $res = [];
@@ -41,38 +37,31 @@ class CacheManagerImpl extends CacheManager
             $res[$i] = $this->caches[$i]->set($key, $val, $ttl);
         }
 
-        return array_reduce($res, fn(bool $carry, bool $item) => $carry && $item, true);
+        return array_reduce($res, fn (bool $carry, bool $item) => $carry && $item, true);
     }
 
-    /**
-     *
-     */
-    #[Override]
+    #[\Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
         $data = null;
         $size = count($this->caches);
-        for ($i = 0; $i < $size && $data === null; ++$i) {
+        for ($i = 0; $i < $size && null === $data; ++$i) {
             $data = $this->caches[$i]->get($key);
         }
 
-        if ($data === null) {
+        if (null === $data) {
             return null;
         }
-        $ttlRemaining = $this->caches[$i-1]->getRemainingTTL($key);
+        $ttlRemaining = $this->caches[$i - 1]->getRemainingTTL($key);
         for ($j = $i - 2; $j >= 0; --$j) {
-            $ttl = min($this->caches[$j]->getTtl(),$ttlRemaining);
-            $this->caches[$j]->set($key, $data,$ttl);
+            $ttl = min($this->caches[$j]->getTtl(), $ttlRemaining);
+            $this->caches[$j]->set($key, $data, $ttl);
         }
 
         return $data;
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function clear(string $key): bool
     {
         $countDeleted = 0;
@@ -84,11 +73,7 @@ class CacheManagerImpl extends CacheManager
         return $countDeleted === $size;
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function clearAllCache(): bool
     {
         $countDeleted = 0;
@@ -100,11 +85,7 @@ class CacheManagerImpl extends CacheManager
         return $countDeleted === $size;
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function increment(string $key, ?int $ttl = null): array
     {
         $res = [];
@@ -112,14 +93,11 @@ class CacheManagerImpl extends CacheManager
         for ($i = 0; $i < $size; ++$i) {
             $res[$this->caches[$i]->getEnum()->name] = $this->caches[$i]->increment($key, $ttl);
         }
+
         return $res;
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function getRemainingTTL(string $key): array
     {
         $res = [];
@@ -127,10 +105,11 @@ class CacheManagerImpl extends CacheManager
         for ($i = 0; $i < $size; ++$i) {
             $res[$this->caches[$i]->getEnum()->name] = $this->caches[$i]->getRemainingTTL($key);
         }
+
         return $res;
     }
 
-    #[Override]
+    #[\Override]
     public function decrement(string $key, ?int $ttl = null): array
     {
         $res = [];
@@ -138,6 +117,7 @@ class CacheManagerImpl extends CacheManager
         for ($i = 0; $i < $size; ++$i) {
             $res[$this->caches[$i]->getEnum()->name] = $this->caches[$i]->decrement($key, $ttl);
         }
+
         return $res;
     }
 

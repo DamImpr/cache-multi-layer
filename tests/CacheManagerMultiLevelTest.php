@@ -6,72 +6,70 @@ use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Service\Cache;
 use CacheMultiLayer\Service\CacheConfiguration;
 use CacheMultiLayer\Service\CacheManager;
-use Override;
 
 /**
- * manager multi levels cache unit test class implementation
+ * manager multi levels cache unit test class implementation.
  *
- * @author Damiano Improta <code@damianoimprota.it> 
+ * @author Damiano Improta <code@damianoimprota.it>
  */
 class CacheManagerMultiLevelTest extends AbstractCacheManager
 {
-
-    #[Override]
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
         $this->setCacheManager(CacheManager::factory(self::getConfig()));
     }
 
-    #[Override]
+    #[\Override]
     public function testArray(): void
     {
         parent::testArray();
     }
 
-    #[Override]
+    #[\Override]
     public function testClass(): void
     {
         parent::testClass();
     }
 
-    #[Override]
+    #[\Override]
     public function testClear(): void
     {
         parent::testClear();
     }
 
-    #[Override]
+    #[\Override]
     public function testClearAllCache(): void
     {
         parent::testClearAllCache();
     }
 
-    #[Override]
+    #[\Override]
     public function testExpireTtl(): void
     {
         parent::testExpireTtl();
     }
 
-    #[Override]
+    #[\Override]
     public function testFloat(): void
     {
         parent::testFloat();
     }
 
-    #[Override]
+    #[\Override]
     public function testIncrDecr(): void
     {
         parent::testIncrDecr();
     }
 
-    #[Override]
+    #[\Override]
     public function testInteger(): void
     {
         parent::testInteger();
     }
 
-    #[Override]
+    #[\Override]
     public function testString(): void
     {
         parent::testString();
@@ -91,7 +89,7 @@ class CacheManagerMultiLevelTest extends AbstractCacheManager
         $this->assertNull($apcuCache->get($key));
         $actual = $cacheManager->get($key);
         $this->assertEquals($val, $actual);
-        $this->assertEquals($val,$apcuCache->get($key));
+        $this->assertEquals($val, $apcuCache->get($key));
     }
 
     #[\Override]
@@ -105,6 +103,7 @@ class CacheManagerMultiLevelTest extends AbstractCacheManager
         $cacheConfiguration = new CacheConfiguration();
         $cacheConfiguration->appendCacheLevel(CacheEnum::APCU, 10);
         $cacheConfiguration->appendCacheLevel(CacheEnum::REDIS, 65, ['server_address' => 'redis-server']);
+
         return $cacheConfiguration;
     }
 }

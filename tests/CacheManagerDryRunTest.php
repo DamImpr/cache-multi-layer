@@ -6,24 +6,22 @@ use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Service\CacheConfiguration;
 use CacheMultiLayer\Service\CacheManager;
 use CacheMultiLayer\Tests\Entity\Foo;
-use Override;
-
 
 /**
- * dry run manager unit test class implementation
- * @author Damiano Improta <code@damianoimprota.it> 
+ * dry run manager unit test class implementation.
+ *
+ * @author Damiano Improta <code@damianoimprota.it>
  */
 class CacheManagerDryRunTest extends AbstractCacheManager
 {
-
-    #[Override]
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
-        $this->setCacheManager(CacheManager::factory(self::getConfig(),true));
+        $this->setCacheManager(CacheManager::factory(self::getConfig(), true));
     }
 
-    #[Override]
+    #[\Override]
     public function testInteger(): void
     {
         $x = 8;
@@ -34,7 +32,7 @@ class CacheManagerDryRunTest extends AbstractCacheManager
         $this->assertNull($val);
     }
 
-    #[Override]
+    #[\Override]
     public function testFloat(): void
     {
         $x = 8.3;
@@ -45,10 +43,10 @@ class CacheManagerDryRunTest extends AbstractCacheManager
         $this->assertNull($val);
     }
 
-    #[Override]
+    #[\Override]
     public function testString(): void
     {
-        $x = "foobar";
+        $x = 'foobar';
         $key = 'test_string';
         $res = $this->getCacheManager()->set($key, $x);
         $this->assertTrue($res);
@@ -56,7 +54,7 @@ class CacheManagerDryRunTest extends AbstractCacheManager
         $this->assertNull($val);
     }
 
-    #[Override]
+    #[\Override]
     public function testArray(): void
     {
         $x = [1, 2, 3];
@@ -67,7 +65,7 @@ class CacheManagerDryRunTest extends AbstractCacheManager
         $this->assertNull($val);
     }
 
-    #[Override]
+    #[\Override]
     public function testClass(): void
     {
         $key = 'test_class';
@@ -77,7 +75,7 @@ class CacheManagerDryRunTest extends AbstractCacheManager
         $this->assertNull($val);
     }
 
-    #[Override]
+    #[\Override]
     public function testExpireTtl(): void
     {
         $x = 8;
@@ -88,15 +86,15 @@ class CacheManagerDryRunTest extends AbstractCacheManager
         $this->assertNull($val);
     }
 
-    #[Override]
+    #[\Override]
     public function testIncrDecr(): void
     {
         $key = 'test_incr';
-        $this->assertEquals([],$this->getCacheManager()->increment($key));
-        $this->assertEquals([],$this->getCacheManager()->decrement($key));
+        $this->assertEquals([], $this->getCacheManager()->increment($key));
+        $this->assertEquals([], $this->getCacheManager()->decrement($key));
     }
 
-    #[Override]
+    #[\Override]
     public function testClear(): void
     {
         $key = 'test_clear';
@@ -109,7 +107,7 @@ class CacheManagerDryRunTest extends AbstractCacheManager
         $this->assertNull($val);
     }
 
-    #[Override]
+    #[\Override]
     public function testClearAllCache(): void
     {
         $key = 'test_clear';
@@ -127,7 +125,7 @@ class CacheManagerDryRunTest extends AbstractCacheManager
         $this->assertNull($val2);
     }
 
-    #[Override]
+    #[\Override]
     public static function tearDownAfterClass(): void
     {
         CacheManager::factory(self::getConfig())->clearAllCache();
@@ -138,6 +136,7 @@ class CacheManagerDryRunTest extends AbstractCacheManager
         $cacheConfiguration = new CacheConfiguration();
         $cacheConfiguration->appendCacheLevel(CacheEnum::APCU, 10);
         $cacheConfiguration->appendCacheLevel(CacheEnum::REDIS, 65, ['server_address' => 'redis-server', 'port' => 6379]);
+
         return $cacheConfiguration;
     }
 }

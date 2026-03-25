@@ -3,22 +3,15 @@
 namespace CacheMultiLayer\Service;
 
 use CacheMultiLayer\Enum\CacheEnum;
-use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Interface\Cacheable;
-use Override;
 
 /**
+ * REDIS cache implementation.
  *
- * REDIS cache implementation
  * @author Damiano Improta <code@damianoimprota.it>
  */
 class RedisCache extends Cache
 {
-
-    /**
-     *
-     * {@InheritDoc}
-     */
     #[\Override]
     public function decrement(string $key, ?int $ttl = null): int|false
     {
@@ -30,38 +23,28 @@ class RedisCache extends Cache
         return $value;
     }
 
-    /**
-     *
-     * {@InheritDoc}
-     */
     #[\Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
         $val = $this->redis->get($this->getEffectiveKey($key));
-        if ($val === null) {
+        if (null === $val) {
             return null;
         }
 
         $valDecoded = json_decode((string) $val, true);
+
         return is_array($valDecoded) ? $this->unserializeVal($valDecoded) : $valDecoded;
     }
 
-    /**
-     *
-     * {@InheritDoc}
-     */
     #[\Override]
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
     {
         $data = is_array($val) ? $this->serializeValArray($val) : $this->serializeVal($val);
-        return $this->redis->setex($this->getEffectiveKey($key), $this->getTtlToUse($ttl), json_encode($data)) !== null;
+
+        return null !== $this->redis->setex($this->getEffectiveKey($key), $this->getTtlToUse($ttl), json_encode($data));
     }
 
-    /**
-     *
-     * {@InheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function increment(string $key, ?int $ttl = null): int|false
     {
         $value = $this->redis->incr($this->getEffectiveKey($key));
@@ -72,81 +55,50 @@ class RedisCache extends Cache
         return $value;
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function clear(string $key): bool
     {
         return (bool) $this->redis->del($this->getEffectiveKey($key));
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function clearAllCache(): bool
     {
-        return $this->redis->flushall() !== null;
+        return null !== $this->redis->flushall();
     }
 
-    /**
-     *
-     * {@InheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function getRemainingTTL(string $key): ?int
     {
         $ttl = $this->redis->ttl($this->getEffectiveKey($key));
+
         return $ttl >= 0 ? $ttl : null;
     }
 
-    /**
-     *
-     * {@InheritDoc}
-     */
     #[\Override]
     public function isConnected(): bool
     {
-        return $this->redis->ping() !== null;
+        return null !== $this->redis->ping();
     }
 
-    /**
-     *
-     * {@InheritDoc}
-     */
     #[\Override]
     public function getEnum(): CacheEnum
     {
         return CacheEnum::REDIS;
     }
 
-    /**
-     *
-     * {@InheritDoc}
-     */
     #[\Override]
     protected function getMandatoryConfig(): array
     {
         return $this->mandatoryKeys;
     }
 
-    /**
-     *
-     * {@InheritDoc}
-     */
     #[\Override]
     protected function checkInstanceIsCorrect(object $instance): bool
     {
         return $instance instanceof \Redis;
     }
 
-    /**
-     *
-     * {@InheritDoc}
-     */
     protected function __construct(int $ttl, array $configuration = [])
     {
         parent::__construct($ttl, $configuration);
@@ -164,6 +116,6 @@ class RedisCache extends Cache
 
     private readonly \Redis $redis;
     private array $mandatoryKeys = [
-        'server_address'
+        'server_address',
     ];
 }

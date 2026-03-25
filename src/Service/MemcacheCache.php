@@ -3,59 +3,41 @@
 namespace CacheMultiLayer\Service;
 
 use CacheMultiLayer\Enum\CacheEnum;
-use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Interface\Cacheable;
-use Exception;
 use Memcache;
-use Override;
 
 /**
- * MEMCACHE cache implementation
+ * MEMCACHE cache implementation.
+ *
  * @author Damiano Improta <code@damianoimprota.it>
  */
 class MemcacheCache extends Cache
 {
-
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     protected function getMandatoryConfig(): array
     {
         return $this->mandatoryKeys;
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function clear(string $key): bool
     {
         return $this->memcache->delete($this->getEffectiveKey($key));
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function clearAllCache(): bool
     {
         return $this->memcache->flush();
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function decrement(string $key, ?int $ttl = null): int|false
     {
         $pair = $this->memcache->get($this->getEffectiveKey($key));
         if (empty($pair)) {
             $this->set($key, -1, $ttl);
+
             return -1;
         }
 
@@ -67,14 +49,11 @@ class MemcacheCache extends Cache
         --$value;
         $pair['data'] = $value;
         $this->memcache->set($this->getEffectiveKey($key), $pair, $this->compress ? MEMCACHE_COMPRESSED : 0, $this->getRemainingTTL($key));
+
         return $value;
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
         $val = $this->memcache->get($this->getEffectiveKey($key));
@@ -83,24 +62,17 @@ class MemcacheCache extends Cache
         }
 
         $valDecoded = json_decode((string) $val['data'], true);
+
         return is_array($valDecoded) ? $this->unserializeVal($valDecoded) : $valDecoded;
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function getEnum(): CacheEnum
     {
         return CacheEnum::MEMCACHE;
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function getRemainingTTL(string $key): ?int
     {
         $val = $this->memcache->get($this->getEffectiveKey($key));
@@ -111,16 +83,13 @@ class MemcacheCache extends Cache
         return $val['expires_at'] - time();
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function increment(string $key, ?int $ttl = null): int|false
     {
         $pair = $this->memcache->get($this->getEffectiveKey($key));
         if (empty($pair)) {
             $this->set($key, 1, $ttl);
+
             return 1;
         }
 
@@ -132,52 +101,41 @@ class MemcacheCache extends Cache
         ++$value;
         $pair['data'] = $value;
         $this->memcache->set($this->getEffectiveKey($key), $pair, $this->compress ? MEMCACHE_COMPRESSED : 0, $this->getRemainingTTL($key));
+
         return $value;
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function isConnected(): bool
     {
-        return $this->memcache->getStats() !== false;
+        return false !== $this->memcache->getStats();
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
     {
         $values = is_array($val) ? $this->serializeValArray($val) : $this->serializeVal($val);
         $ttlToUse = $this->getTtlToUse($ttl);
         $dataToStore = [
-            'data' => json_encode($values)
-            , 'expires_at' => time() + $ttlToUse
+            'data' => json_encode($values), 'expires_at' => time() + $ttlToUse,
         ];
+
         return $this->memcache->set($this->getEffectiveKey($key), $dataToStore, $this->compress ? MEMCACHE_COMPRESSED : 0, $ttlToUse);
     }
 
-    #[Override]
+    #[\Override]
     protected function checkInstanceIsCorrect(object $instance): bool
     {
-        return $instance instanceof Memcache;
+        return $instance instanceof \Memcache;
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
     protected function __construct(int $ttl, array $configuration = [])
     {
         parent::__construct($ttl, $configuration);
         if (array_key_exists('instance', $configuration)) {
             $this->memcache = $configuration['instance'];
         } else {
-            $this->memcache = new Memcache();
+            $this->memcache = new \Memcache();
             $port = $configuration['port'] ?? 11211;
             if (array_key_exists('persistent', $configuration) && $configuration['persistent']) {
                 $resultConnection = $this->memcache->pconnect($configuration['server_address'], $port);
@@ -186,16 +144,16 @@ class MemcacheCache extends Cache
             }
 
             if (!$resultConnection) {
-                throw new Exception("Connection not found");
+                throw new \Exception('Connection not found');
             }
         }
-        
+
         $this->compress = array_key_exists('compress', $configuration) && $configuration['compress'];
     }
 
-    private readonly Memcache $memcache;
+    private readonly \Memcache $memcache;
     private readonly bool $compress;
     private array $mandatoryKeys = [
-        'server_address'
+        'server_address',
     ];
 }

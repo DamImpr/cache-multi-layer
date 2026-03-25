@@ -3,7 +3,6 @@
 namespace CacheMultiLayer\Enum;
 
 /**
- *
  * @author Damiano Improta <code@damianoimprota.it>
  */
 enum CacheEnum: int

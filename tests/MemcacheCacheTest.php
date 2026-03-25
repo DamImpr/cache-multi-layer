@@ -7,24 +7,22 @@ use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Service\Cache;
 use Exception;
 use Memcache;
-use Override;
 
 /**
- * MEMCACHE unit test class implementation
+ * MEMCACHE unit test class implementation.
  *
- * @author Damiano Improta <code@damianoimprota.it> 
+ * @author Damiano Improta <code@damianoimprota.it>
  */
 class MemcacheCacheTest extends AbstractCache
 {
-
-    #[Override]
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
         $this->setCache(Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => 'memcache-server']));
     }
 
-    #[Override]
+    #[\Override]
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
@@ -36,62 +34,62 @@ class MemcacheCacheTest extends AbstractCache
 
             return match ($errno) {
                 E_USER_WARNING => true,
-                default => throw new Exception($errstr . ' -> ' . $errfile . ':' . $errline, 0),
+                default => throw new \Exception($errstr.' -> '.$errfile.':'.$errline, 0),
             };
 
-//            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+            //            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
         });
     }
 
-    #[Override]
+    #[\Override]
     public function testArray(): void
     {
         parent::testArray();
     }
 
-    #[Override]
+    #[\Override]
     public function testClass(): void
     {
         parent::testClass();
     }
 
-    #[Override]
+    #[\Override]
     public function testClear(): void
     {
         parent::testClear();
     }
 
-    #[Override]
+    #[\Override]
     public function testClearAllCache(): void
     {
         parent::testClearAllCache();
     }
 
-    #[Override]
+    #[\Override]
     public function testExpireTtl(): void
     {
         parent::testExpireTtl();
     }
 
-    #[Override]
+    #[\Override]
     public function testFloat(): void
     {
         parent::testFloat();
     }
 
-    #[Override]
+    #[\Override]
     public function testIncrDecr(): void
     {
         parent::testIncrDecr();
     }
 
-    #[Override]
+    #[\Override]
     public function testInteger(): void
     {
         parent::testInteger();
     }
 
-    #[Override]
+    #[\Override]
     public function testString(): void
     {
         parent::testString();
@@ -124,21 +122,21 @@ class MemcacheCacheTest extends AbstractCache
     public function testMissingServer(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
-        Cache::factory(CacheEnum::MEMCACHE, 60,['port' => 11211]);
+        Cache::factory(CacheEnum::MEMCACHE, 60, ['port' => 11211]);
     }
 
     public function testConnectionNotFound(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(\Exception::class);
         Cache::factory(CacheEnum::MEMCACHE, 60, ['server_address' => 'ip-no-memcache'])->isConnected();
     }
 
     public function testInstance(): void
     {
-        $memcache = new Memcache();
+        $memcache = new \Memcache();
         $memcache->connect('memcache-server', 11211);
         Cache::factory(CacheEnum::MEMCACHE, 60, ['instance' => $memcache]);
-        $this->assertTrue(true); //no exception throwns
+        $this->assertTrue(true); // no exception throwns
     }
 
     public function testMissingInstance(): void
@@ -154,8 +152,8 @@ class MemcacheCacheTest extends AbstractCache
 
     public function testPrefix(): void
     {
-        $val = 10; //maradona
-        $key = "test_prefix";
+        $val = 10; // maradona
+        $key = 'test_prefix';
         $cacheSamePrefix = Cache::factory(CacheEnum::MEMCACHE, 60, ['key_prefix' => '', 'server_address' => 'memcache-server']);
         $cacheOtherPrefix = Cache::factory(CacheEnum::MEMCACHE, 10, ['key_prefix' => 'other_', 'server_address' => 'memcache-server']);
         $this->getCache()->set($key, $val);
