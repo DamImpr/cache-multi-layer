@@ -25,7 +25,7 @@ abstract class Cache
     protected function __construct(int $ttl, array $configuration = [])
     {
         if ($ttl <= 0) {
-            throw new \InvalidArgumentException('ttl must be positive, not like your life');
+            throw new \InvalidArgumentException('ttl must be a positive number');
         }
 
         $this->assertConfig($configuration);
