@@ -121,7 +121,7 @@ class PRedisCacheTest extends AbstractCache
     public function testMissingServer(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
-        Cache::factory(CacheEnum::PREDIS, 60);
+        Cache::factory(CacheEnum::PREDIS, 60,['port' => 6379]);
     }
 
     public function testConnectionNotFound(): void

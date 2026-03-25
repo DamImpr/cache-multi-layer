@@ -124,7 +124,7 @@ class MemcacheCacheTest extends AbstractCache
     public function testMissingServer(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
-        Cache::factory(CacheEnum::MEMCACHE, 60);
+        Cache::factory(CacheEnum::MEMCACHE, 60,['port' => 11211]);
     }
 
     public function testConnectionNotFound(): void

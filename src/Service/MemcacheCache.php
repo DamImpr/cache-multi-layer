@@ -15,6 +15,7 @@ use Override;
  */
 class MemcacheCache extends Cache
 {
+
     /**
      *
      * {@inheritDoc}
@@ -107,7 +108,7 @@ class MemcacheCache extends Cache
             return null;
         }
 
-        return $val['exipres_at'] - time();
+        return $val['expires_at'] - time();
     }
 
     /**
@@ -155,9 +156,15 @@ class MemcacheCache extends Cache
         $ttlToUse = $this->getTtlToUse($ttl);
         $dataToStore = [
             'data' => json_encode($values)
-            , 'exipres_at' => time() + $ttlToUse
+            , 'expires_at' => time() + $ttlToUse
         ];
         return $this->memcache->set($this->getEffectiveKey($key), $dataToStore, $this->compress ? MEMCACHE_COMPRESSED : 0, $ttlToUse);
+    }
+
+    #[Override]
+    protected function checkInstanceIsCorrect(object $instance): bool
+    {
+        return $instance instanceof Memcache;
     }
 
     /**
@@ -182,31 +189,11 @@ class MemcacheCache extends Cache
                 throw new Exception("Connection not found");
             }
         }
-        $this->prefixKey = $configuration['key_prefix'] ?? '';
+        
         $this->compress = array_key_exists('compress', $configuration) && $configuration['compress'];
     }
 
-    #[\Override]
-    protected function assertConfig(array $configuration): void
-    {
-        if (!array_key_exists('instance', $configuration) || $configuration['instance'] instanceof Memcache) {
-            parent::assertConfig($configuration);
-        } elseif (array_key_exists('instance', $configuration)) {
-            throw new CacheMissingConfigurationException("instance must be " . Memcache::class . " class");
-        }
-    }
-
-    /**
-     * manages keys by adding the prefix set during configuration
-     * @param string $key cache key
-     * @return string key to be used
-     */
-    private function getEffectiveKey(string $key): string
-    {
-        return $this->prefixKey . $key;
-    }
     private readonly Memcache $memcache;
-    private readonly string $prefixKey;
     private readonly bool $compress;
     private array $mandatoryKeys = [
         'server_address'

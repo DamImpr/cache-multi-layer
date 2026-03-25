@@ -14,6 +14,7 @@ use Override;
  */
 class ApcuCache extends Cache
 {
+
     /**
      *
      * {@inheritDoc}
@@ -121,6 +122,12 @@ class ApcuCache extends Cache
         return [];
     }
 
+    #[Override]
+    protected function checkInstanceIsCorrect(object $instance): bool
+    {
+        return false;
+    }
+
     /**
      *
      * {@inheritDoc}
@@ -128,18 +135,5 @@ class ApcuCache extends Cache
     protected function __construct(int $ttl, array $configuration = [])
     {
         parent::__construct($ttl, $configuration);
-        $this->prefixKey = $configuration['key_prefix'] ?? '';
     }
-
-    /**
-     * manages keys by adding the prefix set during configuration
-     * @param string $key cache key
-     * @return string key to be used
-     */
-    private function getEffectiveKey(string $key): string
-    {
-        return $this->prefixKey . $key;
-    }
-
-    private readonly string $prefixKey;
 }

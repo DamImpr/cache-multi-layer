@@ -35,7 +35,7 @@ abstract class CacheManager
      * @param string $key cache key
      * @param int|float|string|Cacheable|array $val value to store
      * @param ?int $ttl = null ttl to use, if the passed value is null, the value defined in the constructor is used
-     * @return bool true on success, false otherwise
+     * @return bool true if all caches have been successfully set, false if even one has failed
      */
     abstract public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool;
 

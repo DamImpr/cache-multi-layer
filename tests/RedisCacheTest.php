@@ -120,7 +120,7 @@ class RedisCacheTest extends AbstractCache
     public function testMissingServer(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
-        Cache::factory(CacheEnum::REDIS, 60);
+        Cache::factory(CacheEnum::REDIS, 60,['port' => 6379]);
     }
 
     public function testConnectionNotFound(): void

@@ -17,6 +17,7 @@ use InvalidArgumentException;
  */
 abstract class Cache
 {
+
     /**
      *
      * @param int $ttl Time to live expressed in seconds
@@ -32,6 +33,7 @@ abstract class Cache
 
         $this->assertConfig($configuration);
         $this->ttl = $ttl;
+        $this->prefixKey = $configuration['key_prefix'] ?? '';
     }
 
     public function getTtl(): int
@@ -84,11 +86,11 @@ abstract class Cache
     abstract public function increment(string $key, ?int $ttl = null): int|false;
 
     /**
-    * Decrease the value based on the key
-    * @param string $key cache key
-    * @param ?int $ttl = null ttl to be used at the first decrement, if the passed value is null, the value defined in the constructor is used
-    * @return int|false the new value, false if value is not numeric.
-    */
+     * Decrease the value based on the key
+     * @param string $key cache key
+     * @param ?int $ttl = null ttl to be used at the first decrement, if the passed value is null, the value defined in the constructor is used
+     * @return int|false the new value, false if value is not numeric.
+     */
     abstract public function decrement(string $key, ?int $ttl = null): int|false;
 
     /**
@@ -101,6 +103,11 @@ abstract class Cache
      * Enumeration associated with the instance
      */
     abstract public function getEnum(): CacheEnum;
+
+    /**
+     * Returns the class type of the implemented cache as a string to check the type of any object passed as an instance
+     */
+    abstract protected function checkInstanceIsCorrect(object $instance): bool;
 
     /**
      * Factory method of a cache system, where through an enumeration
@@ -139,16 +146,33 @@ abstract class Cache
      */
     protected function assertConfig(array $configuration): void
     {
+        $checkInstance = false;
+        if (array_key_exists('instance', $configuration)) {
+            $checkInstance = is_object($configuration['instance']) && $this->checkInstanceIsCorrect($configuration['instance']);
+            if (!$checkInstance) {
+                throw new CacheMissingConfigurationException("type instance missmatch");
+            }
+        }
         $mandatoryKeys = $this->getMandatoryConfig();
-        if (!empty(array_diff_key($mandatoryKeys, array_keys($configuration)))) {
+        if (!$checkInstance && !empty(array_diff($mandatoryKeys, array_keys($configuration)))) {
             throw new CacheMissingConfigurationException(implode(',', $mandatoryKeys) . " are mandatory configurations");
         }
     }
 
     /**
-     * @retrun array<string> the necessary configurations
+     * @return array<string> the necessary configurations
      */
     abstract protected function getMandatoryConfig(): array;
+
+    /**
+     * manages keys by adding the prefix set during configuration
+     * @param string $key cache key
+     * @return string key to be used
+     */
+    protected function getEffectiveKey(string $key): string
+    {
+        return $this->prefixKey . $key;
+    }
 
     /**
      * Manages primitive and object variables to save them in the cache
@@ -206,4 +230,10 @@ abstract class Cache
      * ttl in seconds to associate with the cache system
      */
     private readonly int $ttl;
+
+    /**
+     * 
+     * @var string
+     */
+    private readonly string $prefixKey;
 }

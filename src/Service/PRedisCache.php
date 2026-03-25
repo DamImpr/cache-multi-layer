@@ -3,7 +3,6 @@
 namespace CacheMultiLayer\Service;
 
 use CacheMultiLayer\Enum\CacheEnum;
-use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Interface\Cacheable;
 use Override;
 use Predis\Client as PredisClient;
@@ -15,6 +14,7 @@ use Predis\Client as PredisClient;
  */
 class PRedisCache extends Cache
 {
+
     /**
      *
      * {@InheritDoc}
@@ -100,30 +100,7 @@ class PRedisCache extends Cache
     public function getRemainingTTL(string $key): ?int
     {
         $ttl = $this->predisClient->ttl($key);
-        return $ttl !== false ? $ttl : null;
-    }
-
-    /**
-     *
-     * {@InheritDoc}
-     */
-    protected function __construct(int $ttl, array $configuration = [])
-    {
-        parent::__construct($ttl, $configuration);
-        if (array_key_exists('instance', $configuration)) {
-            $this->predisClient = $configuration['instance'];
-        } else {
-            $this->predisClient = new PredisClient([
-                'scheme' => $configuration['tcp'] ?? 'tcp',
-                'host' => $configuration['server_address'],
-                'port' => $configuration['port'] ?? 6379,
-                'password' => $configuration['password'] ?? '',
-                'database' => $configuration['database'] ?? 0,
-                'persistent' => $configuration['persistent'] ?? false,
-                'conn_uid' => $configuration['connection_id'] ?? ''
-            ]);
-        }
-        $this->prefixKey = $configuration['key_prefix'] ?? '';
+        return $ttl >= 0 ? $ttl : null;
     }
 
     /**
@@ -151,33 +128,44 @@ class PRedisCache extends Cache
      * {@InheritDoc}
      */
     #[\Override]
+    protected function checkInstanceIsCorrect(object $instance): bool
+    {
+        return $instance instanceof PredisClient;
+    }
+
+    /**
+     *
+     * {@InheritDoc}
+     */
+    protected function __construct(int $ttl, array $configuration = [])
+    {
+        parent::__construct($ttl, $configuration);
+        if (array_key_exists('instance', $configuration)) {
+            $this->predisClient = $configuration['instance'];
+        } else {
+            $this->predisClient = new PredisClient([
+                'scheme' => $configuration['tcp'] ?? 'tcp',
+                'host' => $configuration['server_address'],
+                'port' => $configuration['port'] ?? 6379,
+                'password' => $configuration['password'] ?? '',
+                'database' => $configuration['database'] ?? 0,
+                'persistent' => $configuration['persistent'] ?? false,
+                'conn_uid' => $configuration['connection_id'] ?? ''
+            ]);
+        }
+    }
+
+    /**
+     *
+     * {@InheritDoc}
+     */
+    #[\Override]
     protected function getMandatoryConfig(): array
     {
         return $this->mandatoryKeys;
     }
 
-    #[\Override]
-    protected function assertConfig(array $configuration): void
-    {
-        if (!array_key_exists('instance', $configuration) || $configuration['instance'] instanceof PredisClient) {
-            parent::assertConfig($configuration);
-        } elseif (array_key_exists('instance', $configuration)) {
-            throw new CacheMissingConfigurationException("instance must be " . PredisClient::class . " class");
-        }
-    }
-
-
-    /**
-     * manages keys by adding the prefix set during configuration
-     * @param string $key cache key
-     * @return string key to be used
-     */
-    private function getEffectiveKey(string $key): string
-    {
-        return $this->prefixKey . $key;
-    }
     private readonly PredisClient $predisClient;
-    private readonly string $prefixKey;
     private array $mandatoryKeys = [
         'server_address'
     ];

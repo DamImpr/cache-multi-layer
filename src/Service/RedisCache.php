@@ -14,6 +14,7 @@ use Override;
  */
 class RedisCache extends Cache
 {
+
     /**
      *
      * {@InheritDoc}
@@ -99,27 +100,7 @@ class RedisCache extends Cache
     public function getRemainingTTL(string $key): ?int
     {
         $ttl = $this->redis->ttl($this->getEffectiveKey($key));
-        return $ttl !== false ? $ttl : null;
-    }
-
-    /**
-     *
-     * {@InheritDoc}
-     */
-    protected function __construct(int $ttl, array $configuration = [])
-    {
-        parent::__construct($ttl, $configuration);
-        if (array_key_exists('instance', $configuration)) {
-            $this->redis = $configuration['instance'];
-        } else {
-            $this->redis = new \Redis();
-            if (array_key_exists('persistent', $configuration) && $configuration['persistent']) {
-                $this->redis->pconnect($configuration['server_address'], $configuration['port'] ?? 6379, $configuration['timeout'] ?? 3, $configuration['connection_id'] ?? 'app_redis_connection');
-            } else {
-                $this->redis->connect($configuration['server_address'], $configuration['port'] ?? 6379, $configuration['timeout'] ?? 3);
-            }
-        }
-        $this->prefixKey = $configuration['key_prefix'] ?? '';
+        return $ttl >= 0 ? $ttl : null;
     }
 
     /**
@@ -152,27 +133,36 @@ class RedisCache extends Cache
         return $this->mandatoryKeys;
     }
 
+    /**
+     *
+     * {@InheritDoc}
+     */
     #[\Override]
-    protected function assertConfig(array $configuration): void
+    protected function checkInstanceIsCorrect(object $instance): bool
     {
-        if (!array_key_exists('instance', $configuration) || $configuration['instance'] instanceof \Redis) {
-            parent::assertConfig($configuration);
-        } elseif (array_key_exists('instance', $configuration)) {
-            throw new CacheMissingConfigurationException("instance must be " . \Redis::class . " class");
-        }
+        return $instance instanceof \Redis;
     }
 
     /**
-     * manages keys by adding the prefix set during configuration
-     * @param string $key cache key
-     * @return string key to be used
+     *
+     * {@InheritDoc}
      */
-    private function getEffectiveKey(string $key): string
+    protected function __construct(int $ttl, array $configuration = [])
     {
-        return $this->prefixKey . $key;
+        parent::__construct($ttl, $configuration);
+        if (array_key_exists('instance', $configuration)) {
+            $this->redis = $configuration['instance'];
+        } else {
+            $this->redis = new \Redis();
+            if (array_key_exists('persistent', $configuration) && $configuration['persistent']) {
+                $this->redis->pconnect($configuration['server_address'], $configuration['port'] ?? 6379, $configuration['timeout'] ?? 3, $configuration['connection_id'] ?? 'app_redis_connection');
+            } else {
+                $this->redis->connect($configuration['server_address'], $configuration['port'] ?? 6379, $configuration['timeout'] ?? 3);
+            }
+        }
     }
+
     private readonly \Redis $redis;
-    private readonly string $prefixKey;
     private array $mandatoryKeys = [
         'server_address'
     ];

@@ -28,7 +28,7 @@ class CacheConfiguration
     /**
      * Array used to track caches that have already been set and check that there are no different levels of the same cache.
      */
-    private array $setted = [];
+    private array $cachesAlreadyBeenSet = [];
 
     /**
      * Method that sets the next cache level
@@ -40,13 +40,13 @@ class CacheConfiguration
      */
     public function appendCacheLevel(CacheEnum $cacheEnum, int $ttl, array $configuration = []): bool
     {
-        if (array_key_exists($cacheEnum->value, $this->setted)) {
+        if (array_key_exists($cacheEnum->value, $this->cachesAlreadyBeenSet)) {
             return false;
         }
 
         $this->configuration[$this->currentLevel] = Cache::factory($cacheEnum, $ttl, $configuration);
         ++$this->currentLevel;
-        $this->setted[$cacheEnum->value] = true;
+        $this->cachesAlreadyBeenSet[$cacheEnum->value] = true;
         return true;
     }
 

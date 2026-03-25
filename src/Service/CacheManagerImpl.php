@@ -2,7 +2,6 @@
 
 namespace CacheMultiLayer\Service;
 
-use CacheMultiLayer\Exception\ClearCacheDeniedException;
 use CacheMultiLayer\Interface\Cacheable;
 use Override;
 
@@ -13,30 +12,17 @@ use Override;
  */
 class CacheManagerImpl extends CacheManager
 {
-    /**
-     * le caches lette dalla configurazione
-     */
+
     private array $caches = [];
 
-    /**
-     * dimensione dell'array $caches, mantenuta qui per poter avere l'informazione in tempo costante O(1)
-     */
-    private int $size = 0;
-
-    protected function __construct(?CacheConfiguration $cacheConfiguration = null)
-    {
-        $this->caches = $cacheConfiguration?->getConfiguration() ?? [];
-        $this->size = count($this->caches);
-    }
-
-    #[\Override]
+    #[Override]
     public function appendCache(Cache $cache): bool
     {
-        if (!empty(array_filter($this->caches, fn (Cache $current): bool => $cache->getEnum() === $current->getEnum()))) {
+        if (!empty(array_filter($this->caches, fn(Cache $current): bool => $cache->getEnum() === $current->getEnum()))) {
             return false;
         }
 
-        $this->caches[$this->size++] = $cache;
+        $this->caches[] = $cache;
         return true;
     }
 
@@ -46,15 +32,16 @@ class CacheManagerImpl extends CacheManager
     #[Override]
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
     {
-        if ($this->size === 0) {
+        $size = count($this->caches);
+        if ($size === 0) {
             return false;
         }
-
-        for ($i = 0; $i < $this->size; ++$i) {
-            $this->caches[$i]->set($key, $val, $ttl);
+        $res = [];
+        for ($i = 0; $i < $size; ++$i) {
+            $res[$i] = $this->caches[$i]->set($key, $val, $ttl);
         }
 
-        return true;
+        return array_reduce($res, fn(bool $carry, bool $item) => $carry && $item, true);
     }
 
     /**
@@ -63,18 +50,19 @@ class CacheManagerImpl extends CacheManager
     #[Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
-        $i = 0;
         $data = null;
-        for ($i = 0; $i < $this->size && $data === null; ++$i) {
+        $size = count($this->caches);
+        for ($i = 0; $i < $size && $data === null; ++$i) {
             $data = $this->caches[$i]->get($key);
         }
 
         if ($data === null) {
             return null;
         }
-
+        $ttlRemaining = $this->caches[$i-1]->getRemainingTTL($key);
         for ($j = $i - 2; $j >= 0; --$j) {
-            $this->caches[$j]->set($key, $data);
+            $ttl = min($this->caches[$j]->getTtl(),$ttlRemaining);
+            $this->caches[$j]->set($key, $data,$ttl);
         }
 
         return $data;
@@ -88,11 +76,12 @@ class CacheManagerImpl extends CacheManager
     public function clear(string $key): bool
     {
         $countDeleted = 0;
-        for ($i = 0; $i < $this->size; ++$i) {
+        $size = count($this->caches);
+        for ($i = 0; $i < $size; ++$i) {
             $countDeleted += (int) $this->caches[$i]->clear($key);
         }
 
-        return $countDeleted === $this->size;
+        return $countDeleted === $size;
     }
 
     /**
@@ -103,11 +92,12 @@ class CacheManagerImpl extends CacheManager
     public function clearAllCache(): bool
     {
         $countDeleted = 0;
-        for ($i = 0; $i < $this->size; ++$i) {
+        $size = count($this->caches);
+        for ($i = 0; $i < $size; ++$i) {
             $countDeleted += (int) $this->caches[$i]->clearAllCache();
         }
 
-        return $countDeleted === $this->size;
+        return $countDeleted === $size;
     }
 
     /**
@@ -118,10 +108,10 @@ class CacheManagerImpl extends CacheManager
     public function increment(string $key, ?int $ttl = null): array
     {
         $res = [];
-        for ($i = 0; $i < $this->size; ++$i) {
+        $size = count($this->caches);
+        for ($i = 0; $i < $size; ++$i) {
             $res[$this->caches[$i]->getEnum()->name] = $this->caches[$i]->increment($key, $ttl);
         }
-
         return $res;
     }
 
@@ -133,10 +123,10 @@ class CacheManagerImpl extends CacheManager
     public function getRemainingTTL(string $key): array
     {
         $res = [];
-        for ($i = 0; $i < $this->size; ++$i) {
+        $size = count($this->caches);
+        for ($i = 0; $i < $size; ++$i) {
             $res[$this->caches[$i]->getEnum()->name] = $this->caches[$i]->getRemainingTTL($key);
         }
-
         return $res;
     }
 
@@ -144,10 +134,15 @@ class CacheManagerImpl extends CacheManager
     public function decrement(string $key, ?int $ttl = null): array
     {
         $res = [];
-        for ($i = 0; $i < $this->size; ++$i) {
+        $size = count($this->caches);
+        for ($i = 0; $i < $size; ++$i) {
             $res[$this->caches[$i]->getEnum()->name] = $this->caches[$i]->decrement($key, $ttl);
         }
-
         return $res;
+    }
+
+    protected function __construct(?CacheConfiguration $cacheConfiguration = null)
+    {
+        $this->caches = $cacheConfiguration?->getConfiguration() ?? [];
     }
 }

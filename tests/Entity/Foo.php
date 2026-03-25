@@ -67,7 +67,7 @@ class Foo implements Cacheable {
             return false;
         }
 
-        if (!hash_equals($this->y, $this->y)) {
+        if (!hash_equals($this->y, $foo->y)) {
             return false;
         }
 
