@@ -2,32 +2,16 @@
 
 namespace CacheMultiLayer\Service;
 
-use CacheMultiLayer\Exception\ClearCacheDeniedException;
 use CacheMultiLayer\Interface\Cacheable;
-use Override;
 
 /**
+ * Basic CacheManager implementation.
  *
- * Basic CacheManager implementation
  * @author Damiano Improta <code@damianoimprota.it>
  */
 class CacheManagerImpl extends CacheManager
 {
-    /**
-     * le caches lette dalla configurazione
-     */
     private array $caches = [];
-
-    /**
-     * dimensione dell'array $caches, mantenuta qui per poter avere l'informazione in tempo costante O(1)
-     */
-    private int $size = 0;
-
-    protected function __construct(?CacheConfiguration $cacheConfiguration = null)
-    {
-        $this->caches = $cacheConfiguration?->getConfiguration() ?? [];
-        $this->size = count($this->caches);
-    }
 
     #[\Override]
     public function appendCache(Cache $cache): bool
@@ -36,118 +20,109 @@ class CacheManagerImpl extends CacheManager
             return false;
         }
 
-        $this->caches[$this->size++] = $cache;
+        $this->caches[] = $cache;
+
         return true;
     }
 
-    /**
-     *
-     */
-    #[Override]
+    #[\Override]
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
     {
-        if ($this->size === 0) {
+        $size = count($this->caches);
+        if (0 === $size) {
             return false;
         }
-
-        for ($i = 0; $i < $this->size; ++$i) {
-            $this->caches[$i]->set($key, $val, $ttl);
+        $res = [];
+        for ($i = 0; $i < $size; ++$i) {
+            $res[$i] = $this->caches[$i]->set($key, $val, $ttl);
         }
 
-        return true;
+        return array_reduce($res, fn (bool $carry, bool $item) => $carry && $item, true);
     }
 
-    /**
-     *
-     */
-    #[Override]
+    #[\Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
-        $i = 0;
         $data = null;
-        for ($i = 0; $i < $this->size && $data === null; ++$i) {
+        $size = count($this->caches);
+        for ($i = 0; $i < $size && null === $data; ++$i) {
             $data = $this->caches[$i]->get($key);
         }
 
-        if ($data === null) {
+        if (null === $data) {
             return null;
         }
-
+        $ttlRemaining = $this->caches[$i - 1]->getRemainingTTL($key);
         for ($j = $i - 2; $j >= 0; --$j) {
-            $this->caches[$j]->set($key, $data);
+            $ttl = min($this->caches[$j]->getTtl(), $ttlRemaining);
+            $this->caches[$j]->set($key, $data, $ttl);
         }
 
         return $data;
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function clear(string $key): bool
     {
         $countDeleted = 0;
-        for ($i = 0; $i < $this->size; ++$i) {
+        $size = count($this->caches);
+        for ($i = 0; $i < $size; ++$i) {
             $countDeleted += (int) $this->caches[$i]->clear($key);
         }
 
-        return $countDeleted === $this->size;
+        return $countDeleted === $size;
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function clearAllCache(): bool
     {
         $countDeleted = 0;
-        for ($i = 0; $i < $this->size; ++$i) {
+        $size = count($this->caches);
+        for ($i = 0; $i < $size; ++$i) {
             $countDeleted += (int) $this->caches[$i]->clearAllCache();
         }
 
-        return $countDeleted === $this->size;
+        return $countDeleted === $size;
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function increment(string $key, ?int $ttl = null): array
     {
         $res = [];
-        for ($i = 0; $i < $this->size; ++$i) {
+        $size = count($this->caches);
+        for ($i = 0; $i < $size; ++$i) {
             $res[$this->caches[$i]->getEnum()->name] = $this->caches[$i]->increment($key, $ttl);
         }
 
         return $res;
     }
 
-    /**
-     *
-     * {@inheritDoc}
-     */
-    #[Override]
+    #[\Override]
     public function getRemainingTTL(string $key): array
     {
         $res = [];
-        for ($i = 0; $i < $this->size; ++$i) {
+        $size = count($this->caches);
+        for ($i = 0; $i < $size; ++$i) {
             $res[$this->caches[$i]->getEnum()->name] = $this->caches[$i]->getRemainingTTL($key);
         }
 
         return $res;
     }
 
-    #[Override]
+    #[\Override]
     public function decrement(string $key, ?int $ttl = null): array
     {
         $res = [];
-        for ($i = 0; $i < $this->size; ++$i) {
+        $size = count($this->caches);
+        for ($i = 0; $i < $size; ++$i) {
             $res[$this->caches[$i]->getEnum()->name] = $this->caches[$i]->decrement($key, $ttl);
         }
 
         return $res;
+    }
+
+    protected function __construct(?CacheConfiguration $cacheConfiguration = null)
+    {
+        $this->caches = $cacheConfiguration?->getConfiguration() ?? [];
     }
 }

@@ -3,11 +3,10 @@
 namespace CacheMultiLayer\Service;
 
 use CacheMultiLayer\Interface\Cacheable;
-use Override;
 
 /**
+ * cache manager in dry run mode, where the entire cache system is bypassed.
  *
- * cache manager in dry run mode, where the entire cache system is bypassed
  * @author Damiano Improta <code@damianoimprota.it>
  */
 class CacheManagerImplDryMode extends CacheManagerImpl
@@ -18,43 +17,43 @@ class CacheManagerImplDryMode extends CacheManagerImpl
         return parent::appendCache($cache);
     }
 
-    #[Override]
+    #[\Override]
     public function clear(string $key): bool
     {
         return true;
     }
 
-    #[Override]
+    #[\Override]
     public function clearAllCache(): bool
     {
         return true;
     }
 
-    #[Override]
+    #[\Override]
     public function decrement(string $key, ?int $ttl = null): array
     {
         return [];
     }
 
-    #[Override]
+    #[\Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
         return null;
     }
 
-    #[Override]
+    #[\Override]
     public function getRemainingTTL(string $key): array
     {
         return [];
     }
 
-    #[Override]
+    #[\Override]
     public function increment(string $key, ?int $ttl = null): array
     {
         return [];
     }
 
-    #[Override]
+    #[\Override]
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
     {
         return true;

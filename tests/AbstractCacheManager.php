@@ -4,43 +4,40 @@ namespace CacheMultiLayer\Tests;
 
 use CacheMultiLayer\Service\CacheManager;
 use CacheMultiLayer\Tests\Entity\Foo;
-use Override;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Abstract class for unit testing a cache manager containing the tests that every class implementing a cache manager must undergo.
  * For each cache manager implemented, a specific class will be created that extends this one.
  *
- * @author Damiano Improta <code@damianoimprota.it> 
+ * @author Damiano Improta <code@damianoimprota.it>
  */
 class AbstractCacheManager extends TestCase
 {
-
     private ?CacheManager $cacheManager = null;
 
     private ?Foo $foo = null;
 
-    public final function setCacheManager(?CacheManager $cacheManager): void
+    final public function setCacheManager(?CacheManager $cacheManager): void
     {
         $this->cacheManager = $cacheManager;
     }
 
-    public final function getCacheManager(): ?CacheManager
+    final public function getCacheManager(): ?CacheManager
     {
         return $this->cacheManager;
     }
 
-
-    #[Override]
+    #[\Override]
     protected function setUp(): void
     {
         $this->foo = (new Foo())
                 ->setX(1)
-                ->setY("bar")
-                ->setZ([1, 2, 3, "pino",])
+                ->setY('bar')
+                ->setZ([1, 2, 3, 'pino'])
                 ->setFoo((new Foo())
                         ->setX(3)
-                        ->setY("bar3")
+                        ->setY('bar3')
                         ->setZ([3, null])
                         ->setFoo(null)
                 )
@@ -69,7 +66,7 @@ class AbstractCacheManager extends TestCase
 
     public function testString(): void
     {
-        $x = "foobar";
+        $x = 'foobar';
         $key = 'test_string';
         $res = $this->cacheManager->set($key, $x);
         $this->assertTrue($res);
@@ -110,23 +107,23 @@ class AbstractCacheManager extends TestCase
     public function testIncrDecr(): void
     {
         $key = 'test_incr';
-        foreach( $this->cacheManager->increment($key) as  $value){
+        foreach ($this->cacheManager->increment($key) as $value) {
             $this->assertEquals(1, $value);
         }
 
-        foreach( $this->cacheManager->increment($key) as  $value){
+        foreach ($this->cacheManager->increment($key) as $value) {
             $this->assertEquals(2, $value);
         }
 
-        foreach( $this->cacheManager->increment($key) as  $value){
+        foreach ($this->cacheManager->increment($key) as $value) {
             $this->assertEquals(3, $value);
         }
 
-        foreach( $this->cacheManager->decrement($key) as  $value){
+        foreach ($this->cacheManager->decrement($key) as $value) {
             $this->assertEquals(2, $value);
         }
 
-        foreach( $this->cacheManager->decrement($key) as  $value){
+        foreach ($this->cacheManager->decrement($key) as $value) {
             $this->assertEquals(1, $value);
         }
     }
@@ -159,6 +156,4 @@ class AbstractCacheManager extends TestCase
         $val2 = $this->cacheManager->get($key2);
         $this->assertNull($val2);
     }
-    
-    
 }

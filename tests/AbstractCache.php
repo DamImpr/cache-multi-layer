@@ -5,20 +5,20 @@ namespace CacheMultiLayer\Tests;
 use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Service\Cache;
 use CacheMultiLayer\Tests\Entity\Foo;
-use Override;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Abstract class for unit testing a cache containing the tests that every class implementing a cache must undergo.
  * For each cache implemented, a specific class will be created that extends this one.
- * @author Damiano Improta <code@damianoimprota.it> 
+ *
+ * @author Damiano Improta <code@damianoimprota.it>
  */
 abstract class AbstractCache extends TestCase
 {
     private ?Cache $cache = null;
     private ?Foo $foo = null;
 
-    public final function setCache(?Cache $cache): void
+    final public function setCache(?Cache $cache): void
     {
         $this->cache = $cache;
     }
@@ -30,16 +30,16 @@ abstract class AbstractCache extends TestCase
         restore_error_handler();
     }
 
-    #[Override]
+    #[\Override]
     protected function setUp(): void
     {
         $this->foo = (new Foo())
                 ->setX(1)
-                ->setY("bar")
-                ->setZ([1, 2, 3, "pino",])
+                ->setY('bar')
+                ->setZ([1, 2, 3, 'pino'])
                 ->setFoo((new Foo())
                         ->setX(3)
-                        ->setY("bar3")
+                        ->setY('bar3')
                         ->setZ([3, null])
                         ->setFoo(null)
                 )
@@ -68,7 +68,7 @@ abstract class AbstractCache extends TestCase
 
     public function testString(): void
     {
-        $x = "foobar";
+        $x = 'foobar';
         $key = 'test_string';
         $res = $this->cache->set($key, $x);
         $this->assertTrue($res);
@@ -89,10 +89,10 @@ abstract class AbstractCache extends TestCase
     public function testArrayDepth(): void
     {
         $x = [1, 2, 3, null, [
-                1, 2, 3, null, [
-                    1, 2, 3, null
-                ]
-            ]
+            1, 2, 3, null, [
+                1, 2, 3, null,
+            ],
+        ],
         ];
         $key = 'test_array_depth';
         $res = $this->cache->set($key, $x);
@@ -162,7 +162,7 @@ abstract class AbstractCache extends TestCase
 
     public function testEmptyIncrement(): void
     {
-        $key = "test_empty_increment";
+        $key = 'test_empty_increment';
         $expected = 1;
         $actual = $this->cache->increment($key);
         $this->assertEquals($expected, $actual);
@@ -170,7 +170,7 @@ abstract class AbstractCache extends TestCase
 
     public function testEmptyDecrement(): void
     {
-        $key = "test_empty_decrement";
+        $key = 'test_empty_decrement';
         $expected = -1;
         $actual = $this->cache->decrement($key);
         $this->assertEquals($expected, $actual);
@@ -193,21 +193,21 @@ abstract class AbstractCache extends TestCase
         $this->assertTrue($this->cache->isConnected());
     }
 
-    public final function doTestRealEnum(CacheEnum $cacheEnum): void
+    final public function doTestRealEnum(CacheEnum $cacheEnum): void
     {
         $this->assertEquals($cacheEnum, $this->cache->getEnum());
     }
 
-    public final function getCache(): ?Cache
+    final public function getCache(): ?Cache
     {
         return $this->cache;
     }
 
     private function testRecursiveArray(array $actual, array $expected): void
     {
-        foreach($expected as $key => $value){
-            $this->assertArrayHasKey($key, $actual); 
-            if(is_array($value)){
+        foreach ($expected as $key => $value) {
+            $this->assertArrayHasKey($key, $actual);
+            if (is_array($value)) {
                 $this->testRecursiveArray($value, $actual[$key]);
             } else {
                 $this->assertEquals($value, $actual[$key]);
