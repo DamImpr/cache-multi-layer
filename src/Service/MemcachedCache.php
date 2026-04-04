@@ -13,6 +13,7 @@ use Override;
  */
 class MemcachedCache extends Cache
 {
+
     private Memcached $memcached;
 
     protected function __construct(int $ttl, array $configuration = [])
@@ -39,7 +40,7 @@ class MemcachedCache extends Cache
     #[Override]
     public function clearAllCache(): bool
     {
-        
+        return $this->memcached->flush();
     }
 
     #[Override]
@@ -70,7 +71,12 @@ class MemcachedCache extends Cache
     #[Override]
     public function getRemainingTTL(string $key): ?int
     {
-        
+        $expires = $this->memcached->get($this->getKeyTtl($this->getEffectiveKey($key)));
+        if ($expires === null || $expires === 0) {
+            return $expires;
+        }
+        $remaining = $expires - time();
+        return ($remaining > 0) ? $remaining : null;
     }
 
     #[Override]
@@ -88,8 +94,15 @@ class MemcachedCache extends Cache
     #[Override]
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
     {
+        $keyVal = $this->getEffectiveKey($key);
+        $keyTtl = $this->getKeyTtl($key);
+        $ttlToUse = $this->getTtlToUse($ttl);
+        $exipresAt = $ttlToUse > 0 ? time() + $ttlToUse : 0;
         $data = is_array($val) ? $this->serializeValArray($val) : $this->serializeVal($val);
-        return  $this->memcached->set($this->getEffectiveKey($key), $data, $ttl) && $this->memcached->getResultCode() === Memcached::RES_STORED;
+        return $this->memcached->set($keyVal, $data, $exipresAt) 
+                && $this->memcached->getResultCode() === Memcached::RES_STORED 
+                && $this->memcached->set($keyTtl, $exipresAt, $exipresAt) 
+                && $this->memcached->getResultCode() === Memcached::RES_STORED;
     }
 
     #[Override]
@@ -110,8 +123,13 @@ class MemcachedCache extends Cache
     protected function assertConfig(array $configuration): void
     {
         parent::assertConfig($configuration);
-        if (array_key_exists("persistent", $configuration) && $configuration['persistent']) {
-            
+        if (($configuration['persistent'] ?? false) && !($configuration['persistentId'] ?? false)) {
+            throw new CacheMissingConfigurationException('memcached persistent needs persistentId');
         }
+    }
+
+    private function getKeyTtl(string $key): string
+    {
+        return $key . ":expires";
     }
 }
