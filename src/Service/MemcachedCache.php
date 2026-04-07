@@ -27,7 +27,7 @@ class MemcachedCache extends Cache
             } else {
                 $this->memcached->addServer($configuration['server_address'], $configuration['port'] ?? 11211);
             }
-            $this->memcached->setOption(Memcached::OPT_COMPRESSION, array_key_exists('persistent', $configuration) && $configuration['persistent']);
+            $this->memcached->setOption(Memcached::OPT_COMPRESSION,  $configuration['persistent'] ?? false);
         }
     }
 
