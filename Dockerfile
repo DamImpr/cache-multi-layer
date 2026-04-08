@@ -5,13 +5,15 @@ RUN apk add --no-cache \
     libzip-dev \
     zlib-dev \
     oniguruma-dev \
+    libmemcached-dev \
+    cyrus-sasl-dev \
     && apk add --no-cache --virtual .build-deps \
     gcc \
     make \
     autoconf \
     libc-dev \
-    && pecl install apcu redis memcache \
-    && docker-php-ext-enable apcu redis memcache \
+    && pecl install apcu redis memcache memcached \
+    && docker-php-ext-enable apcu redis memcache memcached \
     && apk del .build-deps
 
 COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer

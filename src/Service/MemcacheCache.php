@@ -11,9 +11,9 @@ use Memcache;
  *
  * @author Damiano Improta <code@damianoimprota.it>
  */
-
 class MemcacheCache extends Cache
 {
+
     #[\Override]
     protected function getMandatoryConfig(): array
     {
@@ -130,7 +130,7 @@ class MemcacheCache extends Cache
         return $instance instanceof \Memcache;
     }
 
-    #[\Deprecated("use Memcached")]
+    #[\Deprecated(message: "use Memcached", since: "3.0")]
     protected function __construct(int $ttl, array $configuration = [])
     {
         parent::__construct($ttl, $configuration);

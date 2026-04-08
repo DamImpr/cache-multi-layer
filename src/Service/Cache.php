@@ -140,6 +140,7 @@ abstract class Cache
             CacheEnum::REDIS => new RedisCache($ttl, $configuration),
             CacheEnum::PREDIS => new PRedisCache($ttl, $configuration),
             CacheEnum::MEMCACHE => new MemcacheCache($ttl, $configuration),
+            CacheEnum::MEMCACHED => new MemcachedCache($ttl, $configuration),
         };
     }
 
