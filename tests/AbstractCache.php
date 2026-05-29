@@ -178,14 +178,14 @@ abstract class AbstractCache extends TestCase
 
     public function testRemainingTTL(): void
     {
-        $key = 'test_clear';
+        $key = 'test_remaining_ttl';
         $x = 1;
         $res = $this->cache->set($key, $x);
         $this->assertTrue($res);
         sleep(2);
         $ttl = $this->cache->getRemainingTTL($key);
         $this->assertNotNull($ttl);
-        $this->assertLessThanOrEqual(60, $ttl);
+        $this->assertLessThan(60, $ttl);
     }
 
     public function testIsConnected(): void
