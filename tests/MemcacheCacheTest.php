@@ -119,10 +119,38 @@ class MemcacheCacheTest extends AbstractCache
         parent::testRemainingTTL();
     }
 
+    #[\Override]
+    public function testFailStringDecrement(): void
+    {
+        parent::testFailStringDecrement();
+    }
+
+    #[\Override]
+    public function testFailStringIncrement(): void
+    {
+        parent::testFailStringIncrement();
+    }
+
     public function testMissingServer(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
         Cache::factory(CacheEnum::MEMCACHE, 60, ['port' => 11211]);
+    }
+
+    public function testNegativeTTL(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Cache::factory(CacheEnum::MEMCACHE, -1, ['server_address' => 'memcache-server']);
+    }
+
+    public function testConnectionPersistent(): void
+    {
+        $this->assertTrue(
+            Cache::factory(CacheEnum::MEMCACHE, 60, [
+                'server_address' => 'memcache-server',
+                'persistent' => true,
+            ])->isConnected()
+        );
     }
 
     public function testConnectionNotFound(): void
@@ -159,6 +187,28 @@ class MemcacheCacheTest extends AbstractCache
         $this->getCache()->set($key, $val);
         $this->assertEquals($cacheSamePrefix->get($key), $val);
         $this->assertNull($cacheOtherPrefix->get($key));
+    }
+
+    public function testCompression(): void
+    {
+        $cache = Cache::factory(CacheEnum::MEMCACHE, 60, ['key_prefix' => 'compressed_', 'server_address' => 'memcache-server', 'compress' => 1]);
+        $key = 'test_compression';
+        $val = 1;
+        $resSet = $cache->set($key, $val);
+        $this->assertTrue($resSet);
+        $actual = $cache->get($key);
+        $this->assertEquals($val, $actual);
+    }
+
+    public function testPrefixTTL(): void
+    {
+        $val = 10; // maradona
+        $key = 'test_prefix';
+        $cacheSamePrefix = Cache::factory(CacheEnum::MEMCACHE, 60, ['key_prefix' => '', 'server_address' => 'memcache-server']);
+        $cacheOtherPrefix = Cache::factory(CacheEnum::MEMCACHE, 10, ['key_prefix' => 'other_', 'server_address' => 'memcache-server']);
+        $this->getCache()->set($key, $val);
+        $this->assertIsInt($cacheSamePrefix->getRemainingTTL($key));
+        $this->assertNull($cacheOtherPrefix->getRemainingTTL($key));
     }
 
     #[\Override]

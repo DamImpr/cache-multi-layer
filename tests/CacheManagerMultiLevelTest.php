@@ -75,6 +75,60 @@ class CacheManagerMultiLevelTest extends AbstractCacheManager
         parent::testString();
     }
 
+    #[\Override]
+    public function testEmptyCache(): void
+    {
+        parent::testEmptyCache();
+    }
+
+    #[\Override]
+    public function testDuplicateCache(): void
+    {
+        parent::testDuplicateCache();
+    }
+
+    #[\Override]
+    public function testDuplicateConfig(): void
+    {
+        parent::testDuplicateConfig();
+    }
+
+    #[\Override]
+    public function testArrayDepth(): void
+    {
+        parent::testArrayDepth();
+    }
+
+    #[\Override]
+    public function testEmptyDecrement(): void
+    {
+        parent::testEmptyDecrement();
+    }
+
+    #[\Override]
+    public function testEmptyIncrement(): void
+    {
+        parent::testEmptyIncrement();
+    }
+
+    #[\Override]
+    public function testFailStringDecrement(): void
+    {
+        parent::testFailStringDecrement();
+    }
+
+    #[\Override]
+    public function testFailStringIncrement(): void
+    {
+        parent::testFailStringIncrement();
+    }
+
+    #[\Override]
+    public function testRemainingTTL(): void
+    {
+        parent::testRemainingTTL();
+    }
+
     public function testUpdateHighestLevels(): void
     {
         $key = 'test_update_highest';

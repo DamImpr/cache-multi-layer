@@ -5,7 +5,6 @@ namespace CacheMultiLayer\Tests;
 use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Service\Cache;
-use Exception;
 
 /**
  * REDIS unit test class implementation.
@@ -116,6 +115,18 @@ class RedisCacheTest extends AbstractCache
         parent::testEmptyIncrement();
     }
 
+    #[\Override]
+    public function testFailStringDecrement(): void
+    {
+        parent::testFailStringDecrement();
+    }
+
+    #[\Override]
+    public function testFailStringIncrement(): void
+    {
+        parent::testFailStringIncrement();
+    }
+
     public function testMissingServer(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
@@ -161,6 +172,23 @@ class RedisCacheTest extends AbstractCache
         $this->getCache()->set($key, $val);
         $this->assertEquals($cacheSamePrefix->get($key), $val);
         $this->assertNull($cacheOtherPrefix->get($key));
+    }
+
+    public function testPrefixTTL(): void
+    {
+        $val = 10; // maradona
+        $key = 'test_prefix';
+        $cacheSamePrefix = Cache::factory(CacheEnum::REDIS, 60, ['key_prefix' => '', 'server_address' => 'redis-server']);
+        $cacheOtherPrefix = Cache::factory(CacheEnum::REDIS, 10, ['key_prefix' => 'other_', 'server_address' => 'redis-server']);
+        $this->getCache()->set($key, $val);
+        $this->assertIsInt($cacheSamePrefix->getRemainingTTL($key));
+        $this->assertNull($cacheOtherPrefix->getRemainingTTL($key));
+    }
+
+    public function testNegativeTTL(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Cache::factory(CacheEnum::REDIS, -1, ['server_address' => 'redis-server']);
     }
 
     #[\Override]

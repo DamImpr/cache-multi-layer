@@ -11,12 +11,12 @@ RUN apk add --no-cache \
     autoconf \
     libc-dev \
     && pecl install apcu redis memcache \
+    && rm -rf /tmp/pear \
     && docker-php-ext-enable apcu redis memcache \
     && apk del .build-deps
 
 COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
-RUN echo "apc.enable_cli=1" >> /usr/local/etc/php/php.ini
-RUN echo "apc.enable=1" >> /usr/local/etc/php/php.ini
+RUN printf "apc.enable_cli=1\napc.enable=1\n" >> /usr/local/etc/php/php.ini
 WORKDIR /app
 
 COPY ./src ./src

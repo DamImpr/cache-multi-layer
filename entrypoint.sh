@@ -21,7 +21,7 @@ case "$1" in
         exec sh
         ;;
     *)
-        echo "comands allowed"
+        echo "commands allowed"
         echo " - test-sw"
         echo " - update-vendor"
         echo " - php-cs-fix"

@@ -63,8 +63,15 @@ class ApcuCache extends Cache
     public function getRemainingTTL(string $key): ?int
     {
         $keyInfo = apcu_key_info($this->getEffectiveKey($key));
+        if (null === $keyInfo) {
+            return null;
+        }
+        $result = $keyInfo['creation_time'] + $keyInfo['ttl'] - time();
+        if ($result < 0) {
+            return null;
+        }
 
-        return null !== $keyInfo ? $keyInfo['ttl'] : null;
+        return $result;
     }
 
     #[\Override]
