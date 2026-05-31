@@ -2,8 +2,12 @@
 
 namespace CacheMultiLayer\Tests;
 
+use CacheMultiLayer\Enum\CacheEnum;
+use CacheMultiLayer\Service\Cache;
+use CacheMultiLayer\Service\CacheConfiguration;
 use CacheMultiLayer\Service\CacheManager;
 use CacheMultiLayer\Tests\Entity\Foo;
+use Override;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -14,8 +18,8 @@ use PHPUnit\Framework\TestCase;
  */
 class AbstractCacheManager extends TestCase
 {
-    private ?CacheManager $cacheManager = null;
 
+    private ?CacheManager $cacheManager = null;
     private ?Foo $foo = null;
 
     final public function setCacheManager(?CacheManager $cacheManager): void
@@ -28,7 +32,7 @@ class AbstractCacheManager extends TestCase
         return $this->cacheManager;
     }
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         $this->foo = (new Foo())
@@ -155,5 +159,115 @@ class AbstractCacheManager extends TestCase
         $this->assertNull($val);
         $val2 = $this->cacheManager->get($key2);
         $this->assertNull($val2);
+    }
+
+    public function testEmptyCache(): void
+    {
+        $key = 'foo';
+        $val = 'bar';
+        $res = CacheManager::factory()->set($key, $val);
+        $this->assertFalse($res);
+    }
+
+    public function testDuplicateCache(): void
+    {
+        $cc = CacheManager::factory();
+        $appendTrue = $cc->appendCache(Cache::factory(CacheEnum::APCU, 10));
+        $appendFalse = $cc->appendCache(Cache::factory(CacheEnum::APCU, 10));
+        $this->assertTrue($appendTrue);
+        $this->assertFalse($appendFalse);
+    }
+
+    public function testDuplicateConfig(): void
+    {
+        $cc = new CacheConfiguration();
+        $appendTrue = $cc->appendCacheLevel(CacheEnum::APCU, 10);
+        $appendFalse = $cc->appendCacheLevel(CacheEnum::APCU, 10);
+        $this->assertTrue($appendTrue);
+        $this->assertFalse($appendFalse);
+    }
+
+    public function testArrayDepth(): void
+    {
+        $x = [1, 2, 3, null, [
+                1, 2, 3, null, [
+                    1, 2, 3, null,
+                ],
+            ],
+        ];
+        $key = 'test_array_depth_manager';
+        $res = $this->cacheManager->set($key, $x);
+        $this->assertTrue($res);
+        $val = $this->cacheManager->get($key);
+        $this->testRecursiveArray($x, $val);
+    }
+
+    public function testEmptyIncrement(): void
+    {
+        $key = 'test_empty_increment_manager';
+        $expected = 1;
+        $resultSet = $this->cacheManager->increment($key);
+        foreach ($resultSet as $cacheKey => $actual) {
+            $this->assertEquals($expected, $actual, "cache current " . $cacheKey);
+        }
+    }
+
+    public function testEmptyDecrement(): void
+    {
+        $key = 'test_empty_decrement_manager';
+        $expected = -1;
+        $resultSet = $this->cacheManager->decrement($key);
+        foreach ($resultSet as $cacheKey => $actual) {
+            $this->assertEquals($expected, $actual, "cache current " . $cacheKey);
+        }
+    }
+
+    public function testFailStringIncrement(): void
+    {
+        $key = 'test_fail_increment_manager';
+        $value = 'foo';
+        $this->cacheManager->set($key, $value);
+        $resultSet = $this->cacheManager->increment($key);
+        foreach ($resultSet as $cacheKey => $actual) {
+            $this->assertFalse($actual, "cache current " . $cacheKey);
+        }
+    }
+
+    public function testFailStringDecrement(): void
+    {
+        $key = 'test_fail_decrement_manager';
+        $value = 'foo';
+        $this->cacheManager->set($key, $value);
+        $resultSet = $this->cacheManager->decrement($key);
+        foreach ($resultSet as $cacheKey => $actual) {
+            $this->assertFalse($actual, "cache current " . $cacheKey);
+        }
+    }
+
+    public function testRemainingTTL(): void
+    {
+        $key = 'test_remaining_ttl_manager';
+        $val = 1;
+        $ttl = 10;
+        $res = $this->cacheManager->set($key, $val, $ttl);
+        $this->assertTrue($res);
+        sleep(2);
+        $resultSet = $this->cacheManager->getRemainingTTL($key);
+        foreach ($resultSet as $cacheKey => $actual) {
+            $this->assertNotNull($actual, "cache current " . $cacheKey);
+            $this->assertLessThan(60, $actual, "cache current " . $cacheKey);
+        }
+    }
+
+    private function testRecursiveArray(array $actual, array $expected): void
+    {
+        foreach ($expected as $key => $value) {
+            $this->assertArrayHasKey($key, $actual);
+            if (is_array($value)) {
+                $this->testRecursiveArray($value, $actual[$key]);
+            } else {
+                $this->assertEquals($value, $actual[$key]);
+            }
+        }
     }
 }

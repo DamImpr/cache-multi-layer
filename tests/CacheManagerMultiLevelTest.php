@@ -6,6 +6,7 @@ use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Service\Cache;
 use CacheMultiLayer\Service\CacheConfiguration;
 use CacheMultiLayer\Service\CacheManager;
+use Override;
 
 /**
  * manager multi levels cache unit test class implementation.
@@ -14,65 +15,120 @@ use CacheMultiLayer\Service\CacheManager;
  */
 class CacheManagerMultiLevelTest extends AbstractCacheManager
 {
-    #[\Override]
+
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
         $this->setCacheManager(CacheManager::factory(self::getConfig()));
     }
 
-    #[\Override]
+    #[Override]
     public function testArray(): void
     {
         parent::testArray();
     }
 
-    #[\Override]
+    #[Override]
     public function testClass(): void
     {
         parent::testClass();
     }
 
-    #[\Override]
+    #[Override]
     public function testClear(): void
     {
         parent::testClear();
     }
 
-    #[\Override]
+    #[Override]
     public function testClearAllCache(): void
     {
         parent::testClearAllCache();
     }
 
-    #[\Override]
+    #[Override]
     public function testExpireTtl(): void
     {
         parent::testExpireTtl();
     }
 
-    #[\Override]
+    #[Override]
     public function testFloat(): void
     {
         parent::testFloat();
     }
 
-    #[\Override]
+    #[Override]
     public function testIncrDecr(): void
     {
         parent::testIncrDecr();
     }
 
-    #[\Override]
+    #[Override]
     public function testInteger(): void
     {
         parent::testInteger();
     }
 
-    #[\Override]
+    #[Override]
     public function testString(): void
     {
         parent::testString();
+    }
+
+    #[Override]
+    public function testEmptyCache(): void
+    {
+        parent::testEmptyCache();
+    }
+
+    #[Override]
+    public function testDuplicateCache(): void
+    {
+        parent::testDuplicateCache();
+    }
+
+    #[Override]
+    public function testDuplicateConfig(): void
+    {
+        parent::testDuplicateConfig();
+    }
+
+    #[\Override]
+    public function testArrayDepth(): void
+    {
+        parent::testArrayDepth();
+    }
+
+    #[\Override]
+    public function testEmptyDecrement(): void
+    {
+        parent::testEmptyDecrement();
+    }
+
+    #[\Override]
+    public function testEmptyIncrement(): void
+    {
+        parent::testEmptyIncrement();
+    }
+
+    #[\Override]
+    public function testFailStringDecrement(): void
+    {
+        parent::testFailStringDecrement();
+    }
+
+    #[\Override]
+    public function testFailStringIncrement(): void
+    {
+        parent::testFailStringIncrement();
+    }
+
+    #[\Override]
+    public function testRemainingTTL(): void
+    {
+        parent::testRemainingTTL();
     }
 
     public function testUpdateHighestLevels(): void
@@ -92,7 +148,7 @@ class CacheManagerMultiLevelTest extends AbstractCacheManager
         $this->assertEquals($val, $apcuCache->get($key));
     }
 
-    #[\Override]
+    #[Override]
     public static function tearDownAfterClass(): void
     {
         CacheManager::factory(self::getConfig())->clearAllCache();

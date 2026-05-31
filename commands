@@ -30,7 +30,7 @@ case "$1" in
         docker compose down
         ;;
     *)
-        echo "comands allowed"
+        echo "commands allowed"
         echo " - test-sw"
         echo " - update-vendor"
         echo " - php-cs-fixer"

@@ -5,7 +5,8 @@ namespace CacheMultiLayer\Tests;
 use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Service\Cache;
-use Exception;
+use InvalidArgumentException;
+use Override;
 
 /**
  * REDIS unit test class implementation.
@@ -14,14 +15,15 @@ use Exception;
  */
 class RedisCacheTest extends AbstractCache
 {
-    #[\Override]
+
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
         $this->setCache(Cache::factory(CacheEnum::REDIS, 60, ['server_address' => 'redis-server']));
     }
 
-    #[\Override]
+    #[Override]
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
@@ -33,87 +35,99 @@ class RedisCacheTest extends AbstractCache
 
             return match ($errno) {
                 E_USER_WARNING => true,
-                default => throw new \Exception($errstr.' -> '.$errfile.':'.$errline, 0),
+                default => throw new \Exception($errstr . ' -> ' . $errfile . ':' . $errline, 0),
             };
         });
     }
 
-    #[\Override]
+    #[Override]
     public function testArray(): void
     {
         parent::testArray();
     }
 
-    #[\Override]
+    #[Override]
     public function testClass(): void
     {
         parent::testClass();
     }
 
-    #[\Override]
+    #[Override]
     public function testClear(): void
     {
         parent::testClear();
     }
 
-    #[\Override]
+    #[Override]
     public function testClearAllCache(): void
     {
         parent::testClearAllCache();
     }
 
-    #[\Override]
+    #[Override]
     public function testExpireTtl(): void
     {
         parent::testExpireTtl();
     }
 
-    #[\Override]
+    #[Override]
     public function testFloat(): void
     {
         parent::testFloat();
     }
 
-    #[\Override]
+    #[Override]
     public function testIncrDecr(): void
     {
         parent::testIncrDecr();
     }
 
-    #[\Override]
+    #[Override]
     public function testInteger(): void
     {
         parent::testInteger();
     }
 
-    #[\Override]
+    #[Override]
     public function testString(): void
     {
         parent::testString();
     }
 
-    #[\Override]
+    #[Override]
     public function testIsConnected(): void
     {
         parent::testIsConnected();
     }
 
-    #[\Override]
+    #[Override]
     public function testRemainingTTL(): void
     {
         parent::testRemainingTTL();
     }
 
-    #[\Override]
+    #[Override]
     public function testEmptyDecrement(): void
     {
         parent::testEmptyDecrement();
     }
 
-    #[\Override]
+    #[Override]
     public function testEmptyIncrement(): void
     {
         parent::testEmptyIncrement();
+    }
+    
+    #[\Override]
+    public function testFailStringDecrement(): void
+    {
+        parent::testFailStringDecrement();
+    }
+
+    #[\Override]
+    public function testFailStringIncrement(): void
+    {
+        parent::testFailStringIncrement();
     }
 
     public function testMissingServer(): void
@@ -163,13 +177,30 @@ class RedisCacheTest extends AbstractCache
         $this->assertNull($cacheOtherPrefix->get($key));
     }
 
-    #[\Override]
+    public function testPrefixTTL(): void
+    {
+        $val = 10; // maradona
+        $key = 'test_prefix';
+        $cacheSamePrefix = Cache::factory(CacheEnum::REDIS, 60, ['key_prefix' => '', 'server_address' => 'redis-server']);
+        $cacheOtherPrefix = Cache::factory(CacheEnum::REDIS, 10, ['key_prefix' => 'other_', 'server_address' => 'redis-server']);
+        $this->getCache()->set($key, $val);
+        $this->assertIsInt($cacheSamePrefix->getRemainingTTL($key));
+        $this->assertNull($cacheOtherPrefix->getRemainingTTL($key));
+    }
+
+    public function testNegativeTTL(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        Cache::factory(CacheEnum::REDIS, -1, ['server_address' => 'redis-server']);
+    }
+
+    #[Override]
     public function testArrayDepth(): void
     {
         parent::testArrayDepth();
     }
 
-    #[\Override]
+    #[Override]
     public static function tearDownAfterClass(): void
     {
         restore_error_handler();

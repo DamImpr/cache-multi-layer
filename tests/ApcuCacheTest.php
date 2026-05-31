@@ -4,6 +4,9 @@ namespace CacheMultiLayer\Tests;
 
 use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Service\Cache;
+use Exception;
+use InvalidArgumentException;
+use Override;
 
 /**
  * APCU unit test class implementation.
@@ -12,7 +15,8 @@ use CacheMultiLayer\Service\Cache;
  */
 class ApcuCacheTest extends AbstractCache
 {
-    #[\Override]
+
+    #[Override]
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
@@ -22,100 +26,112 @@ class ApcuCacheTest extends AbstractCache
                 return false;
             }
 
-            throw new \Exception($errstr.' -> '.$errfile.':'.$errline, 0);
+            throw new Exception($errstr . ' -> ' . $errfile . ':' . $errline, 0);
             //            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
         });
         try {
             self::checkBeforeClass();
-        } catch (\Exception) {
-            echo PHP_EOL.'[APCU]'.PHP_EOL.' apc.enable_cli=1'.PHP_EOL;
+        } catch (Exception) {
+            echo PHP_EOL . '[APCU]' . PHP_EOL . ' apc.enable_cli=1' . PHP_EOL;
             exit;
         }
     }
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
         $this->setCache(Cache::factory(CacheEnum::APCU, 60, ['key_prefix' => 'pre_']));
     }
 
-    #[\Override]
+    #[Override]
     public function testArray(): void
     {
         parent::testArray();
     }
 
-    #[\Override]
+    #[Override]
     public function testClass(): void
     {
         parent::testClass();
     }
 
-    #[\Override]
+    #[Override]
     public function testClear(): void
     {
         parent::testClear();
     }
 
-    #[\Override]
+    #[Override]
     public function testClearAllCache(): void
     {
         parent::testClearAllCache();
     }
 
-    #[\Override]
+    #[Override]
     public function testExpireTtl(): void
     {
         parent::testExpireTtl();
     }
 
-    #[\Override]
+    #[Override]
     public function testFloat(): void
     {
         parent::testFloat();
     }
 
-    #[\Override]
+    #[Override]
     public function testIncrDecr(): void
     {
         parent::testIncrDecr();
     }
 
-    #[\Override]
+    #[Override]
     public function testInteger(): void
     {
         parent::testInteger();
     }
 
-    #[\Override]
+    #[Override]
     public function testString(): void
     {
         parent::testString();
     }
 
-    #[\Override]
+    #[Override]
     public function testIsConnected(): void
     {
         parent::testIsConnected();
     }
 
-    #[\Override]
+    #[Override]
     public function testRemainingTTL(): void
     {
         parent::testRemainingTTL();
     }
 
-    #[\Override]
+    #[Override]
     public function testEmptyDecrement(): void
     {
         parent::testEmptyDecrement();
     }
 
-    #[\Override]
+    #[Override]
     public function testEmptyIncrement(): void
     {
         parent::testEmptyIncrement();
+    }
+
+    #[\Override]
+    public function testFailStringDecrement(): void
+    {
+        parent::testFailStringDecrement();
+    }
+
+    #[\Override]
+    public function testFailStringIncrement(): void
+    {
+        parent::testFailStringIncrement();
     }
 
     public function testEnum(): void
@@ -134,26 +150,43 @@ class ApcuCacheTest extends AbstractCache
         $this->assertNull($cacheOtherPrefix->get($key));
     }
 
-    #[\Override]
+    public function testPrefixTTL(): void
+    {
+        $val = 10; // maradona
+        $key = 'test_prefix';
+        $cacheSamePrefix = Cache::factory(CacheEnum::APCU, 60, ['key_prefix' => 'pre_']);
+        $cacheOtherPrefix = Cache::factory(CacheEnum::APCU, 10, ['key_prefix' => 'other_']);
+        $this->getCache()->set($key, $val);
+        $this->assertIsInt($cacheSamePrefix->getRemainingTTL($key));
+        $this->assertNull($cacheOtherPrefix->getRemainingTTL($key));
+    }
+
+    public function testNegativeTTL(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        Cache::factory(CacheEnum::APCU, -1, ['key_prefix' => 'pre_']);
+    }
+
+    #[Override]
     public static function tearDownAfterClass(): void
     {
         parent::tearDownAfterClass();
         Cache::factory(CacheEnum::APCU, 60)->clearAllCache();
     }
 
-    #[\Override]
+    #[Override]
     public function testArrayDepth(): void
     {
         parent::testArrayDepth();
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private static function checkBeforeClass(): void
     {
         if (false === apcu_cache_info()) {
-            throw new \Exception('apcu cache info not loaded');
+            throw new Exception('apcu cache info not loaded');
         }
     }
 }

@@ -14,6 +14,7 @@ use CacheMultiLayer\Interface\Cacheable;
  */
 class ApcuCache extends Cache
 {
+
     #[\Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
@@ -63,8 +64,14 @@ class ApcuCache extends Cache
     public function getRemainingTTL(string $key): ?int
     {
         $keyInfo = apcu_key_info($this->getEffectiveKey($key));
-
-        return null !== $keyInfo ? $keyInfo['ttl'] : null;
+        if( null === $keyInfo){
+            return null;
+        }
+        $result = $keyInfo['creation_time'] + $keyInfo['ttl'] - time();
+        if($result < 0) {
+            return null;
+        }
+        return $result;
     }
 
     #[\Override]

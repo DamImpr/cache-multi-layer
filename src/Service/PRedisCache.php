@@ -4,7 +4,9 @@ namespace CacheMultiLayer\Service;
 
 use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Interface\Cacheable;
+use Override;
 use Predis\Client as PredisClient;
+use Predis\Response\ServerException;
 
 /**
  * PREDIS cache implementation.
@@ -13,10 +15,16 @@ use Predis\Client as PredisClient;
  */
 class PRedisCache extends Cache
 {
-    #[\Override]
+
+    #[Override]
     public function decrement(string $key, ?int $ttl = null): int|false
     {
-        $value = $this->predisClient->decr($this->getEffectiveKey($key));
+        try{
+            $value = $this->predisClient->decr($this->getEffectiveKey($key));
+        } catch (ServerException) {
+            //value has not numeric value
+            return false;
+        }
         if (empty($this->getRemainingTTL($key))) {
             $this->predisClient->expire($this->getEffectiveKey($key), $this->getTtlToUse($ttl));
         }
@@ -24,7 +32,7 @@ class PRedisCache extends Cache
         return $value;
     }
 
-    #[\Override]
+    #[Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
         $val = $this->predisClient->get($this->getEffectiveKey($key));
@@ -37,7 +45,7 @@ class PRedisCache extends Cache
         return is_array($valDecoded) ? $this->unserializeVal($valDecoded) : $valDecoded;
     }
 
-    #[\Override]
+    #[Override]
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
     {
         $data = is_array($val) ? $this->serializeValArray($val) : $this->serializeVal($val);
@@ -45,10 +53,15 @@ class PRedisCache extends Cache
         return null !== $this->predisClient->setex($this->getEffectiveKey($key), $this->getTtlToUse($ttl), json_encode($data));
     }
 
-    #[\Override]
+    #[Override]
     public function increment(string $key, ?int $ttl = null): int|false
     {
-        $value = $this->predisClient->incr($this->getEffectiveKey($key));
+        try{
+            $value = $this->predisClient->incr($this->getEffectiveKey($key));
+        } catch (ServerException) {
+            //value has not numeric value
+            return false;
+        }
         if (empty($this->getRemainingTTL($key))) {
             $this->predisClient->expire($this->getEffectiveKey($key), $this->getTtlToUse($ttl));
         }
@@ -56,39 +69,39 @@ class PRedisCache extends Cache
         return $value;
     }
 
-    #[\Override]
+    #[Override]
     public function clear(string $key): bool
     {
         return (bool) $this->predisClient->del($this->getEffectiveKey($key));
     }
 
-    #[\Override]
+    #[Override]
     public function clearAllCache(): bool
     {
-        return null !== $this->predisClient->flushall();
+        return 'OK' === (string) $this->predisClient->flushall();
     }
 
-    #[\Override]
+    #[Override]
     public function getRemainingTTL(string $key): ?int
     {
-        $ttl = $this->predisClient->ttl($key);
+        $ttl = $this->predisClient->ttl($this->getEffectiveKey($key));
 
         return $ttl >= 0 ? $ttl : null;
     }
 
-    #[\Override]
+    #[Override]
     public function isConnected(): bool
     {
         return null !== $this->predisClient->ping();
     }
 
-    #[\Override]
+    #[Override]
     public function getEnum(): CacheEnum
     {
         return CacheEnum::PREDIS;
     }
 
-    #[\Override]
+    #[Override]
     protected function checkInstanceIsCorrect(object $instance): bool
     {
         return $instance instanceof PredisClient;
@@ -112,7 +125,7 @@ class PRedisCache extends Cache
         }
     }
 
-    #[\Override]
+    #[Override]
     protected function getMandatoryConfig(): array
     {
         return $this->mandatoryKeys;

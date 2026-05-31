@@ -11,12 +11,13 @@ use CacheMultiLayer\Interface\Cacheable;
  */
 class CacheManagerImpl extends CacheManager
 {
+
     private array $caches = [];
 
     #[\Override]
     public function appendCache(Cache $cache): bool
     {
-        if (!empty(array_filter($this->caches, fn (Cache $current): bool => $cache->getEnum() === $current->getEnum()))) {
+        if (!empty(array_filter($this->caches, fn(Cache $current): bool => $cache->getEnum() === $current->getEnum()))) {
             return false;
         }
 
@@ -37,7 +38,7 @@ class CacheManagerImpl extends CacheManager
             $res[$i] = $this->caches[$i]->set($key, $val, $ttl);
         }
 
-        return array_reduce($res, fn (bool $carry, bool $item) => $carry && $item, true);
+        return array_reduce($res, fn(bool $carry, bool $item) => $carry && $item, true);
     }
 
     #[\Override]
@@ -53,8 +54,11 @@ class CacheManagerImpl extends CacheManager
             return null;
         }
         $ttlRemaining = $this->caches[$i - 1]->getRemainingTTL($key);
+        if ($ttlRemaining <= 0) {
+            $ttlRemaining = null;
+        }
         for ($j = $i - 2; $j >= 0; --$j) {
-            $ttl = min($this->caches[$j]->getTtl(), $ttlRemaining);
+            $ttl = null !== $ttlRemaining ? min($this->caches[$j]->getTtl(), $ttlRemaining) : null;
             $this->caches[$j]->set($key, $data, $ttl);
         }
 

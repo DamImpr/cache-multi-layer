@@ -64,7 +64,7 @@ class RedisCache extends Cache
     #[\Override]
     public function clearAllCache(): bool
     {
-        return null !== $this->redis->flushall();
+        return (bool)$this->redis->flushall();
     }
 
     #[\Override]
@@ -78,7 +78,7 @@ class RedisCache extends Cache
     #[\Override]
     public function isConnected(): bool
     {
-        return null !== $this->redis->ping();
+        return (bool)$this->redis->ping();
     }
 
     #[\Override]
