@@ -5,7 +5,6 @@ namespace CacheMultiLayer\Tests;
 use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Service\Cache;
 use CacheMultiLayer\Tests\Entity\Foo;
-use Override;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,14 +23,14 @@ abstract class AbstractCache extends TestCase
         $this->cache = $cache;
     }
 
-    #[Override]
+    #[\Override]
     public static function tearDownAfterClass(): void
     {
         parent::tearDownAfterClass();
         restore_error_handler();
     }
 
-    #[Override]
+    #[\Override]
     protected function setUp(): void
     {
         $this->foo = (new Foo())
@@ -176,7 +175,7 @@ abstract class AbstractCache extends TestCase
         $actual = $this->cache->decrement($key);
         $this->assertEquals($expected, $actual);
     }
-    
+
     public function testFailStringIncrement(): void
     {
         $key = 'test_fail_increment';
@@ -200,7 +199,7 @@ abstract class AbstractCache extends TestCase
         $key = 'test_remaining_ttl';
         $val = 1;
         $ttl = 10;
-        $res = $this->cache->set($key, $val,$ttl);
+        $res = $this->cache->set($key, $val, $ttl);
         $this->assertTrue($res);
         sleep(2);
         $ttlActual = $this->cache->getRemainingTTL($key);

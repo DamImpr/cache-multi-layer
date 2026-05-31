@@ -9,7 +9,6 @@ use Exception;
  *
  * @author Damiano Improta <code@damianoimprota.it> aka Drizella
  */
-class CacheConnectionException extends Exception
+class CacheConnectionException extends \Exception
 {
-
 }

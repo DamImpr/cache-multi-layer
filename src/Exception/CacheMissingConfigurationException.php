@@ -9,7 +9,6 @@ use Exception;
  *
  * @author Damiano Improta <code@damianoimprota.it>
  */
-class CacheMissingConfigurationException extends Exception
+class CacheMissingConfigurationException extends \Exception
 {
-    
 }

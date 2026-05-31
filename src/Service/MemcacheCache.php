@@ -5,7 +5,6 @@ namespace CacheMultiLayer\Service;
 use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Exception\CacheConnectionException;
 use CacheMultiLayer\Interface\Cacheable;
-use Override;
 
 /**
  * MEMCACHE cache implementation.
@@ -14,26 +13,25 @@ use Override;
  */
 class MemcacheCache extends Cache
 {
-
-    #[Override]
+    #[\Override]
     protected function getMandatoryConfig(): array
     {
         return $this->mandatoryKeys;
     }
 
-    #[Override]
+    #[\Override]
     public function clear(string $key): bool
     {
         return $this->memcache->delete($this->getEffectiveKey($key));
     }
 
-    #[Override]
+    #[\Override]
     public function clearAllCache(): bool
     {
         return $this->memcache->flush();
     }
 
-    #[Override]
+    #[\Override]
     public function decrement(string $key, ?int $ttl = null): int|false
     {
         $pair = $this->memcache->get($this->getEffectiveKey($key));
@@ -55,7 +53,7 @@ class MemcacheCache extends Cache
         return $value;
     }
 
-    #[Override]
+    #[\Override]
     public function get(string $key): int|float|string|Cacheable|array|null
     {
         $val = $this->memcache->get($this->getEffectiveKey($key));
@@ -68,13 +66,13 @@ class MemcacheCache extends Cache
         return is_array($valDecoded) ? $this->unserializeVal($valDecoded) : $valDecoded;
     }
 
-    #[Override]
+    #[\Override]
     public function getEnum(): CacheEnum
     {
         return CacheEnum::MEMCACHE;
     }
 
-    #[Override]
+    #[\Override]
     public function getRemainingTTL(string $key): ?int
     {
         $val = $this->memcache->get($this->getEffectiveKey($key));
@@ -82,10 +80,11 @@ class MemcacheCache extends Cache
             return null;
         }
         $res = $val['expires_at'] - time();
+
         return $res >= 0 ? $res : null;
     }
 
-    #[Override]
+    #[\Override]
     public function increment(string $key, ?int $ttl = null): int|false
     {
         $pair = $this->memcache->get($this->getEffectiveKey($key));
@@ -107,13 +106,13 @@ class MemcacheCache extends Cache
         return $value;
     }
 
-    #[Override]
+    #[\Override]
     public function isConnected(): bool
     {
         return false !== $this->memcache->getStats();
     }
 
-    #[Override]
+    #[\Override]
     public function set(string $key, int|float|string|Cacheable|array $val, ?int $ttl = null): bool
     {
         $values = is_array($val) ? $this->serializeValArray($val) : $this->serializeVal($val);
@@ -125,7 +124,7 @@ class MemcacheCache extends Cache
         return $this->memcache->set($this->getEffectiveKey($key), $dataToStore, $this->compress ? MEMCACHE_COMPRESSED : 0, $ttlToUse);
     }
 
-    #[Override]
+    #[\Override]
     protected function checkInstanceIsCorrect(object $instance): bool
     {
         return $instance instanceof \Memcache;

@@ -5,7 +5,6 @@ namespace CacheMultiLayer\Tests;
 use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Service\CacheConfiguration;
 use CacheMultiLayer\Service\CacheManager;
-use Override;
 
 /**
  * manager one level cache unit test class implementation.
@@ -14,122 +13,120 @@ use Override;
  */
 class CacheManagerOneLevelTest extends AbstractCacheManager
 {
-
-    #[Override]
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
         $this->setCacheManager(CacheManager::factory(self::getConfig()));
     }
 
-    #[Override]
+    #[\Override]
     public function testArray(): void
     {
         parent::testArray();
     }
 
-    #[Override]
+    #[\Override]
     public function testClass(): void
     {
         parent::testClass();
     }
 
-    #[Override]
+    #[\Override]
     public function testClear(): void
     {
         parent::testClear();
     }
 
-    #[Override]
+    #[\Override]
     public function testClearAllCache(): void
     {
         parent::testClearAllCache();
     }
 
-    #[Override]
+    #[\Override]
     public function testExpireTtl(): void
     {
         parent::testExpireTtl();
     }
 
-    #[Override]
+    #[\Override]
     public function testFloat(): void
     {
         parent::testFloat();
     }
 
-    #[Override]
+    #[\Override]
     public function testIncrDecr(): void
     {
         parent::testIncrDecr();
     }
 
-    #[Override]
+    #[\Override]
     public function testInteger(): void
     {
         parent::testInteger();
     }
 
-    #[Override]
+    #[\Override]
     public function testString(): void
     {
         parent::testString();
     }
 
-    #[Override]
+    #[\Override]
     public function testEmptyCache(): void
     {
         parent::testEmptyCache();
     }
 
-    #[Override]
+    #[\Override]
     public function testDuplicateCache(): void
     {
         parent::testDuplicateCache();
     }
 
-    #[Override]
+    #[\Override]
     public function testDuplicateConfig(): void
     {
         parent::testDuplicateConfig();
     }
 
-    #[Override]
+    #[\Override]
     public function testArrayDepth(): void
     {
         parent::testArrayDepth();
     }
 
-    #[Override]
+    #[\Override]
     public function testEmptyDecrement(): void
     {
         parent::testEmptyDecrement();
     }
 
-    #[Override]
+    #[\Override]
     public function testEmptyIncrement(): void
     {
         parent::testEmptyIncrement();
     }
 
-    #[Override]
+    #[\Override]
     public function testFailStringDecrement(): void
     {
         parent::testFailStringDecrement();
     }
 
-    #[Override]
+    #[\Override]
     public function testFailStringIncrement(): void
     {
         parent::testFailStringIncrement();
     }
 
-    #[Override]
+    #[\Override]
     public function testRemainingTTL(): void
     {
         parent::testRemainingTTL();
     }
-    
 
     private static function getConfig(): CacheConfiguration
     {

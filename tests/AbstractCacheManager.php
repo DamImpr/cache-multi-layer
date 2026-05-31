@@ -7,7 +7,6 @@ use CacheMultiLayer\Service\Cache;
 use CacheMultiLayer\Service\CacheConfiguration;
 use CacheMultiLayer\Service\CacheManager;
 use CacheMultiLayer\Tests\Entity\Foo;
-use Override;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -18,7 +17,6 @@ use PHPUnit\Framework\TestCase;
  */
 class AbstractCacheManager extends TestCase
 {
-
     private ?CacheManager $cacheManager = null;
     private ?Foo $foo = null;
 
@@ -32,7 +30,7 @@ class AbstractCacheManager extends TestCase
         return $this->cacheManager;
     }
 
-    #[Override]
+    #[\Override]
     protected function setUp(): void
     {
         $this->foo = (new Foo())
@@ -190,10 +188,10 @@ class AbstractCacheManager extends TestCase
     public function testArrayDepth(): void
     {
         $x = [1, 2, 3, null, [
-                1, 2, 3, null, [
-                    1, 2, 3, null,
-                ],
+            1, 2, 3, null, [
+                1, 2, 3, null,
             ],
+        ],
         ];
         $key = 'test_array_depth_manager';
         $res = $this->cacheManager->set($key, $x);
@@ -208,7 +206,7 @@ class AbstractCacheManager extends TestCase
         $expected = 1;
         $resultSet = $this->cacheManager->increment($key);
         foreach ($resultSet as $cacheKey => $actual) {
-            $this->assertEquals($expected, $actual, "cache current " . $cacheKey);
+            $this->assertEquals($expected, $actual, 'cache current '.$cacheKey);
         }
     }
 
@@ -218,7 +216,7 @@ class AbstractCacheManager extends TestCase
         $expected = -1;
         $resultSet = $this->cacheManager->decrement($key);
         foreach ($resultSet as $cacheKey => $actual) {
-            $this->assertEquals($expected, $actual, "cache current " . $cacheKey);
+            $this->assertEquals($expected, $actual, 'cache current '.$cacheKey);
         }
     }
 
@@ -229,7 +227,7 @@ class AbstractCacheManager extends TestCase
         $this->cacheManager->set($key, $value);
         $resultSet = $this->cacheManager->increment($key);
         foreach ($resultSet as $cacheKey => $actual) {
-            $this->assertFalse($actual, "cache current " . $cacheKey);
+            $this->assertFalse($actual, 'cache current '.$cacheKey);
         }
     }
 
@@ -240,7 +238,7 @@ class AbstractCacheManager extends TestCase
         $this->cacheManager->set($key, $value);
         $resultSet = $this->cacheManager->decrement($key);
         foreach ($resultSet as $cacheKey => $actual) {
-            $this->assertFalse($actual, "cache current " . $cacheKey);
+            $this->assertFalse($actual, 'cache current '.$cacheKey);
         }
     }
 
@@ -254,8 +252,8 @@ class AbstractCacheManager extends TestCase
         sleep(2);
         $resultSet = $this->cacheManager->getRemainingTTL($key);
         foreach ($resultSet as $cacheKey => $actual) {
-            $this->assertNotNull($actual, "cache current " . $cacheKey);
-            $this->assertLessThan(60, $actual, "cache current " . $cacheKey);
+            $this->assertNotNull($actual, 'cache current '.$cacheKey);
+            $this->assertLessThan(60, $actual, 'cache current '.$cacheKey);
         }
     }
 

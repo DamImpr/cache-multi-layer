@@ -14,7 +14,6 @@ use CacheMultiLayer\Tests\Entity\Foo;
  */
 class CacheManagerDryRunTest extends AbstractCacheManager
 {
-
     #[\Override]
     protected function setUp(): void
     {
@@ -130,10 +129,10 @@ class CacheManagerDryRunTest extends AbstractCacheManager
     public function testArrayDepth(): void
     {
         $x = [1, 2, 3, null, [
-                1, 2, 3, null, [
-                    1, 2, 3, null,
-                ],
+            1, 2, 3, null, [
+                1, 2, 3, null,
             ],
+        ],
         ];
         $key = 'test_array_depth';
         $res = $this->getCacheManager()->set($key, $x);
