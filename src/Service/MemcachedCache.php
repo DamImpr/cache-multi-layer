@@ -13,7 +13,6 @@ use CacheMultiLayer\Interface\Cacheable;
  */
 class MemcachedCache extends Cache
 {
-
     #[\Override]
     protected function getMandatoryConfig(): array
     {
@@ -36,7 +35,7 @@ class MemcachedCache extends Cache
     public function decrement(string $key, ?int $ttl = null): int|false
     {
         $pair = $this->memcached->get($this->getEffectiveKey($key));
-        if ($this->memcached->getResultCode() === \Memcached::RES_NOTFOUND) {
+        if (\Memcached::RES_NOTFOUND === $this->memcached->getResultCode()) {
             $this->set($key, -1, $ttl);
 
             return -1;
@@ -58,7 +57,7 @@ class MemcachedCache extends Cache
     public function get(string $key): int|float|string|Cacheable|array|null
     {
         $val = $this->memcached->get($this->getEffectiveKey($key));
-        if ($this->memcached->getResultCode() === \Memcached::RES_NOTFOUND) {
+        if (\Memcached::RES_NOTFOUND === $this->memcached->getResultCode()) {
             return null;
         }
 
@@ -77,7 +76,7 @@ class MemcachedCache extends Cache
     public function getRemainingTTL(string $key): ?int
     {
         $val = $this->memcached->get($this->getEffectiveKey($key));
-        if ($this->memcached->getResultCode() === \Memcached::RES_NOTFOUND) {
+        if (\Memcached::RES_NOTFOUND === $this->memcached->getResultCode()) {
             return null;
         }
         $res = $val['expires_at'] - time();
@@ -89,7 +88,7 @@ class MemcachedCache extends Cache
     public function increment(string $key, ?int $ttl = null): int|false
     {
         $pair = $this->memcached->get($this->getEffectiveKey($key));
-        if ($this->memcached->getResultCode() === \Memcached::RES_NOTFOUND) {
+        if (\Memcached::RES_NOTFOUND === $this->memcached->getResultCode()) {
             $this->set($key, 1, $ttl);
 
             return 1;
@@ -112,7 +111,7 @@ class MemcachedCache extends Cache
     {
         $version = $this->memcached->getVersion();
 
-        return $version !== false && !in_array('0.0.0', $version);
+        return false !== $version && !in_array('0.0.0', $version);
     }
 
     #[\Override]
@@ -152,8 +151,8 @@ class MemcachedCache extends Cache
             $this->memcached->setOption(\Memcached::OPT_COMPRESSION, $configuration['compress'] ?? false);
             $this->memcached->setOption(\Memcached::OPT_BINARY_PROTOCOL, $configuration['opt_binary_protocol'] ?? false);
         }
-        if(!$this->isConnected()){
-            throw new \Exception("no connection found");
+        if (!$this->isConnected()) {
+            throw new \Exception('no connection found');
         }
     }
 
