@@ -5,8 +5,12 @@ namespace CacheMultiLayer\Tests;
 use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Service\Cache;
+use Exception;
+use InvalidArgumentException;
 use Memcached;
 use Override;
+
+
 
 /**
  * MEMCACHED unit test class implementation.
@@ -15,7 +19,7 @@ use Override;
  */
 class MemcachedCacheTest extends AbstractCache
 {
-    #[Override]
+     #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -34,7 +38,7 @@ class MemcachedCacheTest extends AbstractCache
 
             return match ($errno) {
                 E_USER_WARNING => true,
-                default => throw new \Exception($errstr.' -> '.$errfile.':'.$errline, 0),
+                default => throw new Exception($errstr.' -> '.$errfile.':'.$errline, 0),
             };
 
             //            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
@@ -119,23 +123,52 @@ class MemcachedCacheTest extends AbstractCache
         parent::testRemainingTTL();
     }
 
+    #[Override]
+    public function testFailStringDecrement(): void
+    {
+        parent::testFailStringDecrement();
+    }
+
+    #[Override]
+    public function testFailStringIncrement(): void
+    {
+        parent::testFailStringIncrement();
+    }
+
     public function testMissingServer(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
         Cache::factory(CacheEnum::MEMCACHED, 60, ['port' => 11211]);
     }
 
+    public function testNegativeTTL(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        Cache::factory(CacheEnum::MEMCACHED, -1, ['server_address' => 'memcache-server']);
+    }
+
+    public function testConnectionPersistent(): void
+    {
+        $this->assertTrue(
+            Cache::factory(CacheEnum::MEMCACHED, 60, [
+                'server_address' => 'memcache-server',
+                'persistent' => true,
+                'persistentId' => time(),
+            ])->isConnected()
+        );
+    }
+
     public function testConnectionNotFound(): void
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         Cache::factory(CacheEnum::MEMCACHED, 60, ['server_address' => 'ip-no-memcache'])->isConnected();
     }
 
     public function testInstance(): void
     {
-        $memcached = new Memcached();
-        $memcached->addServer("memcache-server", 11211);
-        Cache::factory(CacheEnum::MEMCACHED, 60, ['instance' => $memcached]);
+        $memcache = new Memcached();
+        $memcache->addServer('memcache-server', 11211);
+        Cache::factory(CacheEnum::MEMCACHED, 60, ['instance' => $memcache]);
         $this->assertTrue(true); // no exception throwns
     }
 
@@ -159,6 +192,28 @@ class MemcachedCacheTest extends AbstractCache
         $this->getCache()->set($key, $val);
         $this->assertEquals($cacheSamePrefix->get($key), $val);
         $this->assertNull($cacheOtherPrefix->get($key));
+    }
+
+    public function testCompression(): void
+    {
+        $cache = Cache::factory(CacheEnum::MEMCACHED, 60, ['key_prefix' => 'compressed_', 'server_address' => 'memcache-server', 'compress' => 1]);
+        $key = 'test_compression';
+        $val = 1;
+        $resSet = $cache->set($key, $val);
+        $this->assertTrue($resSet);
+        $actual = $cache->get($key);
+        $this->assertEquals($val, $actual);
+    }
+
+    public function testPrefixTTL(): void
+    {
+        $val = 10; // maradona
+        $key = 'test_prefix';
+        $cacheSamePrefix = Cache::factory(CacheEnum::MEMCACHED, 60, ['key_prefix' => '', 'server_address' => 'memcache-server']);
+        $cacheOtherPrefix = Cache::factory(CacheEnum::MEMCACHED, 10, ['key_prefix' => 'other_', 'server_address' => 'memcache-server']);
+        $this->getCache()->set($key, $val);
+        $this->assertIsInt($cacheSamePrefix->getRemainingTTL($key));
+        $this->assertNull($cacheOtherPrefix->getRemainingTTL($key));
     }
 
     #[Override]
