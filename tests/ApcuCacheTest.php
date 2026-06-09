@@ -118,6 +118,18 @@ class ApcuCacheTest extends AbstractCache
         parent::testEmptyIncrement();
     }
 
+    #[\Override]
+    public function testFailStringDecrement(): void
+    {
+        parent::testFailStringDecrement();
+    }
+
+    #[\Override]
+    public function testFailStringIncrement(): void
+    {
+        parent::testFailStringIncrement();
+    }
+
     public function testEnum(): void
     {
         $this->doTestRealEnum(CacheEnum::APCU);
@@ -132,6 +144,23 @@ class ApcuCacheTest extends AbstractCache
         $this->getCache()->set($key, $val);
         $this->assertEquals($cacheSamePrefix->get($key), $val);
         $this->assertNull($cacheOtherPrefix->get($key));
+    }
+
+    public function testPrefixTTL(): void
+    {
+        $val = 10; // maradona
+        $key = 'test_prefix';
+        $cacheSamePrefix = Cache::factory(CacheEnum::APCU, 60, ['key_prefix' => 'pre_']);
+        $cacheOtherPrefix = Cache::factory(CacheEnum::APCU, 10, ['key_prefix' => 'other_']);
+        $this->getCache()->set($key, $val);
+        $this->assertIsInt($cacheSamePrefix->getRemainingTTL($key));
+        $this->assertNull($cacheOtherPrefix->getRemainingTTL($key));
+    }
+
+    public function testNegativeTTL(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Cache::factory(CacheEnum::APCU, -1, ['key_prefix' => 'pre_']);
     }
 
     #[\Override]

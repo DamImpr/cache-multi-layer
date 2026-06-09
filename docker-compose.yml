@@ -17,15 +17,25 @@ services:
       - cache-multi-layer-network
     depends_on:
       redis-server:
-        condition: service_started
+        condition: service_healthy
       memcache-server:
-        condition: service_started
+        condition: service_healthy
   redis-server:
     image: redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks:
       - cache-multi-layer-network
   memcache-server:
     image: memcached
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/11211'"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks:
       - cache-multi-layer-network
 networks:

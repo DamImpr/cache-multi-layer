@@ -53,8 +53,11 @@ class CacheManagerImpl extends CacheManager
             return null;
         }
         $ttlRemaining = $this->caches[$i - 1]->getRemainingTTL($key);
+        if ($ttlRemaining <= 0) {
+            $ttlRemaining = null;
+        }
         for ($j = $i - 2; $j >= 0; --$j) {
-            $ttl = min($this->caches[$j]->getTtl(), $ttlRemaining);
+            $ttl = null !== $ttlRemaining ? min($this->caches[$j]->getTtl(), $ttlRemaining) : null;
             $this->caches[$j]->set($key, $data, $ttl);
         }
 

@@ -3,8 +3,8 @@
 namespace CacheMultiLayer\Service;
 
 use CacheMultiLayer\Enum\CacheEnum;
+use CacheMultiLayer\Exception\CacheConnectionException;
 use CacheMultiLayer\Interface\Cacheable;
-use Memcache;
 
 /**
  * MEMCACHE cache implementation.
@@ -80,8 +80,9 @@ class MemcacheCache extends Cache
         if (empty($val)) {
             return null;
         }
+        $res = $val['expires_at'] - time();
 
-        return $val['expires_at'] - time();
+        return $res >= 0 ? $res : null;
     }
 
     #[\Override]
@@ -146,7 +147,7 @@ class MemcacheCache extends Cache
             }
 
             if (!$resultConnection) {
-                throw new \Exception('Connection not found');
+                throw new CacheConnectionException('Connection not found');
             }
         }
 

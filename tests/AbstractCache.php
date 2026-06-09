@@ -176,16 +176,35 @@ abstract class AbstractCache extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
+    public function testFailStringIncrement(): void
+    {
+        $key = 'test_fail_increment';
+        $value = 'foo';
+        $this->cache->set($key, $value);
+        $actual = $this->cache->increment($key);
+        $this->assertFalse($actual);
+    }
+
+    public function testFailStringDecrement(): void
+    {
+        $key = 'test_fail_decrement';
+        $value = 'foo';
+        $this->cache->set($key, $value);
+        $actual = $this->cache->decrement($key);
+        $this->assertFalse($actual);
+    }
+
     public function testRemainingTTL(): void
     {
-        $key = 'test_clear';
-        $x = 1;
-        $res = $this->cache->set($key, $x);
+        $key = 'test_remaining_ttl';
+        $val = 1;
+        $ttl = 10;
+        $res = $this->cache->set($key, $val, $ttl);
         $this->assertTrue($res);
         sleep(2);
-        $ttl = $this->cache->getRemainingTTL($key);
-        $this->assertNotNull($ttl);
-        $this->assertLessThanOrEqual(60, $ttl);
+        $ttlActual = $this->cache->getRemainingTTL($key);
+        $this->assertNotNull($ttlActual);
+        $this->assertLessThan(60, $ttlActual);
     }
 
     public function testIsConnected(): void

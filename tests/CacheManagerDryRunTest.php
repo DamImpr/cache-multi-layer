@@ -126,6 +126,88 @@ class CacheManagerDryRunTest extends AbstractCacheManager
     }
 
     #[\Override]
+    public function testArrayDepth(): void
+    {
+        $x = [1, 2, 3, null, [
+            1, 2, 3, null, [
+                1, 2, 3, null,
+            ],
+        ],
+        ];
+        $key = 'test_array_depth';
+        $res = $this->getCacheManager()->set($key, $x);
+        $this->assertTrue($res);
+        $val = $this->getCacheManager()->get($key);
+        $this->assertEmpty($val);
+    }
+
+    #[\Override]
+    public function testDuplicateCache(): void
+    {
+        parent::testDuplicateCache();
+    }
+
+    #[\Override]
+    public function testDuplicateConfig(): void
+    {
+        parent::testDuplicateConfig();
+    }
+
+    #[\Override]
+    public function testEmptyCache(): void
+    {
+        parent::testEmptyCache();
+    }
+
+    #[\Override]
+    public function testEmptyIncrement(): void
+    {
+        $key = 'test_empty_increment';
+        $resultSet = $this->getCacheManager()->increment($key);
+        $this->assertEmpty($resultSet);
+    }
+
+    #[\Override]
+    public function testEmptyDecrement(): void
+    {
+        $key = 'test_empty_decrement';
+        $resultSet = $this->getCacheManager()->decrement($key);
+        $this->assertEmpty($resultSet);
+    }
+
+    #[\Override]
+    public function testFailStringIncrement(): void
+    {
+        $key = 'test_fail_increment';
+        $value = 'foo';
+        $this->getCacheManager()->set($key, $value);
+        $resultSet = $this->getCacheManager()->increment($key);
+        $this->assertEmpty($resultSet);
+    }
+
+    #[\Override]
+    public function testFailStringDecrement(): void
+    {
+        $key = 'test_fail_decrement';
+        $value = 'foo';
+        $this->getCacheManager()->set($key, $value);
+        $resultSet = $this->getCacheManager()->decrement($key);
+        $this->assertEmpty($resultSet);
+    }
+
+    #[\Override]
+    public function testRemainingTTL(): void
+    {
+        $key = 'test_remaining_ttl';
+        $x = 1;
+        $res = $this->getCacheManager()->set($key, $x);
+        $this->assertTrue($res);
+        sleep(2);
+        $resultSet = $this->getCacheManager()->getRemainingTTL($key);
+        $this->assertEmpty($resultSet);
+    }
+
+    #[\Override]
     public static function tearDownAfterClass(): void
     {
         CacheManager::factory(self::getConfig())->clearAllCache();

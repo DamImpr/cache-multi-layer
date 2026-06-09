@@ -5,7 +5,6 @@ namespace CacheMultiLayer\Tests;
 use CacheMultiLayer\Enum\CacheEnum;
 use CacheMultiLayer\Exception\CacheMissingConfigurationException;
 use CacheMultiLayer\Service\Cache;
-use Exception;
 use Predis\Client;
 
 /**
@@ -117,6 +116,18 @@ class PRedisCacheTest extends AbstractCache
         parent::testEmptyIncrement();
     }
 
+    #[\Override]
+    public function testFailStringDecrement(): void
+    {
+        parent::testFailStringDecrement();
+    }
+
+    #[\Override]
+    public function testFailStringIncrement(): void
+    {
+        parent::testFailStringIncrement();
+    }
+
     public function testMissingServer(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
@@ -149,6 +160,12 @@ class PRedisCacheTest extends AbstractCache
         $this->assertTrue(true); // no exception throwns
     }
 
+    public function testNegativeTTL(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Cache::factory(CacheEnum::PREDIS, -1, ['server_address' => 'redis-server']);
+    }
+
     public function testMissingInstance(): void
     {
         $this->expectException(CacheMissingConfigurationException::class);
@@ -164,6 +181,17 @@ class PRedisCacheTest extends AbstractCache
         $this->getCache()->set($key, $val);
         $this->assertEquals($cacheSamePrefix->get($key), $val);
         $this->assertNull($cacheOtherPrefix->get($key));
+    }
+
+    public function testPrefixTTL(): void
+    {
+        $val = 10; // maradona
+        $key = 'test_prefix';
+        $cacheSamePrefix = Cache::factory(CacheEnum::PREDIS, 60, ['key_prefix' => '', 'server_address' => 'redis-server']);
+        $cacheOtherPrefix = Cache::factory(CacheEnum::PREDIS, 10, ['key_prefix' => 'other_', 'server_address' => 'redis-server']);
+        $this->getCache()->set($key, $val);
+        $this->assertIsInt($cacheSamePrefix->getRemainingTTL($key));
+        $this->assertNull($cacheOtherPrefix->getRemainingTTL($key));
     }
 
     #[\Override]
